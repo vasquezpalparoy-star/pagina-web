@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Centro de Copias, Imprenta Digital, Gigantografías y Diseño Gráfico. Soluciones integrales para empresas y estudiantes.">
+    <meta name="keywords" content="centro de copias, imprenta, impresión digital, copias, impresión de tesis, gigantografías, banners, anillados, impresión a color">
+    <title>Grafiplot - Centro de Copias e Imprenta Digital</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        brand: { 
+                            50: '#fef2f2', 100: '#fde6e6', 200: '#fbcaca', 300: '#f8a3a3', 
+                            400: '#f26e6e', 500: '#e31837', /* Rojo Vibrante del Logo */
+                            600: '#d0132d', 700: '#af0e24', 800: '#911122', 900: '#791421', 950: '#42060e' 
+                        },
+                        grafi: { 900: '#1a1a1a' } /* Negro Profundo del Logo */
+                    },
+                    boxShadow: { 
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
+                        'premium': '0 20px 40px -10px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide-left { animation: slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .zoom-in { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        /* Estilos del Logo Recreados de la imagen */
+        .logo-g { font-size: 2.3rem; letter-spacing: -0.06em; }
+        .logo-rafiplot { font-size: 2.3rem; letter-spacing: -0.04em; margin-left: -0.02em; }
+        .logo-vasquez { font-size: 0.95rem; letter-spacing: -0.01em; right: 2px; bottom: -0.5rem; }
+        
+        @media (min-width: 640px) {
+            .logo-g { font-size: 3rem; }
+            .logo-rafiplot { font-size: 3rem; }
+            .logo-vasquez { font-size: 1.25rem; bottom: -0.65rem; }
+        }
+        
+        /* Ocultar scrollbar pero permitir scroll para categorías horizontales */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .theme-switch { position:fixed;right:1rem;bottom:1rem;z-index:9998;padding:.75rem 1rem;border-radius:999px;color:white;font-weight:800;background:linear-gradient(135deg,#b21d43,#50215c);box-shadow:0 12px 30px #35142766; }
+        #cotizador {background:radial-gradient(circle at 12% 12%,#ffdbe5,transparent 38%),linear-gradient(125deg,#fff7fa,#edf0ff 62%,#f6eaff)}
+        #cotizador > div > .flex > div:first-child {background:linear-gradient(145deg,#fff,#fff8fb);box-shadow:0 25px 60px #3e16331c}
+        #cotizador > div > .flex > div:last-child > div {background:linear-gradient(145deg,#171b31,#48203f 70%,#801e40)}
+        [data-theme="dark"] {color-scheme:dark}
+        [data-theme="dark"] body {background:linear-gradient(145deg,#10111f,#21172a);color:#e7eaf2}
+        [data-theme="dark"] .bg-white,[data-theme="dark"] .bg-slate-50,[data-theme="dark"] .glass-nav {background:#1d2031!important}
+        [data-theme="dark"] #cotizador {background:radial-gradient(circle at 10% 15%,#592039,transparent 42%),linear-gradient(130deg,#121827,#242139 70%,#341c33)!important}
+        [data-theme="dark"] #cotizador > div > .flex > div:first-child {background:linear-gradient(145deg,#24283a,#302237)!important}
+        [data-theme="dark"] .logo-g,[data-theme="dark"] .logo-vasquez {color:#f3f4fa!important}
+        [data-theme="dark"] .text-slate-900,[data-theme="dark"] .text-slate-800,[data-theme="dark"] .text-slate-700 {color:#f3f4fa!important}
+        [data-theme="dark"] .text-slate-500,[data-theme="dark"] .text-slate-600 {color:#bbc3d4!important}
+        [data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea {background:#272b3c!important;color:#f6f6fa!important;border-color:#50546b!important}
+        .auto-field {display:block;width:100%;padding:.75rem;border:1px solid #cbd5e1;border-radius:.8rem;background:#fff;font-size:.875rem;margin-top:.4rem;min-width:0}
+        .auto-label {font-size:.75rem;font-weight:700;color:inherit}
+        .auto-summary {background:linear-gradient(145deg,#191c34,#542240);color:#fff;border-radius:1.5rem;padding:1.75rem}
+        .auto-summary p {color:#e2dbe7}
+        .auto-summary .auto-line {display:flex;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #ffffff22;font-size:.85rem}
+        [data-theme="dark"] .border-slate-200,[data-theme="dark"] .border-slate-100 {border-color:#46495c!important}
+    </style>
+</head>
+<body class="h-full bg-[#f8fafc] text-slate-900 overflow-x-hidden selection:bg-brand-200">
+
+    <button type="button" data-theme-toggle onclick="window.toggleTheme()" class="theme-switch">🌙 Modo oscuro</button>
+    <!-- Contenedor global de alertas -->
+    <div id="toast-container" class="fixed top-4 right-4 sm:top-6 sm:right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Raíz de la Aplicación -->
+    <div id="root" class="min-h-screen flex flex-col transition-opacity duration-300">
+        <div class="flex-1 flex flex-col items-center justify-center bg-white">
+            <div class="w-16 h-16 border-4 border-slate-100 border-t-brand-600 rounded-full animate-spin"></div>
+            <p class="text-slate-500 font-medium mt-6 animate-pulse text-sm tracking-wide uppercase">Conectando a Grafiplot Platform...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // CONFIGURACIÓN DE TU FIREBASE REAL EXTRAÍDO DE TU ARCHIVO CONFIGURADO
+        const USER_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyClluUAu9eVV2cdh0GGA2-VdyHDaZilZHo",
+            authDomain: "pagina-web-grafiplot-oficial.firebaseapp.com",
+            databaseURL: "https://pagina-web-grafiplot-oficial-default-rtdb.firebaseio.com",
+            projectId: "pagina-web-grafiplot-oficial",
+            storageBucket: "pagina-web-grafiplot-oficial.firebasestorage.app",
+            messagingSenderId: "116976625167",
+            appId: "1:116976625167:web:27c27cc4abe77ccacfa57a",
+            measurementId: "G-ESY8JXWSVG"
+        };
+
+        const INVENTORY_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBYrKgwH889S6A9Ahoc7E9ZAkpvavFkEsc",
+            authDomain: "imventario-105b7.firebaseapp.com",
+            projectId: "imventario-105b7",
+            storageBucket: "imventario-105b7.firebasestorage.app",
+            messagingSenderId: "25017694564",
+            appId: "1:25017694564:web:45b14399aed811d9202271"
+        };
+
+        const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'grafiplot-tienda-v4';
+
+        const DEFAULT_SETTINGS = {
+            storeName: 'Grafiplot Vasquez',
+            ruc: '20601831881',
+            companyName: 'Grafiplot Vasquez S.A.C.',
+            announcement: '💥 ¡NUEVOS SERVICIOS DE IMPRENTA DIGITAL Y GIGANTOGRAFÍAS! 💥',
+            heroBanner: 'https://images.unsplash.com/photo-1598520106830-8c45c2035460?auto=format&fit=crop&q=80&w=1600',
+            heroTitle: 'Centro de Copias e Impresión Profesional',
+            heroSubtitle: 'Soluciones integrales de diseño gráfico, papelería empresarial, gigantografías y venta de equipos plotter de alta resolución.',
+            contactAddress: 'Av. Garcilaso de la Vega 1236, Lima, Perú',
+            contactPhone: '51952628844',
+            contactEmail: 'ventas@grafiplot.com',
+            mapLink: 'https://maps.app.goo.gl/Limacentro',
+            footerAbout: 'Líderes en brindar soluciones integrales para la industria publicitaria, estudiantes y empresas. Calidad y rapidez garantizada.',
+            footerSchedule: 'Lunes a Sábado: 9:00 AM - 7:00 PM',
+            socialFacebook: 'https://facebook.com',
+            socialInstagram: 'https://instagram.com',
+            socialTiktok: 'https://tiktok.com',
+            socialYoutube: 'https://youtube.com',
+            footerLinksTitle: 'Atención al Cliente',
+            footerLink1Text: 'Consultar Soporte Técnico',
+            footerLink1Url: '#',
+            footerLink2Text: 'Cotizaciones para Empresas',
+            footerLink2Url: '#',
+            adminPassword: 'admin',
+            // Nuevos campos SEO
+            seoTitle: 'Grafiplot - Imprenta, Gigantografías y Equipos',
+            seoDescription: 'Tu centro integral de impresión digital, copias, planos y diseño gráfico. Atención rápida y profesional a nivel nacional.',
+            autoPrices: {}
+        };
+
+        const state = {
+            view: 'store', 
+            adminTab: 'dashboard', 
+            isAdminAuthenticated: false,
+            showAdminLogin: false,
+            isLoaded: false,
+            connectionStatus: 'connecting',
+            connectionError: '',
+            inventoryStatus: 'connecting',
+            inventoryError: '',
+            
+            // Colecciones de Firebase
+            products: [],
+            services: [],
+            quotes: [],
+            orders: [],
+            testimonials: [],
+            faqs: [],
+            
+            settings: { ...DEFAULT_SETTINGS },
+            
+            // UI States
+            searchTerm: '',
+            selectedCategory: 'Todas',
+            filters: { onlyOffers: false, onlyNew: false, brand: '' },
+            sortBy: 'recent',
+            selectedProduct: null,
+            activeDetailImage: '',
+            isMobileMenuOpen: false,
+            
+            // Admin Modals
+            adminModalOpen: false,
+            editingProduct: null,
+            deleteConfirmOpen: false,
+            productToDelete: null,
+            
+            // Carrito
+            cart: [],
+            isCartOpen: false,
+            
+            // Nuevos Formularios y Estados
+            autoQuote: { client: '', phone: '', pages: 1, copies: 1, format: 'A4_1c', tariff: 'menor', color: 'color', binding: false, spiral: 'Negro', extra: 'none', design: false, urgent: false }
+        };
+
+        let db, auth;
+
+        window.showToast = (title, message, type = 'info') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'i';
+            const bgColor = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-grafi-900';
+            
+            toast.className = `slide-up flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] pointer-events-auto overflow-hidden relative`;
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-xl ${bgColor} text-white flex items-center justify-center shrink-0 font-black shadow-inner">${icon}</div>
+                <div class="flex-1 pt-1">
+                    <h4 class="font-black text-slate-900 text-sm leading-none mb-1">${title}</h4>
+                    <p class="text-xs text-slate-500 font-medium">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full', 'transition', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        };
+
+        window.formatPrice = (price) => parseFloat(price).toFixed(2);
+
+        let inventoryUnsubscribe = null;
+        const inventoryText = value => typeof value === 'string' ? value : '';
+        const inventoryNumber = value => Number.isFinite(Number(value)) ? Math.max(0,Number(value)) : 0;
+        function inventoryImage(value) {
+            try { const url = new URL(value); return ['https:','http:'].includes(url.protocol) ? url.href : ''; } catch { return ''; }
+        }
+        function normalizeInventoryProduct(snapshot) {
+            const data = snapshot.data();
+            const images=(Array.isArray(data.images)?data.images:[]).map(img=>inventoryImage(typeof img==='string'?img:img?.url)).filter(Boolean);
+            if(!images.length && data.imageUrl) { const image=inventoryImage(data.imageUrl); if(image) images.push(image); }
+            const isService=data.category==='Servicio';
+            // Only public catalog fields enter the website view model.
+            return {id:snapshot.id,name:inventoryText(data.name)||'Producto sin nombre',description:inventoryText(data.description),category:inventoryText(data.category)||'Otros',
+                price:inventoryNumber(data.price),bulkPrice:inventoryNumber(data.bulkPrice),stock:Math.floor(inventoryNumber(data.stock)),measureUnit:inventoryText(data.measureUnit)||'unidades',sku:inventoryText(data.barcode),
+                image:images[0]||'',additionalImages:images.slice(1),isPriority:data.isPriority===true,isService,allowCart:!isService,isActive:true,isOffer:false,isNew:false,
+                createdAt:Date.parse(data.updatedAt)||0};
+        }
+        function canOrderProduct(p) { return state.inventoryStatus==='connected' && !p.isService && p.stock>0; }
+        function stockLabel(p) {
+            if(p.isService) return 'Servicio · consultar disponibilidad';
+            if(state.inventoryStatus!=='connected') return 'Stock por confirmar';
+            return p.stock>0 ? `En stock: ${p.stock} ${esc(p.measureUnit)}` : 'Sin stock';
+        }
+        function inventoryStatusText() {
+            return ({connecting:'Actualizando productos y existencias…',connected:'Productos y stock actualizados desde el inventario.',cached:'Sin conexión confirmada. Existencias por verificar.',error:'No se pudo actualizar el inventario. Consulta disponibilidad por WhatsApp.'})[state.inventoryStatus];
+        }
+        function reconcileInventoryViews() {
+            const byId=new Map(state.products.map(p=>[p.id,p]));
+            if(state.selectedProduct) {
+                state.selectedProduct=byId.get(state.selectedProduct.id)||null;
+                if(state.selectedProduct && ![state.selectedProduct.image,...state.selectedProduct.additionalImages].includes(state.activeDetailImage)) state.activeDetailImage=state.selectedProduct.image;
+            }
+            state.cart=state.cart.flatMap(item=>{
+                const product=byId.get(item.product.id);
+                return product && !product.isService && product.stock>0 ? [{product,quantity:Math.min(item.quantity,product.stock)}] : [];
+            });
+            if(state.selectedCategory!=='Todas' && !state.products.some(p=>p.category===state.selectedCategory)) state.selectedCategory='Todas';
+        }
+        function applyInventorySnapshot(snapshot) {
+            state.products=snapshot.docs.map(normalizeInventoryProduct);
+            state.inventoryStatus=snapshot.metadata?.fromCache?'cached':'connected';
+            state.inventoryError='';
+            reconcileInventoryViews();
+            if(!(state.view==='admin' && state.adminTab==='settings')) render();
+        }
+        async function initInventoryReader() {
+            try {
+                const inventoryApp=initializeApp(INVENTORY_FIREBASE_CONFIG,'grafiplot-inventory-reader');
+                const inventoryAuth=getAuth(inventoryApp);
+                const inventoryDb=getFirestore(inventoryApp);
+                await signInAnonymously(inventoryAuth);
+                if(inventoryUnsubscribe) inventoryUnsubscribe();
+                inventoryUnsubscribe=onSnapshot(collection(inventoryDb,'inventory'),{includeMetadataChanges:true},applyInventorySnapshot,error=>{
+                    console.error('Inventory read:',error);
+                    state.inventoryStatus='error';state.inventoryError=error.code||'unavailable';
+                    if(!(state.view==='admin' && state.adminTab==='settings')) render();
+                });
+            } catch(error) {
+                console.error('Inventory connection:',error);
+                state.inventoryStatus='error';state.inventoryError=error.code||'unavailable';render();
+            }
+        }
+
+        async function initCloudStore() {
+            try {
+                const app = initializeApp(USER_FIREBASE_CONFIG);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                await signInAnonymously(auth);
+
+                if (!auth.currentUser) throw new Error("No se pudo iniciar sesión anónima.");
+                state.connectionStatus = 'connected';
+                setupRealtimeListeners();
+            } catch (error) {
+                console.error("Error iniciando base de datos:", error);
+                state.connectionStatus = 'error';
+                let errorMsg = error.message || "Fallo en la red de la nube.";
+                if (error.code === 'auth/operation-not-allowed') {
+                    errorMsg = "ATENCIÓN: Activa la Autenticación 'Anónima' en tu consola Firebase.";
+                }
+                state.connectionError = errorMsg;
+                window.showToast("Modo Local", "Base de datos desconectada. Mostrando interfaz básica.", "error");
+                state.isLoaded = true; 
+                render();
+            }
+        }
+
+        function updateSEO() {
+            document.title = state.settings.seoTitle || state.settings.storeName;
+            const desc = document.querySelector('meta[name="description"]');
+            if (desc) desc.setAttribute('content', state.settings.seoDescription || state.settings.heroSubtitle);
+        }
+
+        function setupRealtimeListeners() {
+            const settingsDocRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config');
+            
+            // Nuevas colecciones
+            const servicesRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'services');
+            const quotesRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'quotes');
+            const faqsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'faqs');
+            const testimonialsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'testimonials');
+
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    state.settings = { ...DEFAULT_SETTINGS, ...docSnap.data() };
+                    updateSEO();
+                } else if (auth.currentUser) {
+                    setDoc(settingsDocRef, DEFAULT_SETTINGS);
+                }
+                render();
+            });
+
+            // Listeners seguros (no rompen si la colección está vacía)
+            onSnapshot(servicesRef, (snap) => { state.services = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+            onSnapshot(quotesRef, (snap) => { state.quotes = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+            onSnapshot(faqsRef, (snap) => { state.faqs = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+            onSnapshot(testimonialsRef, (snap) => { state.testimonials = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+        }
+
+        window.setView = (v) => { state.view = v; state.isMobileMenuOpen = false; window.scrollTo(0,0); render(); };
+        window.setAdminTab = (t) => { state.adminTab = t; render(); };
+        window.toggleMobileMenu = () => { state.isMobileMenuOpen = !state.isMobileMenuOpen; render(); };
+        
+        window.executeSearch = (val) => { 
+            state.searchTerm = val.trim(); 
+            if(state.searchTerm.length > 0) state.selectedCategory = 'Todas';
+            render(); 
+            const catEl = document.getElementById('catalog');
+            if(catEl && state.view === 'store') catEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        
+        window.setCategory = (category) => { 
+            state.selectedCategory = category; state.searchTerm = ''; state.isMobileMenuOpen = false;
+            render(); 
+        };
+        
+        window.setSortBy = (val) => { state.sortBy = val; render(); };
+        window.toggleFilter = (filterKey, checked) => { state.filters[filterKey] = checked; render(); };
+
+        window.openProductDetails = (id) => {
+            const p = state.products.find(x => x.id === id);
+            if (p) { state.selectedProduct = p; state.activeDetailImage = p.image; render(); }
+        };
+        window.closeProductDetails = () => { state.selectedProduct = null; render(); };
+        window.setActiveDetailImage = (img) => { state.activeDetailImage = img; renderModals(); };
+
+        // Admin Auth
+        window.openAdminLogin = () => {
+            if (state.isAdminAuthenticated) window.setView('admin');
+            else { state.showAdminLogin = true; render(); }
+        };
+        window.closeAdminLogin = () => { state.showAdminLogin = false; render(); };
+        window.handleAdminLogin = (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('login-password').value;
+            if (pass === state.settings.adminPassword) {
+                state.isAdminAuthenticated = true; state.showAdminLogin = false; 
+                window.setView('admin'); window.showToast("Acceso Permitido", "Has iniciado sesión como administrador.", "success");
+            } else {
+                const err = document.getElementById('login-error');
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 3000);
+            }
+        };
+        window.handleLogout = () => { state.isAdminAuthenticated = false; window.setView('store'); window.showToast("Sesión Finalizada", "", "info"); };
+
+        window.handleSaveSettings = async (e) => {
+            e.preventDefault();
+            if (!auth || !auth.currentUser) { window.showToast('Sin conexión', 'Conecta con Firebase para guardar tus ajustes.', 'error'); return; }
+            const data = new FormData(e.target);
+            const newSettings = { ...state.settings };
+            try {
+            Object.keys(DEFAULT_SETTINGS).forEach(field => {
+                const val = data.get(field);
+                if (val !== null) { if (field.startsWith('price')) { const amount = Number(val); if (!Number.isFinite(amount) || amount < 0) { window.showToast('Precio inválido', field, 'error'); throw new Error('Precio inválido'); } newSettings[field] = amount; } else newSettings[field] = val; }
+            });
+                if (!state.isAdminAuthenticated) return;
+                newSettings.autoPrices = {};
+                for (const key of autoPriceKeys()) {
+                    const raw = data.get('auto_' + key);
+                    if (raw === null || raw.trim() === '') continue;
+                    const value = Number(raw);
+                    if (!Number.isFinite(value) || value < 0) throw new Error('Precio inválido');
+                    newSettings.autoPrices[key] = value;
+                }
+                await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config'), newSettings);
+                state.settings = newSettings; updateSEO();
+                window.showToast("Sincronizado", "Configuración actualizada para todos los usuarios.", "success");
+            } catch(error) { window.showToast("Error", "No se guardó en Firestore.", "error"); }
+        };
+
+        // Shopping Cart Logic
+        window.toggleCart = () => { state.isCartOpen = !state.isCartOpen; render(); };
+        window.addToCart = (productId, qty = 1) => {
+            const product = state.products.find(p => p.id === productId);
+            if (!product) return;
+            if (!canOrderProduct(product)) {
+                window.showToast("Consultar", "Este producto requiere consulta directa.", "info");
+                return;
+            }
+            const existingItem = state.cart.find(item => item.product.id === productId);
+            qty = Math.max(1, Math.floor(Number(qty) || 1));
+            if ((existingItem?.quantity || 0) + qty > product.stock) { window.showToast('Stock insuficiente', 'No puedes solicitar más unidades que las disponibles.', 'info'); return; }
+            if (existingItem) existingItem.quantity += qty;
+            else state.cart.push({ product, quantity: qty });
+            
+            window.showToast("Añadido", `Se agregó ${product.name} al carrito.`, "success");
+            render();
+        };
+        window.updateCartQty = (productId, change) => {
+            const item = state.cart.find(i => i.product.id === productId);
+            if (!item) return;
+            if (change > 0 && (!canOrderProduct(item.product) || item.quantity + change > item.product.stock)) { window.showToast('Stock insuficiente', 'Revisa la cantidad disponible.', 'info'); return; }
+            item.quantity += change;
+            if (item.quantity <= 0) state.cart = state.cart.filter(i => i.product.id !== productId);
+            render();
+        };
+        window.removeFromCart = (productId) => {
+            state.cart = state.cart.filter(i => i.product.id !== productId);
+            window.showToast("Eliminado", "Producto removido del carrito.", "info");
+            render();
+        };
+        window.checkoutCart = () => {
+            if (state.inventoryStatus !== 'connected') { window.showToast('Stock por confirmar', 'Espera a que se actualice el inventario.', 'info'); return; }
+            reconcileInventoryViews();
+            if (state.cart.length === 0) { render(); return; }
+            const s = state.settings;
+            let message = `*¡Hola ${s.storeName}! Deseo realizar el siguiente pedido (Catálogo):*\n\n`;
+            let totalSum = 0;
+            state.cart.forEach((item, index) => {
+                const price = item.product.isOffer ? item.product.offerPrice : item.product.price;
+                const subtotal = price * item.quantity;
+                totalSum += subtotal;
+                message += `${index + 1}. *${item.product.name}*\n   Cantidad: ${item.quantity} | P. Unit: S/ ${window.formatPrice(price)} | Subtotal: S/ ${window.formatPrice(subtotal)}\n\n`;
+            });
+            message += `-----------------------------\n*SUMA TOTAL DEL PEDIDO: S/ ${window.formatPrice(totalSum)}*\n\n_Por favor confirmen stock y datos para la facturación/despacho._`;
+            window.open(`https://wa.me/${s.contactPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        };
+
+        // Nuevas Funciones: Cotizador e Impresiones
+        const AUTO_FORMATS = [
+            ...['A1','A2','A3','A4','A5','A6','A7'].flatMap(size => [
+                {id:size+'_1c', label:size+' · 1 cara', perSheet:1},
+                {id:size+'_2c', label:size+' · 2 caras', perSheet:2}
+            ]),
+            {id:'Folleto',label:'Folleto / cuadernillo A4 doblado',perSheet:4},
+            {id:'2xCara_1c',label:'A4 · 2 páginas por cara · 1 cara',perSheet:2},
+            {id:'2xCara_2c',label:'A4 · 2 páginas por cara · 2 caras',perSheet:4},
+            ...['A0','A1','A2','A3'].map(size => ({id:'Plano_'+size,label:'Plano '+size,perSheet:1}))
+        ];
+        const AUTO_EXTRAS = { laminate:'Plastificado / laminado', binding:'Empastado', cut:'Corte / guillotina', design:'Diseño gráfico', urgent:'Recargo urgente (%)' };
+        const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const autoPriceKeys = () => [
+            ...AUTO_FORMATS.flatMap(f=>['menor','mayor'].flatMap(t=>['color','bn'].map(c=>f.id+'_'+c+'_'+t))),
+            ...[1,2,3,4].map(n=>'anillado_'+n), ...Object.keys(AUTO_EXTRAS)
+        ];
+        const money = n => 'S/ '+Number(n).toFixed(2);
+        function calculateAutoQuote(q=state.autoQuote, prices=state.settings.autoPrices || {}) {
+            const format = AUTO_FORMATS.find(f=>f.id===q.format) || AUTO_FORMATS.find(f=>f.id==='A4_1c');
+            const pages = Math.max(1,Math.trunc(Number(q.pages)||1));
+            const copies = Math.max(1,Math.trunc(Number(q.copies)||1));
+            const sheetsPerCopy = Math.ceil(pages/format.perSheet);
+            const sheets = sheetsPerCopy*copies;
+            const lines=[];
+            const add = (key,label,quantity) => {
+                const raw=prices[key];
+                const price=raw === undefined || raw === null || raw === '' ? null : Number(raw);
+                const amount=price !== null && Number.isFinite(price) && price>=0 ? price*quantity : null;
+                lines.push({key,label,quantity,price,amount});
+            };
+            add(format.id+'_'+q.color+'_'+q.tariff, 'Impresión · '+sheets+' hojas', sheets);
+            let volumes=0, sheetsPerVolume=0;
+            if(q.binding) {
+                const volumesPerCopy=Math.ceil(sheetsPerCopy/350);
+                volumes=volumesPerCopy*copies;
+                sheetsPerVolume=Math.ceil(sheetsPerCopy/volumesPerCopy);
+                const tier=sheetsPerVolume<=100 ? 1 : sheetsPerVolume<=200 ? 2 : sheetsPerVolume<=300 ? 3 : 4;
+                add('anillado_'+tier,'Anillado · '+volumes+' tomo(s) · '+q.spiral,volumes);
+            }
+            if(q.extra!=='none' && AUTO_EXTRAS[q.extra]) add(q.extra,AUTO_EXTRAS[q.extra]+' · por ejemplar',copies);
+            if(q.design) add('design','Diseño · por pedido',1);
+            if(q.urgent) {
+                const subtotal=lines.every(l=>l.amount!==null)?lines.reduce((sum,l)=>sum+l.amount,0):null;
+                add('urgent','Urgencia (%)',subtotal===null?0:subtotal/100);
+                if(subtotal===null) lines[lines.length-1].amount=null;
+            }
+            const ready=lines.every(l=>l.amount!==null);
+            return {format,pages,copies,sheets,sheetsPerCopy,volumes,sheetsPerVolume,lines,ready,total:ready?lines.reduce((sum,l)=>sum+l.amount,0):null};
+        }
+        function autoSummary() {
+            const r=calculateAutoQuote();
+            return `<p class="text-xs uppercase tracking-widest mb-3">Resumen de tu solicitud</p><h3 class="text-xl font-extrabold mb-5">${esc(r.format.label)}</h3>
+                <p class="text-sm mb-4">${r.pages} página(s) × ${r.copies} ejemplar(es)<br>${r.sheetsPerCopy} hojas por ejemplar · ${r.sheets} hojas en total</p>
+                ${r.volumes?`<p class="text-sm mb-3">${r.volumes} tomo(s), hasta ${r.sheetsPerVolume} hojas por tomo.</p>`:''}
+                ${r.lines.map(l=>`<div class="auto-line"><span>${esc(l.label)}</span><strong class="whitespace-nowrap">${l.amount===null?'Por confirmar':money(l.amount)}</strong></div>`).join('')}
+                <p class="text-xs uppercase tracking-widest mt-6 mb-1">${r.ready?'Total estimado':'Precio pendiente'}</p>
+                <div class="text-3xl font-extrabold mb-3">${r.ready?money(r.total):'Por confirmar'}</div>
+                <p class="text-xs mb-6">${r.ready?'Confirmaremos disponibilidad y plazo por WhatsApp.':'Puedes enviar la solicitud. Te confirmaremos las tarifas pendientes por WhatsApp.'}</p>
+                <button type="button" onclick="window.sendAutoWhatsApp()" class="w-full rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold p-4">Enviar cotización por WhatsApp ↗</button>`;
+        }
+        window.updateAutoQuote = () => {
+            const form=document.getElementById('auto-quote-form');
+            if(!form) return;
+            const d=new FormData(form);
+            state.autoQuote={client:String(d.get('client')||''),phone:String(d.get('phone')||''),pages:Math.max(1,parseInt(d.get('pages'),10)||1),copies:Math.max(1,parseInt(d.get('copies'),10)||1),format:d.get('format'),tariff:d.get('tariff'),color:d.get('color'),binding:d.has('binding'),spiral:d.get('spiral'),extra:d.get('extra'),design:d.has('design'),urgent:d.has('urgent')};
+            document.getElementById('auto-spiral-wrap').hidden=!state.autoQuote.binding;
+            document.getElementById('auto-summary').innerHTML=autoSummary();
+        };
+        window.sendAutoWhatsApp = () => {
+            const form=document.getElementById('auto-quote-form');
+            if(!form.reportValidity()) return;
+            window.updateAutoQuote();
+            const q=state.autoQuote,r=calculateAutoQuote();
+            const phone=String(state.settings.contactPhone||'').replace(/\D/g,'');
+            if(!/^\d{8,15}$/.test(phone)) { window.showToast('WhatsApp sin configurar','Revisa el teléfono del negocio en Configuración Web.','error'); return; }
+            const message=[`Hola ${state.settings.storeName}, solicito una cotización:`,
+                q.client?`Cliente: ${q.client}`:'',q.phone?`Mi celular: ${q.phone}`:'',
+                `Formato: ${r.format.label}`,`Impresión: ${q.color==='color'?'Color':'Blanco y negro'}`,
+                `Tarifa: ${q.tariff==='mayor'?'Por mayor':'Por menor'}`,`Páginas del archivo: ${r.pages}`,`Ejemplares: ${r.copies}`,`Hojas físicas: ${r.sheets} (${r.sheetsPerCopy} por ejemplar)`,
+                r.volumes?`Anillado: ${r.volumes} tomo(s), ${r.sheetsPerVolume} hojas aprox. por tomo; espiral ${q.spiral}`:'',
+                '',...r.lines.map(l=>`${l.label}: ${l.amount===null?'por confirmar':money(l.amount)}`),
+                '',`Total estimado: ${r.ready?money(r.total):'por confirmar (faltan tarifas)'}`, 'Por favor, confirmar el precio y el plazo de entrega.'].filter(x=>x!==null).join('\n');
+            window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+        };
+        function renderAutoQuote() {
+            const q=state.autoQuote;
+            const select=(name,options)=>`<select name="${name}" class="auto-field">${options.map(([value,label])=>`<option value="${value}" ${q[name]===value?'selected':''}>${esc(label)}</option>`).join('')}</select>`;
+            return `<section id="cotizador" class="py-16 scroll-mt-20"><div class="max-w-6xl mx-auto px-4 sm:px-6"><div class="text-center max-w-2xl mx-auto mb-10"><p class="text-brand-600 font-bold text-xs uppercase tracking-widest mb-3">Tu impresión, paso a paso</p><h2 class="text-3xl font-black text-slate-900 mb-3">Cotización automática</h2><p class="text-slate-500 text-sm">Elige tu formato y acabados. Calculamos las hojas y el importe según las tarifas del negocio.</p></div>
+            <div class="grid lg:grid-cols-3 gap-6 items-start"><form id="auto-quote-form" onsubmit="event.preventDefault();window.sendAutoWhatsApp()" oninput="window.updateAutoQuote()" onchange="window.updateAutoQuote()" class="lg:col-span-2 bg-white border border-slate-200 p-6 md:p-8 rounded-3xl shadow-sm"><div class="grid sm:grid-cols-2 gap-5">
+                <h3 class="sm:col-span-2 font-extrabold text-slate-900">01 · Datos de tu trabajo</h3>
+                <label class="auto-label">Nombre (opcional)<input class="auto-field" name="client" maxlength="100" value="${esc(q.client)}" autocomplete="name" placeholder="Tu nombre"></label>
+                <label class="auto-label">Celular (opcional)<input class="auto-field" name="phone" type="tel" maxlength="20" value="${esc(q.phone)}" autocomplete="tel" placeholder="Tu número"></label>
+                <label class="auto-label">Páginas del archivo o libro<input class="auto-field" name="pages" type="number" min="1" max="1000000" step="1" required value="${q.pages}"></label>
+                <label class="auto-label">Cantidad de ejemplares<input class="auto-field" name="copies" type="number" min="1" max="100000" step="1" required value="${q.copies}"></label>
+                <label class="auto-label sm:col-span-2">Formato del trabajo${select('format',AUTO_FORMATS.map(f=>[f.id,f.label]))}</label>
+                <label class="auto-label">Color${select('color',[['color','A color'],['bn','Blanco y negro']])}</label>
+                <label class="auto-label">Tipo de tarifa${select('tariff',[['menor','Por menor'],['mayor','Por mayor']])}</label>
+                <p class="sm:col-span-2 text-xs text-slate-500">Doble cara: 2 páginas por hoja. Cuadernillo o 2 por cara a doble cara: 4 páginas por hoja. El cálculo redondea hacia arriba por ejemplar.</p>
+                <h3 class="sm:col-span-2 border-t pt-5 font-extrabold text-slate-900">02 · Acabados y extras</h3>
+                <label class="auto-label flex items-center gap-3"><input name="binding" type="checkbox" ${q.binding?'checked':''}> Anillado espiral con micas</label>
+                <label id="auto-spiral-wrap" class="auto-label" ${q.binding?'':'hidden'}>Color de espiral${select('spiral',['Negro','Amarillo','Rojo','Verde','Celeste','Rosado','Plomo','Naranja','Azul','Morado'].map(x=>[x,x]))}</label>
+                <label class="auto-label sm:col-span-2">Acabado adicional${select('extra',[['none','Ninguno'],['laminate','Plastificado / laminado'],['binding','Empastado'],['cut','Corte / guillotina']])}</label>
+                <label class="auto-label flex items-center gap-3"><input name="design" type="checkbox" ${q.design?'checked':''}> Necesito diseño gráfico</label>
+                <label class="auto-label flex items-center gap-3"><input name="urgent" type="checkbox" ${q.urgent?'checked':''}> Solicitud urgente</label>
+            </div></form><aside id="auto-summary" aria-live="polite" class="auto-summary lg:sticky lg:top-24">${autoSummary()}</aside></div></div></section>`;
+        }
+        function renderAutoPriceSettings() {
+            const prices=state.settings.autoPrices||{};
+            const input=(key,label)=>`<input aria-label="${esc(label)}" name="auto_${key}" type="number" min="0" step="0.01" placeholder="Sin precio" value="${esc(prices[key]??'')}" class="auto-field min-w-[6rem]">`;
+            return `<div class="md:col-span-2 border-t pt-6"><h3 class="text-xl font-black text-slate-900">Precios · Cotización automática</h3><p class="text-xs text-slate-500 mt-2">Completa tus tarifas en soles. Vacío = por confirmar; 0 = gratuito. Cada tarifa de impresión corresponde a una hoja física completa para el formato y las caras indicadas. Se guarda con el botón Guardar cambios.</p></div>
+                ${['menor','mayor'].map(t=>`<details class="md:col-span-2 border border-slate-200 rounded-xl p-4" ${t==='menor'?'open':''}><summary class="font-extrabold cursor-pointer">Tarifas por ${t}</summary><div class="overflow-x-auto mt-4"><table class="w-full text-sm"><thead><tr class="text-left"><th class="p-2">Formato · precio por hoja</th><th class="p-2">Color (S/)</th><th class="p-2">B/N (S/)</th></tr></thead><tbody>${AUTO_FORMATS.map(f=>`<tr class="border-t border-slate-100"><th class="text-left p-2 font-medium">${esc(f.label)}</th>${['color','bn'].map(c=>`<td class="p-2">${input(f.id+'_'+c+'_'+t,f.label+' '+c+' '+t)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`).join('')}
+                <h4 class="md:col-span-2 font-bold border-t pt-4">Anillado · precio por tomo (incluye espiral y micas)</h4>
+                ${['1–100','101–200','201–300','301–350'].map((range,i)=>`<label class="auto-label">${range} hojas por tomo${input('anillado_'+(i+1),range+' hojas')}</label>`).join('')}
+                <p class="md:col-span-2 text-xs text-slate-500">Más de 350 hojas: se reparten en tomos equilibrados y se cobra cada tomo según su rango.</p>
+                <h4 class="md:col-span-2 font-bold border-t pt-4">Extras</h4>
+                ${Object.entries(AUTO_EXTRAS).map(([key,label])=>`<label class="auto-label">${label}${['laminate','binding','cut'].includes(key)?' · S/ por ejemplar':key==='design'?' · S/ por pedido':''}${input(key,label)}</label>`).join('')}
+                <p class="md:col-span-2 text-xs text-slate-500">La urgencia aplica sobre impresión, anillado, acabados y diseño. El número de destino de WhatsApp se configura en Identidad y Contacto.</p>`;
+        }
+
+        window.toggleTheme = () => {
+            const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.dataset.theme = next;
+            localStorage.setItem('grafiplot-theme',next);
+            document.querySelector('[data-theme-toggle]').textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        };
+        document.documentElement.dataset.theme = localStorage.getItem('grafiplot-theme') || 'light';
+
+        window.sendDesignRequest = (e) => {
+            e.preventDefault();
+            const form = e.target;
+            let msg = `*Hola Grafiplot, necesito un servicio de Diseño Gráfico:*\n\n👤 *Nombre:* ${form.name.value}\n🎨 *Tipo de Diseño:* ${form.type.value}\n📝 *Detalles:* ${form.details.value}\n\nPor favor, indíquenme precio y tiempo de entrega.`;
+            window.open(`https://wa.me/${state.settings.contactPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        window.sendCorporateRequest = (e) => {
+            e.preventDefault();
+            const form = e.target;
+            let msg = `*Atención Corporativa - Grafiplot*\n\n🏢 *Empresa:* ${form.company.value}\n👤 *Contacto:* ${form.name.value}\n📞 *Teléfono:* ${form.phone.value}\n📝 *Requerimiento:* ${form.requirements.value}`;
+            window.open(`https://wa.me/${state.settings.contactPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        // Renderizado Principal
+        function render() {
+            const root = document.getElementById('root');
+            if (!state.isLoaded) return; 
+
+            if (state.view === 'store') root.innerHTML = renderStorefront();
+            else if (state.view === 'admin') root.innerHTML = renderAdmin();
+            renderModals();
+            document.querySelector('[data-theme-toggle]').textContent = document.documentElement.dataset.theme === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        }
+
+        const getLogoHTML = () => `
+            <div class="relative inline-block pb-3 sm:pb-4 pr-16 sm:pr-24 select-none cursor-pointer group" onclick="window.setView('store')">
+                <div class="font-black leading-none flex items-baseline">
+                    <span class="text-[#1a1a1a] logo-g transition-transform group-hover:scale-105 origin-bottom-left">G</span><span class="text-brand-500 logo-rafiplot">rafiplot</span>
+                </div>
+                <div class="text-[#1a1a1a] font-extrabold absolute logo-vasquez leading-none">vasquez</div>
+            </div>
+        `;
+
+        function renderStorefront() {
+            const s = state.settings;
+            
+            // Catálogo Lógica
+            let finalProducts = [...state.products].filter(p => p.isActive !== false);
+            if(state.selectedCategory !== 'Todas') finalProducts = finalProducts.filter(p => p.category === state.selectedCategory);
+            const q = state.searchTerm.toLowerCase();
+            if(q) finalProducts = finalProducts.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)));
+            if(state.filters.onlyOffers) finalProducts = finalProducts.filter(p => p.isOffer);
+            
+            if(state.sortBy === 'priceAsc') finalProducts.sort((a,b) => (a.isOffer?a.offerPrice:a.price) - (b.isOffer?b.offerPrice:b.price));
+            else if(state.sortBy === 'priceDesc') finalProducts.sort((a,b) => (b.isOffer?b.offerPrice:b.price) - (a.isOffer?a.offerPrice:a.price));
+            else if(state.sortBy === 'nameAsc') finalProducts.sort((a,b) => a.name.localeCompare(b.name));
+            else finalProducts.sort((a, b) => Number(b.isPriority)-Number(a.isPriority) || (b.createdAt || 0) - (a.createdAt || 0));
+
+            const categories = ['Todas', ...new Set(state.products.map(p => p.category).filter(Boolean))];
+            const cartItemsCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            // Datos por defecto (si BD está vacía) para visualización profesional
+            const displayServices = state.services.length > 0 ? state.services : [
+                { name: 'Impresión B/N y Color', icon: '📄', desc: 'Formatos A4, A3, Carta y Oficio con calidad láser.' },
+                { name: 'Ploteo de Planos', icon: '📐', desc: 'Impresión de planos en formato A0, A1, A2 en papel bond.' },
+                { name: 'Gigantografías y Lonas', icon: '📢', desc: 'Banners publicitarios de alta resolución para exteriores.' },
+                { name: 'Anillados y Empastados', icon: '📚', desc: 'Acabados profesionales para tesis y manuales corporativos.' },
+                { name: 'Tarjetas y Papelería', icon: '📇', desc: 'Tarjetas de presentación en couché, flyers y afiches.' },
+                { name: 'Stickers y Etiquetas', icon: '🏷️', desc: 'Impresión y troquelado en vinil adhesivo resistente.' }
+            ];
+
+            const displayFaqs = state.faqs.length > 0 ? state.faqs : [
+                { q: '¿Qué formatos de archivo aceptan?', a: 'Sugerimos siempre enviar archivos en PDF para evitar desconfiguraciones. También aceptamos JPG, PNG, Illustrator, CorelDraw y la suite Office.' },
+                { q: '¿Realizan envíos a nivel nacional?', a: 'Sí, despachamos equipos, insumos y trabajos de imprenta de gran volumen a todo el Perú mediante agencias de transporte.' },
+                { q: '¿Cuánto demora el servicio de diseño?', a: 'Depende del requerimiento. Diseños rápidos como tarjetas o flyers toman de 24 a 48 horas tras confirmar la información.' }
+            ];
+
+            return `
+                <div class="fade-in flex flex-col min-h-screen">
+                    <!-- Top Announcement -->
+                    ${s.announcement ? `<div class="bg-grafi-900 text-white text-[10px] sm:text-xs py-2.5 text-center px-4 font-bold tracking-[0.15em] uppercase z-50 relative">${s.announcement}</div>` : ''}
+                    
+                    <!-- Header Navigation -->
+                    <header class="glass-nav border-b border-slate-200/60 sticky top-0 z-40 w-full transition-all shadow-sm">
+                        <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 sm:pt-5 sm:pb-3 flex items-center justify-between gap-4">
+                            <div class="shrink-0 flex items-center h-full">${getLogoHTML()}</div>
+                            
+                            <!-- Búsqueda Desktop -->
+                            <div class="hidden lg:flex flex-1 max-w-lg mx-8 relative">
+                                <input id="desktop-search" type="text" placeholder="Buscar productos, servicios, equipos..." value="${state.searchTerm}" onkeypress="if(event.key === 'Enter') window.executeSearch(this.value)" class="w-full bg-slate-100 hover:bg-slate-200/50 border border-transparent rounded-2xl py-2.5 pl-5 pr-14 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all outline-none text-sm font-medium text-slate-800 placeholder-slate-400" />
+                                <button onclick="window.executeSearch(document.getElementById('desktop-search').value)" class="absolute inset-y-1 right-1 px-4 flex items-center bg-brand-500 hover:bg-brand-600 text-white rounded-xl transition-colors shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </button>
+                            </div>
+
+                            <!-- Acciones Derecha -->
+                            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                                <button onclick="window.toggleCart()" class="relative text-slate-700 hover:text-brand-500 p-2 rounded-xl hover:bg-slate-50 border border-slate-100 transition flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    ${cartItemsCount > 0 ? `<span class="absolute -top-1 -right-1 bg-brand-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center animate-bounce shadow-md">${cartItemsCount}</span>` : ''}
+                                </button>
+                                <button onclick="window.openAdminLogin()" class="text-slate-500 hover:text-brand-500 transition flex items-center justify-center w-10 h-10 rounded-xl hover:bg-slate-50 border border-slate-100" title="Panel Administrador">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </button>
+                                <button onclick="window.toggleMobileMenu()" class="lg:hidden text-grafi-900 p-2 rounded-xl hover:bg-slate-100 bg-slate-50 border border-slate-100">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${state.isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Menú Navegación Principal (Anchor Links) -->
+                        <nav class="hidden lg:block bg-white/50 border-t border-slate-200/60 mt-1">
+                            <div class="max-w-[90rem] mx-auto px-8 flex items-center justify-center">
+                                <div class="flex items-center gap-10 text-xs font-bold uppercase tracking-wider">
+                                    <a href="#hero" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Inicio</a>
+                                    <a href="#services" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Centro de Impresión</a>
+                                    <a href="#cotizador" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Cotizador Web</a>
+                                    <a href="#catalog" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors text-brand-600">Catálogo / Equipos</a>
+                                    <a href="#design" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Diseño Gráfico</a>
+                                    <a href="#corporate" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Empresas</a>
+                                </div>
+                            </div>
+                        </nav>
+                        
+                        <!-- Menú Móvil -->
+                        ${state.isMobileMenuOpen ? `
+                        <div class="lg:hidden bg-white border-t border-slate-200 p-4 slide-up shadow-premium absolute w-full left-0 z-50">
+                            <div class="relative mb-4 flex gap-2">
+                                <input id="mobile-search" type="text" placeholder="Buscar..." value="${state.searchTerm}" onkeypress="if(event.key === 'Enter') window.executeSearch(this.value)" class="flex-1 bg-slate-100 rounded-xl py-3 pl-4 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-500" />
+                                <button onclick="window.executeSearch(document.getElementById('mobile-search').value)" class="bg-brand-500 text-white px-4 rounded-xl font-bold flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="flex flex-col gap-1 text-xs font-bold uppercase tracking-wider">
+                                <a href="#services" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Centro de Impresión</a>
+                                <a href="#cotizador" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Cotizador Web</a>
+                                <a href="#catalog" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-brand-600 bg-brand-50">Catálogo de Equipos</a>
+                                <a href="#design" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Diseño Gráfico</a>
+                                <a href="#corporate" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Empresas</a>
+                            </div>
+                        </div>` : ''}
+                    </header>
+
+                    <main class="flex-1">
+                        <!-- 1. HERO SECTION -->
+                        <section id="hero" class="relative bg-grafi-900 min-h-[450px] md:min-h-[550px] flex items-center justify-center overflow-hidden">
+                            <img src="${s.heroBanner}" alt="Banner Imprenta" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-105" />
+                            <div class="absolute inset-0 bg-gradient-to-r from-grafi-900 via-grafi-900/90 to-transparent"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-grafi-900 to-transparent opacity-75"></div>
+                            <div class="relative max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 py-16 md:py-0">
+                                <div class="max-w-3xl">
+                                    <span class="inline-block py-1 px-3 rounded-full bg-brand-500/20 text-brand-400 text-[10px] font-black tracking-[0.25em] uppercase mb-4 border border-brand-500/30">Calidad, Rapidez y Tecnología</span>
+                                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-black mb-4 tracking-tight leading-[1.1] text-white text-shadow-sm">${s.heroTitle}</h1>
+                                    <p class="text-sm md:text-lg text-slate-300 mb-8 max-w-xl font-medium leading-relaxed border-l-4 border-brand-500 pl-4">${s.heroSubtitle}</p>
+                                    <div class="flex flex-wrap gap-4">
+                                        <a href="#cotizador" class="bg-brand-500 hover:bg-brand-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg shadow-brand-500/30 transition-transform active:scale-95 text-center text-sm uppercase tracking-wider">Cotizar Impresión</a>
+                                        <a href="#catalog" class="bg-white/10 hover:bg-white/20 backdrop-blur text-white border border-white/20 font-extrabold px-8 py-3.5 rounded-xl transition-colors text-center text-sm uppercase tracking-wider">Ver Equipos</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 2. QUICK LINKS / ¿QUÉ NECESITAS? -->
+                        <section class="py-10 bg-white border-b border-slate-100">
+                            <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+                                <div class="text-center mb-8">
+                                    <h2 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">¿Qué necesitas imprimir hoy?</h2>
+                                </div>
+                                <div class="flex gap-4 overflow-x-auto pb-4 hide-scroll snap-x">
+                                    ${[
+                                        {icon:'📄', name:'Documentos'}, {icon:'📚', name:'Tesis'}, {icon:'🖼️', name:'Fotos'}, 
+                                        {icon:'📢', name:'Publicidad'}, {icon:'🏢', name:'Empresas'}, {icon:'🎨', name:'Diseño'}, 
+                                        {icon:'📐', name:'Planos'}, {icon:'🏷️', name:'Stickers'}, {icon:'📇', name:'Tarjetas'}
+                                    ].map(item => `
+                                        <a href="#cotizador" class="snap-start shrink-0 w-28 h-28 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-200 rounded-2xl flex flex-col items-center justify-center transition-all group">
+                                            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">${item.icon}</span>
+                                            <span class="text-xs font-bold text-slate-700 group-hover:text-brand-700">${item.name}</span>
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 3. COTIZADOR DE IMPRESIONES Y ARCHIVOS -->
+                        ${renderAutoQuote()}
+
+                        <!-- 4. SERVICIOS DE IMPRESIÓN (Lista) -->
+                        <section id="services" class="py-16 bg-white scroll-mt-20 border-b border-slate-100">
+                            <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+                                <div class="text-center mb-12 max-w-2xl mx-auto">
+                                    <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Nuestros Servicios de Impresión</h2>
+                                    <p class="text-sm text-slate-500 font-medium">Contamos con tecnología de punta para garantizar la mejor resolución y acabados en cada uno de tus proyectos.</p>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    ${displayServices.map(srv => `
+                                        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-500 hover:shadow-lg transition-all group cursor-default">
+                                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-1 transition-transform border border-slate-100">${srv.icon || '📌'}</div>
+                                            <h3 class="text-lg font-black text-slate-900 mb-2">${srv.name}</h3>
+                                            <p class="text-sm text-slate-600 leading-relaxed font-medium">${srv.desc || srv.description || ''}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 5. CATÁLOGO DE PRODUCTOS (El original mejorado) -->
+                        <section id="catalog" class="py-16 bg-slate-50 scroll-mt-20">
+                            <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+                                
+                                <div class="flex flex-col md:flex-row items-end justify-between mb-8 gap-4">
+                                    <div>
+                                        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Catálogo de Equipos e Insumos</h2>
+                                        <p class="text-slate-500 font-bold mt-1 text-sm">${finalProducts.length} producto(s) en el catálogo</p><p role="status" class="text-xs text-slate-500 mt-2">${inventoryStatusText()}</p>
+                                    </div>
+                                    
+                                    <!-- Filtros y Ordenamiento -->
+                                    <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+                                        <select onchange="window.setCategory(this.value)" class="text-xs font-bold bg-transparent border-none focus:ring-0 outline-none text-slate-600 cursor-pointer pl-2 pr-6 border-r border-slate-200">
+                                            ${categories.map(cat => `<option value="${esc(cat)}" ${state.selectedCategory===cat?'selected':''}>${esc(cat)}</option>`).join('')}
+                                        </select>
+                                        <select onchange="window.setSortBy(this.value)" class="text-xs font-bold bg-transparent border-none focus:ring-0 outline-none text-slate-600 cursor-pointer pl-2 pr-6 border-r border-slate-200">
+                                            <option value="recent" ${state.sortBy==='recent'?'selected':''}>Más Recientes</option>
+                                            <option value="priceAsc" ${state.sortBy==='priceAsc'?'selected':''}>Menor Precio</option>
+                                            <option value="priceDesc" ${state.sortBy==='priceDesc'?'selected':''}>Mayor Precio</option>
+                                            <option value="nameAsc" ${state.sortBy==='nameAsc'?'selected':''}>Nombre A-Z</option>
+                                        </select>
+                                        <label class="flex items-center gap-1.5 text-xs font-bold text-slate-600 cursor-pointer px-2">
+                                            <input type="checkbox" onchange="window.toggleFilter('onlyOffers', this.checked)" class="rounded border-slate-300 text-brand-500 focus:ring-brand-500" ${state.filters.onlyOffers?'checked':''}>
+                                            Ofertas
+                                        </label>
+                                        ${state.searchTerm ? `<button onclick="window.executeSearch('')" class="text-[10px] bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold hover:bg-slate-300 transition ml-2">Limpiar Búsqueda</button>` : ''}
+                                    </div>
+                                </div>
+
+                                ${finalProducts.length === 0 ? `
+                                    <div class="text-center py-24 px-4 bg-white rounded-3xl border border-slate-200 shadow-sm max-w-xl mx-auto">
+                                        <div class="text-5xl mb-4 opacity-30">🔍</div>
+                                        <h3 class="text-xl font-black text-slate-800">No encontramos resultados</h3>
+                                        <p class="text-slate-500 text-xs mt-2 font-medium">Prueba con otros filtros o verifica el nombre en el buscador.</p>
+                                    </div>
+                                ` : `
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                                        ${finalProducts.map(p => {
+                                            const actualPrice = p.isOffer ? p.offerPrice : p.price;
+                                            const waMsg = encodeURIComponent(`Hola Grafiplot, deseo consultar sobre el siguiente equipo/insumo:\n*${p.name}*\n${p.sku ? `(SKU: ${p.sku})\n` : ''}Precio de referencia: S/ ${window.formatPrice(actualPrice)}`);
+                                            const waLink = `https://wa.me/${s.contactPhone}?text=${waMsg}`;
+                                            const isCartAvailable = canOrderProduct(p);
+                                            
+                                            // Badges lógicos
+                                            let badges = '';
+                                            if(p.isOffer) badges += `<div class="bg-brand-500 text-white text-[9px] font-black px-2 py-1 rounded shadow-sm uppercase tracking-wider mb-1 inline-block">Oferta Especial</div> `;
+                                            if(p.isPriority) badges += `<div class="bg-indigo-600 text-white text-[9px] font-black px-2 py-1 rounded">Destacado</div> `;
+                                            if(p.isNew) badges += `<div class="bg-blue-500 text-white text-[9px] font-black px-2 py-1 rounded shadow-sm uppercase tracking-wider mb-1 inline-block">Nuevo</div> `;
+
+                                            return `
+                                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-premium hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col group relative">
+                                                <div class="relative h-56 bg-white p-4 cursor-pointer overflow-hidden flex items-center justify-center border-b border-slate-100" onclick="window.openProductDetails(decodeURIComponent('${encodeURIComponent(p.id).replace(/'/g, '%27')}'))">
+                                                    <div class="absolute top-3 left-3 z-10 flex flex-col items-start gap-1">${badges}</div>
+                                                    <img src="${esc(p.image) || 'https://placehold.co/400x400/f1f5f9/e31837?text=Sin+Imagen'}" alt="${esc(p.name)}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                                                </div>
+                                                
+                                                <div class="p-5 flex flex-col flex-1">
+                                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">${esc(p.brand || p.category)}</p>
+                                                    <h3 class="text-sm font-bold text-slate-900 mb-3 leading-snug line-clamp-2 cursor-pointer hover:text-brand-500 transition-colors" onclick="window.openProductDetails(decodeURIComponent('${encodeURIComponent(p.id).replace(/'/g, '%27')}'))">${esc(p.name)}</h3>
+                                                    
+                                                    <div class="mt-auto pt-3 flex flex-col gap-3">
+                                                        <div>
+                                                            ${p.isOffer ? `
+                                                                <span class="block text-[10px] text-slate-400 line-through font-bold">S/ ${window.formatPrice(p.price)}</span>
+                                                                <span class="block text-xl font-black text-brand-600 leading-none">S/ ${window.formatPrice(p.offerPrice)}</span>
+                                                            ` : `
+                                                                <span class="block text-xl font-black text-grafi-900 leading-none">S/ ${window.formatPrice(p.price)}</span>
+                                                            `}
+                                                            ${p.bulkPrice>0 ? `<p class="text-xs text-slate-500 mt-2">Por mayor: S/ ${window.formatPrice(p.bulkPrice)}</p>` : ''}
+                                                            <div class="text-[9px] font-bold mt-1 ${p.stock > 0 ? 'text-emerald-500' : 'text-amber-500'} flex items-center gap-1">
+                                                                <span class="w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                                                                ${stockLabel(p)}
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="grid ${isCartAvailable ? 'grid-cols-5' : 'grid-cols-1'} gap-1.5 mt-1">
+                                                            ${isCartAvailable ? `
+                                                                <button onclick="window.addToCart(decodeURIComponent('${encodeURIComponent(p.id).replace(/'/g, '%27')}'))" class="col-span-2 bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white rounded-xl py-2 px-1 flex flex-col items-center justify-center transition-all duration-200" title="Añadir al Carrito">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                                    <span class="text-[8px] font-black uppercase mt-0.5 tracking-wider">Añadir</span>
+                                                                </button>
+                                                                <a href="${waLink}" target="_blank" class="col-span-3 bg-slate-900 hover:bg-brand-500 text-white rounded-xl py-2 flex flex-col items-center justify-center transition-all" title="Consultar">
+                                                                    <span class="text-[8px] font-black uppercase tracking-wider">Consultar</span>
+                                                                    <span class="text-[9px] text-emerald-400 font-bold">WhatsApp</span>
+                                                                </a>
+                                                            ` : `
+                                                                <a href="${waLink}" target="_blank" class="w-full bg-slate-900 hover:bg-brand-500 text-white rounded-xl py-2 px-3 flex items-center justify-center gap-2 transition-all">
+                                                                    <span class="text-[10px] font-black uppercase tracking-wider">Consultar Directo</span>
+                                                                </a>
+                                                            `}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                `}
+                            </div>
+                        </section>
+
+                        <!-- 6. DISEÑO GRÁFICO & SOLUCIONES EMPRESARIALES -->
+                        <section class="py-16 bg-grafi-900 text-white overflow-hidden">
+                            <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 relative">
+                                
+                                <!-- Diseño Gráfico -->
+                                <div id="design" class="bg-zinc-800/50 p-8 md:p-10 rounded-3xl border border-zinc-700/50 relative overflow-hidden scroll-mt-20">
+                                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/20 blur-3xl rounded-full"></div>
+                                    <h2 class="text-3xl font-black tracking-tight mb-4 flex items-center gap-3">
+                                        <span class="bg-brand-500 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg">🎨</span>
+                                        Estudio de Diseño
+                                    </h2>
+                                    <p class="text-slate-400 font-medium text-sm mb-8 leading-relaxed">Damos vida a tus ideas. Creación de identidad visual, logotipos, papelería, menús y adaptación de archivos para impresión en gran formato.</p>
+                                    
+                                    <form onsubmit="window.sendDesignRequest(event)" class="space-y-4">
+                                        <input required type="text" name="name" placeholder="Tu Nombre / Empresa" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:border-brand-500 outline-none text-sm font-medium text-white placeholder-zinc-500">
+                                        <select name="type" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:border-brand-500 outline-none text-sm font-medium text-white">
+                                            <option>Diseño de Logotipo</option><option>Flyer / Afiche publicitario</option><option>Tarjetas de Presentación</option><option>Vectorización de imágenes</option><option>Diseño para Gigantografía</option>
+                                        </select>
+                                        <textarea required name="details" rows="2" placeholder="Cuéntanos brevemente qué necesitas..." class="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:border-brand-500 outline-none text-sm font-medium text-white placeholder-zinc-500"></textarea>
+                                        <button type="submit" class="w-full bg-white hover:bg-brand-500 text-grafi-900 hover:text-white font-black py-3.5 rounded-xl transition text-xs uppercase tracking-wider shadow-md">Solicitar Diseño (WhatsApp)</button>
+                                    </form>
+                                </div>
+
+                                <!-- Soluciones Empresas -->
+                                <div id="corporate" class="bg-gradient-to-br from-brand-600 to-brand-900 p-8 md:p-10 rounded-3xl border border-brand-500 relative overflow-hidden scroll-mt-20">
+                                    <div class="absolute bottom-0 right-0 opacity-10">
+                                        <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7l-10 5 10 5 10-5-10-5zm0 7l-10 5 10 5 10-5-10-5z"/></svg>
+                                    </div>
+                                    <h2 class="text-3xl font-black tracking-tight mb-4 flex items-center gap-3 relative z-10">
+                                        <span class="bg-white text-brand-600 w-10 h-10 rounded-xl flex items-center justify-center text-lg">🏢</span>
+                                        Atención a Empresas
+                                    </h2>
+                                    <p class="text-brand-100 font-medium text-sm mb-8 leading-relaxed relative z-10">Condiciones especiales, línea de crédito, facturación electrónica y despachos continuos para imprentas, colegios, universidades y oficinas corporativas.</p>
+                                    
+                                    <form onsubmit="window.sendCorporateRequest(event)" class="space-y-4 relative z-10">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <input required type="text" name="company" placeholder="Empresa (RUC)" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:border-white outline-none text-sm font-medium text-white placeholder-brand-200">
+                                            <input required type="text" name="name" placeholder="Contacto" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:border-white outline-none text-sm font-medium text-white placeholder-brand-200">
+                                        </div>
+                                        <input required type="text" name="phone" placeholder="Teléfono" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:border-white outline-none text-sm font-medium text-white placeholder-brand-200">
+                                        <textarea required name="requirements" rows="2" placeholder="Requerimientos corporativos o volumen estimado..." class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:border-white outline-none text-sm font-medium text-white placeholder-brand-200"></textarea>
+                                        <button type="submit" class="w-full bg-grafi-900 hover:bg-black text-white font-black py-3.5 rounded-xl transition text-xs uppercase tracking-wider shadow-md">Contactar a Ventas B2B</button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </section>
+
+                        <!-- 7. PREGUNTAS FRECUENTES -->
+                        <section class="py-16 bg-white border-t border-slate-100">
+                            <div class="max-w-[50rem] mx-auto px-4 sm:px-6 lg:px-8">
+                                <div class="text-center mb-10">
+                                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Preguntas Frecuentes</h2>
+                                </div>
+                                <div class="space-y-4">
+                                    ${displayFaqs.map((faq, i) => `
+                                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:bg-white transition cursor-default">
+                                            <h4 class="font-black text-sm text-slate-900 flex gap-3"><span class="text-brand-500">P.</span> ${faq.q || faq.question}</h4>
+                                            <p class="text-sm text-slate-600 mt-2 font-medium leading-relaxed flex gap-3"><span class="text-slate-300">R.</span> ${faq.a || faq.answer}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+
+                    </main>
+
+                    <!-- Footer Editado y Enriquecido -->
+                    <footer class="bg-grafi-900 text-slate-300 pt-16 pb-8 border-t-8 border-brand-500 shrink-0 mt-auto">
+                        <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                                <!-- Columna de Identidad -->
+                                <div>
+                                    <div class="mb-4 brightness-0 invert opacity-100"><div class="relative inline-block pb-3"><div class="font-black leading-none flex items-baseline"><span class="text-[#1a1a1a] logo-g">G</span><span class="text-brand-500 logo-rafiplot">rafiplot</span></div><div class="text-[#1a1a1a] font-extrabold absolute logo-vasquez leading-none">vasquez</div></div></div>
+                                    <p class="text-xs text-slate-400 leading-relaxed font-medium mb-6">${s.footerAbout}</p>
+                                    ${s.ruc ? `<p class="text-[10px] text-slate-500 font-mono tracking-wider">RUC: ${s.ruc}</p>` : ''}
+                                    ${s.companyName ? `<p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">${s.companyName}</p>` : ''}
+                                </div>
+                                
+                                <!-- Columna Contacto -->
+                                <div>
+                                    <h4 class="text-white font-black mb-5 tracking-widest uppercase text-xs border-b border-zinc-800 pb-2">Contacto Directo</h4>
+                                    <ul class="space-y-3.5 text-xs font-medium">
+                                        <li class="flex items-start gap-2.5"><span class="text-brand-500 mt-0.5">📍</span> ${s.mapLink ? `<a href="${s.mapLink}" target="_blank" class="hover:text-white hover:underline transition">${s.contactAddress}</a>` : `<span>${s.contactAddress}</span>`}</li>
+                                        <li class="flex items-center gap-2.5"><span class="text-brand-500">📞</span> <a href="tel:+${s.contactPhone}" class="hover:text-white hover:underline transition">+${s.contactPhone}</a></li>
+                                        <li class="flex items-center gap-2.5"><span class="text-brand-500">✉️</span> <a href="mailto:${s.contactEmail}" class="hover:text-white hover:underline transition">${s.contactEmail}</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Horario de Atención -->
+                                <div>
+                                    <h4 class="text-white font-black mb-5 tracking-widest uppercase text-xs border-b border-zinc-800 pb-2">${s.footerLinksTitle || 'Horario'}</h4>
+                                    <div class="bg-zinc-800/40 border border-zinc-800 p-4 rounded-xl mb-4">
+                                        <p class="text-xs font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> ${s.footerSchedule}</p>
+                                    </div>
+                                    <ul class="space-y-2 text-xs font-semibold text-slate-400">
+                                        ${s.footerLink1Text ? `<li><a href="${s.footerLink1Url}" target="_blank" class="hover:text-brand-400 transition flex items-center gap-1.5"><span>→</span> ${s.footerLink1Text}</a></li>` : ''}
+                                        ${s.footerLink2Text ? `<li><a href="${s.footerLink2Url}" target="_blank" class="hover:text-brand-400 transition flex items-center gap-1.5"><span>→</span> ${s.footerLink2Text}</a></li>` : ''}
+                                    </ul>
+                                </div>
+                                
+                                <!-- Redes Oficiales -->
+                                <div>
+                                    <h4 class="text-white font-black mb-5 tracking-widest uppercase text-xs border-b border-zinc-800 pb-2">Redes Oficiales</h4>
+                                    <div class="flex gap-2.5 flex-wrap">
+                                        ${s.socialFacebook ? `<a href="${s.socialFacebook}" target="_blank" class="w-10 h-10 bg-zinc-800 hover:bg-brand-500 text-white rounded-lg flex items-center justify-center transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>` : ''}
+                                        ${s.socialInstagram ? `<a href="${s.socialInstagram}" target="_blank" class="w-10 h-10 bg-zinc-800 hover:bg-brand-500 text-white rounded-lg flex items-center justify-center transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>` : ''}
+                                        ${s.socialTiktok ? `<a href="${s.socialTiktok}" target="_blank" class="w-10 h-10 bg-zinc-800 hover:bg-brand-500 text-white rounded-lg flex items-center justify-center transition-colors"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.22-.86 4.41-2.26 6.13-1.67 2.05-4.23 3.23-6.84 3.4-2.83.18-5.74-.32-8.08-1.99-2.02-1.44-3.41-3.62-3.8-6.07-.4-2.52.05-5.18 1.55-7.24 1.46-2 3.68-3.3 6.1-3.69 1.31-.21 2.66-.14 3.93.18v4.06c-.84-.25-1.74-.31-2.6-.14-1.28.25-2.43 1-3.15 2.06-.72 1.05-1.02 2.39-.81 3.65.23 1.34 1.05 2.54 2.21 3.2 1.4.79 3.12.92 4.63.36 1.4-.52 2.54-1.62 3.06-3.02.39-1.05.53-2.19.5-3.32-.05-6.53-.02-13.06-.03-19.59z"/></svg></a>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-zinc-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                                <p>© ${new Date().getFullYear()} ${s.storeName}. Reservados todos los derechos.</p>
+                                <p>Soporte e Innovación en cada impresión</p>
+                            </div>
+                        </div>
+                    </footer>
+                    
+                    <!-- Botón Flotante de WhatsApp -->
+                    <a href="https://wa.me/${s.contactPhone}?text=Hola%20Grafiplot,%20necesito%20información%20sobre%20un%20servicio/producto" target="_blank" class="fixed bottom-6 right-6 z-[90] bg-[#25D366] text-white p-4 rounded-full shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition-transform flex items-center justify-center group animate-bounce">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                        <span class="absolute right-16 bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chatea en línea</span>
+                    </a>
+                </div>
+            `;
+        }
+
+        function renderAdmin() {
+            if (!state.isAdminAuthenticated) return `<div class="p-10 text-center text-sm font-bold">Sesión expirada. <button onclick="window.setView('store')" class="text-brand-500 underline">Volver</button></div>`;
+
+            return `
+                <div class="flex h-screen w-full bg-slate-50 overflow-hidden fade-in text-sm text-slate-800">
+                    <aside class="w-64 bg-grafi-900 text-slate-300 flex-col h-full shrink-0 hidden md:flex shadow-premium relative z-20">
+                        <div class="p-6 border-b border-zinc-800">
+                            <span class="text-white text-lg font-black flex items-center gap-2 tracking-wide mb-3"><span class="bg-brand-500 p-2 rounded-xl text-white">⚙️</span>Grafiplot Admin</span>
+                            ${state.connectionStatus === 'connected' 
+                                ? `<div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Conectado</div>`
+                                : `<div class="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-[10px] font-bold border border-red-500/20"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Error de Red</div>`
+                            }
+                        </div>
+                        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                            ${[
+                                { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+                                { id: 'products', icon: '📦', label: 'Equipos e Insumos', count: state.products.length },
+                                { id: 'services', icon: '📄', label: 'Servicios', count: state.services.length },
+                                { id: 'quotes', icon: '💬', label: 'Cotizaciones', count: state.quotes.length },
+                                { id: 'settings', icon: '📝', label: 'Configuración Web' }
+                            ].map(tab => `
+                                <button onclick="window.setAdminTab('${tab.id}')" class="w-full flex items-center gap-2 px-4 py-3 rounded-xl font-bold transition-all ${state.adminTab === tab.id ? 'bg-brand-500 text-white shadow-lg' : 'hover:bg-zinc-800 hover:text-white'}">
+                                    ${tab.icon} ${tab.label} ${tab.count !== undefined ? `<span class="ml-auto bg-black/40 text-[10px] py-0.5 px-2 rounded-full">${tab.count}</span>` : ''}
+                                </button>
+                            `).join('')}
+                        </nav>
+                        <div class="p-4 border-t border-zinc-800 space-y-2 shrink-0">
+                            <button onclick="window.handleLogout()" class="w-full px-4 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 font-bold rounded-xl transition text-xs">Cerrar Sesión</button>
+                            <button onclick="window.setView('store')" class="w-full px-4 py-3 bg-white hover:bg-slate-100 text-grafi-900 font-black rounded-xl shadow-md transition flex items-center justify-center gap-1.5 text-xs">Volver a Tienda Web</button>
+                        </div>
+                    </aside>
+
+                    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+                        <header class="md:hidden bg-grafi-900 text-white p-4 flex justify-between items-center shadow-lg z-20 shrink-0 overflow-x-auto hide-scroll">
+                            <div class="flex gap-2">
+                                <button onclick="window.setAdminTab('dashboard')" class="p-2 rounded-lg ${state.adminTab === 'dashboard' ? 'bg-brand-500' : 'text-slate-400'}">📊</button>
+                                <button onclick="window.setAdminTab('products')" class="p-2 rounded-lg ${state.adminTab === 'products' ? 'bg-brand-500' : 'text-slate-400'}">📦</button>
+                                <button onclick="window.setAdminTab('settings')" class="p-2 rounded-lg ${state.adminTab === 'settings' ? 'bg-brand-500' : 'text-slate-400'}">📝</button>
+                                <button onclick="window.setView('store')" class="p-2 bg-white text-grafi-900 font-bold rounded-lg ml-2 text-xs">Web</button>
+                            </div>
+                        </header>
+                        
+                        <div class="flex-1 overflow-y-auto p-4 sm:p-8 scroll-smooth">
+                            ${state.adminTab === 'dashboard' ? renderAdminDashboardTab() : 
+                              state.adminTab === 'products' ? renderAdminProductsTab() : 
+                              state.adminTab === 'settings' ? renderAdminSettingsTab() : 
+                              `<div class="p-10 text-center text-slate-500">Módulo en construcción o configurado vía Firebase Console directamente.</div>`}
+                        </div>
+                    </main>
+                </div>
+            `;
+        }
+
+        function renderAdminDashboardTab() {
+            const activeProds = state.products.filter(p => p.isActive !== false).length;
+            const offers = state.products.filter(p => p.isOffer).length;
+            const lowStock = state.products.filter(p => p.stock > 0 && p.stock <= (p.minStock||5)).length;
+            const noStock = state.products.filter(p => p.stock <= 0).length;
+
+            return `
+                <div class="max-w-6xl mx-auto pb-10 slide-up">
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-6">Resumen del Sistema</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Equipos / Insumos</p>
+                            <p class="text-3xl font-black text-slate-900">${state.products.length}</p>
+                            <p class="text-xs text-emerald-500 font-bold mt-2">${activeProds} Activos</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">En Oferta</p>
+                            <p class="text-3xl font-black text-brand-500">${offers}</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Stock Crítico</p>
+                            <p class="text-3xl font-black text-amber-500">${lowStock}</p>
+                            <p class="text-xs text-red-500 font-bold mt-2">${noStock} Agotados</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cotizaciones (BD)</p>
+                            <p class="text-3xl font-black text-blue-500">${state.quotes.length}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAdminProductsTab() {
+            return `<div class="max-w-6xl mx-auto space-y-6"><div class="bg-white p-6 rounded-2xl border border-slate-200"><h2 class="text-2xl font-black text-slate-900">Productos del inventario</h2><p class="text-sm text-slate-500 mt-2">Los productos, fotos, precios y existencias se administran desde tu aplicación de inventario. Aquí se muestran automáticamente.</p><p class="text-sm mt-3">${inventoryStatusText()}</p></div><div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left border-b"><th class="p-4">Producto</th><th class="p-4">Categoría</th><th class="p-4">Existencias</th><th class="p-4">Venta</th><th class="p-4">Por mayor</th></tr></thead><tbody>${state.products.map(p=>`<tr class="border-b border-slate-100"><td class="p-4 font-bold">${esc(p.name)}</td><td class="p-4">${esc(p.category)}</td><td class="p-4">${stockLabel(p)}</td><td class="p-4">S/ ${window.formatPrice(p.price)}</td><td class="p-4">${p.bulkPrice>0?'S/ '+window.formatPrice(p.bulkPrice):'No indicado'}</td></tr>`).join('') || '<tr><td class="p-6" colspan="5">Sin productos para mostrar.</td></tr>'}</tbody></table></div></div>`;
+        }
+
+        function renderAdminSettingsTab() {
+            const s = state.settings;
+            return `
+                <div class="max-w-4xl mx-auto pb-10 slide-up">
+                    <form onsubmit="window.handleSaveSettings(event)" class="space-y-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div>
+                                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Configuración Global</h2>
+                                <p class="text-slate-500 text-xs mt-1">Datos de la empresa, SEO y variables del cotizador.</p>
+                            </div>
+                            <button type="submit" class="w-full sm:w-auto bg-grafi-900 hover:bg-black text-white px-6 py-3 rounded-xl font-bold shadow-md transition text-xs uppercase tracking-wider">Guardar Cambios</button>
+                        </div>
+
+                        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <div class="md:col-span-2 border-b border-slate-100 pb-2"><h3 class="font-black text-base text-slate-800">🏪 Identidad y Contacto</h3></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Nombre Comercial</label><input type="text" name="storeName" value="${s.storeName}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Razón Social</label><input type="text" name="companyName" value="${s.companyName}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">RUC</label><input type="text" name="ruc" value="${s.ruc}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">WhatsApp (Ej. 519...)</label><input type="text" name="contactPhone" value="${s.contactPhone}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Dirección Física</label><input type="text" name="contactAddress" value="${s.contactAddress}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Anuncio Superior Web</label><input type="text" name="announcement" value="${s.announcement}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" /></div>
+
+                            ${renderAutoPriceSettings()}
+                            <label class="text-xs font-bold text-slate-600">Correo<input name="contactEmail" type="text" value="${s.contactEmail || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Horario<input name="footerSchedule" type="text" value="${s.footerSchedule || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Sobre nosotros<input name="footerAbout" type="text" value="${s.footerAbout || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Título principal<input name="heroTitle" type="text" value="${s.heroTitle || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Descripción principal<input name="heroSubtitle" type="text" value="${s.heroSubtitle || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Imagen principal (URL)<input name="heroBanner" type="text" value="${s.heroBanner || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Mapa (URL)<input name="mapLink" type="text" value="${s.mapLink || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Facebook<input name="socialFacebook" type="text" value="${s.socialFacebook || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Instagram<input name="socialInstagram" type="text" value="${s.socialInstagram || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">TikTok<input name="socialTiktok" type="text" value="${s.socialTiktok || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">YouTube<input name="socialYoutube" type="text" value="${s.socialYoutube || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Título enlaces<input name="footerLinksTitle" type="text" value="${s.footerLinksTitle || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Enlace 1 texto<input name="footerLink1Text" type="text" value="${s.footerLink1Text || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Enlace 1 URL<input name="footerLink1Url" type="text" value="${s.footerLink1Url || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Enlace 2 texto<input name="footerLink2Text" type="text" value="${s.footerLink2Text || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <label class="text-xs font-bold text-slate-600">Enlace 2 URL<input name="footerLink2Url" type="text" value="${s.footerLink2Url || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
+                            <div class="md:col-span-2 border-b border-slate-100 pb-2 mt-4"><h3 class="font-black text-base text-slate-800">🔍 SEO y Posicionamiento</h3></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Título de Pestaña (Meta Title)</label><input type="text" name="seoTitle" value="${s.seoTitle || ''}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
+                            <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Descripción de Búsqueda (Meta Desc)</label><textarea name="seoDescription" rows="2" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">${s.seoDescription || ''}</textarea></div>
+
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function renderModals() {
+            let container = document.getElementById('modals-container');
+            if (!container) { container = document.createElement('div'); container.id = 'modals-container'; document.body.appendChild(container); }
+            container.innerHTML = '';
+
+            // 1. MODAL DETALLES DEL PRODUCTO
+            if (state.selectedProduct) {
+                const p = state.selectedProduct;
+                const activeImg = state.activeDetailImage || p.image || 'https://placehold.co/600';
+                const gallery = [p.image, ...(p.additionalImages || [])].filter(Boolean);
+                const isCartAvailable = canOrderProduct(p);
+                const waLink = `https://wa.me/${state.settings.contactPhone}?text=${encodeURIComponent(`Hola Grafiplot, deseo consultar sobre:\n*${p.name}*\n${p.sku ? `(SKU: ${p.sku})\n` : ''}Precio: S/ ${window.formatPrice(p.isOffer ? p.offerPrice : p.price)}`)}`;
+
+                container.innerHTML += `
+                    <div class="fixed inset-0 bg-grafi-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 sm:p-6 fade-in">
+                        <div class="bg-white w-full sm:h-auto sm:max-h-[90vh] sm:rounded-3xl max-w-[55rem] relative flex flex-col md:flex-row overflow-hidden shadow-2xl zoom-in">
+                            <button onclick="window.closeProductDetails()" class="absolute top-4 right-4 z-50 bg-white text-slate-900 hover:bg-slate-100 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition border border-slate-200"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            <!-- Imagen y Galería -->
+                            <div class="w-full md:w-1/2 bg-slate-50 flex flex-col relative h-[35vh] md:h-auto border-r border-slate-100">
+                                <div class="flex-1 p-6 flex items-center justify-center relative bg-white">
+                                    <div class="absolute top-4 left-4 z-10 flex flex-col gap-1">
+                                        ${p.isOffer ? `<span class="bg-brand-500 text-white text-[9px] font-black px-3 py-1.5 rounded-lg shadow-md uppercase tracking-wider">OFERTA</span>` : ''}
+                                        ${p.isNew ? `<span class="bg-blue-500 text-white text-[9px] font-black px-3 py-1.5 rounded-lg shadow-md uppercase tracking-wider">NUEVO</span>` : ''}
+                                    </div>
+                                    <img src="${esc(activeImg)}" class="w-full h-full object-contain max-h-[40vh] transition-opacity duration-300" />
+                                </div>
+                                ${gallery.length > 1 ? `
+                                <div class="p-3 bg-slate-50 border-t border-slate-100 overflow-x-auto flex gap-2 shrink-0 hide-scroll">
+                                    ${gallery.map(img => `<button onclick="window.setActiveDetailImage('${img}')" class="w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 transition ${state.activeDetailImage === img ? 'border-brand-500 ring-2 ring-brand-100' : 'border-transparent bg-white'}"><img src="${img}" class="w-full h-full object-cover" /></button>`).join('')}
+                                </div>` : ''}
+                            </div>
+                            <!-- Info -->
+                            <div class="w-full md:w-1/2 flex flex-col h-[55vh] md:h-auto overflow-y-auto bg-white">
+                                <div class="p-6 md:p-8 flex-1">
+                                    <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">${p.brand ? `${p.brand} • ` : ''}${esc(p.category)} ${p.sku ? `<span class="text-slate-300 mx-1.5">•</span> SKU: ${esc(p.sku)}` : ''}</p>
+                                    <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 leading-tight tracking-tight">${esc(p.name)}</h2>
+                                    <div class="bg-slate-50 p-4 rounded-2xl mb-6 border border-slate-100">
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">Precio Web de Referencia</p>
+                                        <div class="flex items-end gap-3">
+                                            ${p.isOffer ? `<span class="text-3xl font-black text-brand-600 leading-none">S/ ${window.formatPrice(p.offerPrice)}</span><span class="text-sm text-slate-400 line-through font-bold">S/ ${window.formatPrice(p.price)}</span>` : `<span class="text-3xl font-black text-grafi-900 leading-none">S/ ${window.formatPrice(p.price)}</span>`}
+                                        </div>
+                                        ${p.bulkPrice>0 ? `<p class="text-sm text-slate-500 mt-2">Precio por mayor: S/ ${window.formatPrice(p.bulkPrice)}</p>` : ''}
+                                        <p class="text-xs font-semibold ${p.stock>0?'text-emerald-600':'text-amber-500'} mt-2 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${p.stock>0?'bg-emerald-500 animate-pulse':'bg-amber-500'}"></span> Disponibilidad: ${stockLabel(p)}</p>
+                                    </div>
+                                    <div class="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed"><h4 class="font-black text-slate-800 text-sm mb-2">Descripción General</h4>${esc(p.description || 'Consulta especificaciones técnicas con nuestros especialistas.')}</div>
+                                </div>
+                                <div class="p-4 md:p-6 bg-white border-t border-slate-100 shrink-0 flex flex-col gap-2">
+                                    ${isCartAvailable ? `
+                                        <button onclick="window.addToCart(decodeURIComponent('${encodeURIComponent(p.id).replace(/'/g, '%27')}')); window.closeProductDetails();" class="w-full flex justify-center items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition-transform active:scale-95 shadow-md"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg> Añadir al Carrito</button>
+                                    ` : ''}
+                                    <a href="${waLink}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-slate-900 hover:bg-brand-500 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition">Consultar Directo</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 2. MODAL LOGIN ADMIN
+            if (state.showAdminLogin) {
+                container.innerHTML += `
+                    <div class="fixed inset-0 bg-grafi-900/80 backdrop-blur-md flex items-center justify-center z-[110] p-4 fade-in">
+                        <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center relative zoom-in shadow-2xl">
+                            <button onclick="window.closeAdminLogin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-50 p-2 rounded-full transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            <div class="w-16 h-16 bg-brand-50 text-brand-500 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3"><svg class="w-8 h-8 -rotate-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+                            <h3 class="text-xl font-black mb-1 text-slate-900 tracking-tight">Acceso Administrativo</h3>
+                            <form onsubmit="window.handleAdminLogin(event)" class="mt-6">
+                                <input type="password" id="login-password" placeholder="Contraseña..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-center tracking-widest focus:ring-2 focus:ring-brand-500 outline-none text-base font-bold" autofocus autocomplete="off" />
+                                <p id="login-error" class="text-brand-600 text-xs hidden mb-4 font-bold bg-brand-50 py-1.5 rounded-lg">Clave Incorrecta</p>
+                                <button type="submit" class="w-full bg-grafi-900 hover:bg-black text-white font-black py-3 rounded-xl transition shadow-md active:scale-95 text-sm uppercase tracking-wider">Entrar al Panel</button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 5. CARRITO SIDEBAR
+            if (state.isCartOpen) {
+                const total = state.cart.reduce((sum, item) => sum + ((item.product.isOffer ? item.product.offerPrice : item.product.price) * item.quantity), 0);
+                
+                container.innerHTML += `
+                    <div class="fixed inset-0 bg-grafi-900/60 backdrop-blur-sm z-[150] flex justify-end fade-in" onclick="if(event.target===this) window.toggleCart()">
+                        <div class="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col slide-left">
+                            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                                <h3 class="font-black text-lg text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg> Tu Canasta</h3>
+                                <button onclick="window.toggleCart()" class="text-slate-400 hover:bg-slate-200 p-2 rounded-full transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                                ${state.cart.length === 0 ? `
+                                    <div class="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+                                        <div class="text-5xl mb-4">🛒</div><p class="font-bold text-slate-500 text-sm">Tu carrito está vacío.</p>
+                                    </div>
+                                ` : state.cart.map(item => {
+                                    const price = item.product.isOffer ? item.product.offerPrice : item.product.price;
+                                    return `
+                                    <div class="flex gap-3 bg-white border border-slate-100 p-3 rounded-2xl shadow-sm relative pr-8">
+                                        <button onclick="window.removeFromCart(decodeURIComponent('${encodeURIComponent(item.product.id).replace(/'/g, '%27')}'))" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                        <img src="${esc(item.product.image)}" class="w-16 h-16 object-contain bg-slate-50 rounded-xl border border-slate-100 p-1" />
+                                        <div class="flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <p class="text-[10px] font-black text-brand-500 uppercase line-clamp-1">${esc(item.product.category)}</p>
+                                                <h4 class="text-xs font-bold text-slate-900 leading-tight line-clamp-2">${esc(item.product.name)}</h4>
+                                            </div>
+                                            <div class="flex justify-between items-end mt-2">
+                                                <span class="font-black text-sm text-slate-900">S/ ${window.formatPrice(price)}</span>
+                                                <div class="flex items-center gap-2 bg-slate-50 rounded-lg border border-slate-200 p-0.5">
+                                                    <button onclick="window.updateCartQty('${item.product.id}', -1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-brand-500 font-black">-</button>
+                                                    <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
+                                                    <button onclick="window.updateCartQty('${item.product.id}', 1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-brand-500 font-black">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            ${state.cart.length > 0 ? `
+                            <div class="p-5 border-t border-slate-100 bg-white shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-10">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-sm font-bold text-slate-500">Monto Total Estimado</span>
+                                    <span class="text-2xl font-black text-brand-600">S/ ${window.formatPrice(total)}</span>
+                                </div>
+                                <button onclick="window.checkoutCart()" class="w-full bg-[#25D366] hover:bg-[#20b858] text-white py-3.5 rounded-xl font-black text-sm uppercase tracking-wider transition shadow-lg shadow-[#25D366]/20 flex justify-center items-center gap-2">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg> Solicitar Pedido
+                                </button>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { state.isLoaded = true; render(); initCloudStore(); initInventoryReader(); });
+    </script>
+</body>
+</html>
