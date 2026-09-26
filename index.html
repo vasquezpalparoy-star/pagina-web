@@ -89,6 +89,9 @@
         .auto-summary p {color:#e2dbe7}
         .auto-summary .auto-line {display:flex;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid #ffffff22;font-size:.85rem}
         [data-theme="dark"] .border-slate-200,[data-theme="dark"] .border-slate-100 {border-color:#46495c!important}
+        .print-service-dialog {border:0;padding:0;background:transparent;width:min(920px,calc(100vw - 24px));max-height:90dvh;border-radius:24px;box-shadow:0 30px 100px #0008;overflow:auto;color:inherit}
+        .print-service-dialog::backdrop {background:#111827b8;backdrop-filter:blur(6px)}
+        .print-service-content {max-height:72dvh;overflow-y:auto}
     </style>
 </head>
 <body class="h-full bg-[#f8fafc] text-slate-900 overflow-x-hidden selection:bg-brand-200">
@@ -160,6 +163,7 @@
             // Nuevos campos SEO
             seoTitle: 'Grafiplot - Imprenta, Gigantografías y Equipos',
             seoDescription: 'Tu centro integral de impresión digital, copias, planos y diseño gráfico. Atención rápida y profesional a nivel nacional.',
+            printServiceDetails: {},
             autoPrices: {}
         };
 
@@ -346,7 +350,7 @@
             });
 
             // Listeners seguros (no rompen si la colección está vacía)
-            onSnapshot(servicesRef, (snap) => { state.services = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+            onSnapshot(servicesRef, (snap) => { state.services = snap.docs.map(d => ({ id: d.id, ...d.data() })); if(!(state.view==='admin' && state.adminTab==='settings')) render(); }, e => console.warn(e));
             onSnapshot(quotesRef, (snap) => { state.quotes = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
             onSnapshot(faqsRef, (snap) => { state.faqs = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
             onSnapshot(testimonialsRef, (snap) => { state.testimonials = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
@@ -418,10 +422,11 @@
                     if (!Number.isFinite(value) || value < 0) throw new Error('Precio inválido');
                     newSettings.autoPrices[key] = value;
                 }
+                newSettings.printServiceDetails = readPrintServiceSettings(data,state.settings.printServiceDetails);
                 await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config'), newSettings);
                 state.settings = newSettings; updateSEO();
                 window.showToast("Sincronizado", "Configuración actualizada para todos los usuarios.", "success");
-            } catch(error) { window.showToast("Error", "No se guardó en Firestore.", "error"); }
+            } catch(error) { window.showToast("No se pudo guardar", error.message || "Revisa la conexión a Firebase.", "error"); }
         };
 
         // Shopping Cart Logic
@@ -653,14 +658,7 @@
             const cartItemsCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 
             // Datos por defecto (si BD está vacía) para visualización profesional
-            const displayServices = state.services.length > 0 ? state.services : [
-                { name: 'Impresión B/N y Color', icon: '📄', desc: 'Formatos A4, A3, Carta y Oficio con calidad láser.' },
-                { name: 'Ploteo de Planos', icon: '📐', desc: 'Impresión de planos en formato A0, A1, A2 en papel bond.' },
-                { name: 'Gigantografías y Lonas', icon: '📢', desc: 'Banners publicitarios de alta resolución para exteriores.' },
-                { name: 'Anillados y Empastados', icon: '📚', desc: 'Acabados profesionales para tesis y manuales corporativos.' },
-                { name: 'Tarjetas y Papelería', icon: '📇', desc: 'Tarjetas de presentación en couché, flyers y afiches.' },
-                { name: 'Stickers y Etiquetas', icon: '🏷️', desc: 'Impresión y troquelado en vinil adhesivo resistente.' }
-            ];
+            const displayServices = getPrintServices();
 
             const displayFaqs = state.faqs.length > 0 ? state.faqs : [
                 { q: '¿Qué formatos de archivo aceptan?', a: 'Sugerimos siempre enviar archivos en PDF para evitar desconfiguraciones. También aceptamos JPG, PNG, Illustrator, CorelDraw y la suite Office.' },
@@ -785,12 +783,13 @@
                                     <p class="text-sm text-slate-500 font-medium">Contamos con tecnología de punta para garantizar la mejor resolución y acabados en cada uno de tus proyectos.</p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    ${displayServices.map(srv => `
-                                        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-500 hover:shadow-lg transition-all group cursor-default">
-                                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-1 transition-transform border border-slate-100">${srv.icon || '📌'}</div>
-                                            <h3 class="text-lg font-black text-slate-900 mb-2">${srv.name}</h3>
-                                            <p class="text-sm text-slate-600 leading-relaxed font-medium">${srv.desc || srv.description || ''}</p>
-                                        </div>
+                                    ${displayServices.map((srv,index) => `
+                                        <button type="button" onclick="window.openPrintService(${index})" class="text-left p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-500 hover:shadow-lg transition-all group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500">
+                                            <span class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-1 transition-transform border border-slate-100">${esc(srv.icon)}</span>
+                                            <span class="block text-lg font-black text-slate-900 mb-2">${esc(srv.name)}</span>
+                                            <span class="block text-sm text-slate-600 leading-relaxed font-medium line-clamp-3">${esc(srv.description)}</span>
+                                            <span class="block text-xs font-bold text-brand-600 mt-4">Ver imágenes y detalles ↗</span>
+                                        </button>
                                     `).join('')}
                                 </div>
                             </div>
@@ -1114,6 +1113,70 @@
             return `<div class="max-w-6xl mx-auto space-y-6"><div class="bg-white p-6 rounded-2xl border border-slate-200"><h2 class="text-2xl font-black text-slate-900">Productos del inventario</h2><p class="text-sm text-slate-500 mt-2">Los productos, fotos, precios y existencias se administran desde tu aplicación de inventario. Aquí se muestran automáticamente.</p><p class="text-sm mt-3">${inventoryStatusText()}</p></div><div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left border-b"><th class="p-4">Producto</th><th class="p-4">Categoría</th><th class="p-4">Existencias</th><th class="p-4">Venta</th><th class="p-4">Por mayor</th></tr></thead><tbody>${state.products.map(p=>`<tr class="border-b border-slate-100"><td class="p-4 font-bold">${esc(p.name)}</td><td class="p-4">${esc(p.category)}</td><td class="p-4">${stockLabel(p)}</td><td class="p-4">S/ ${window.formatPrice(p.price)}</td><td class="p-4">${p.bulkPrice>0?'S/ '+window.formatPrice(p.bulkPrice):'No indicado'}</td></tr>`).join('') || '<tr><td class="p-6" colspan="5">Sin productos para mostrar.</td></tr>'}</tbody></table></div></div>`;
         }
 
+        const DEFAULT_PRINT_SERVICES = [
+            {id:'impresion',name:'Impresión B/N y Color',icon:'📄',description:'Formatos A4, A3, Carta y Oficio con calidad láser.'},
+            {id:'planos',name:'Ploteo de Planos',icon:'📐',description:'Impresión de planos en formato A0, A1, A2 en papel bond.'},
+            {id:'gigantografias',name:'Gigantografías y Lonas',icon:'📢',description:'Banners publicitarios de alta resolución para exteriores.'},
+            {id:'anillados',name:'Anillados',icon:'📚',description:'Anillado espiral con micas para tesis, trabajos y manuales.'},
+            {id:'papeleria',name:'Tarjetas y Papelería',icon:'📇',description:'Tarjetas de presentación en couché, flyers y afiches.'},
+            {id:'stickers',name:'Stickers y Etiquetas',icon:'🏷️',description:'Impresión y troquelado en vinil adhesivo resistente.'}
+        ];
+        function getPrintServices() {
+            const source=state.services.length?state.services:DEFAULT_PRINT_SERVICES;
+            return source.map((service,index)=>{
+                const id=String(service.id||'service_'+index);
+                const custom=state.settings.printServiceDetails?.[id]||{};
+                const originalName=service.name||'Servicio';
+                const name=custom.name??(/anillados\s+y\s+empastados/i.test(originalName)?'Anillados':originalName);
+                const originals=Array.isArray(service.images)?service.images:service.image?[service.image]:[];
+                const images=(Array.isArray(custom.images)?custom.images:originals).map(img=>inventoryImage(typeof img==='string'?img:img?.url)).filter(Boolean);
+                return {id,name,icon:service.icon||'📌',description:custom.description??service.description??service.desc??'',images};
+            });
+        }
+        function renderPrintServiceSettings() {
+            return `<div class="md:col-span-2 border-t pt-6"><h3 class="text-xl font-black text-slate-900">Centro de Impresión · Ventanas flotantes</h3><p class="text-sm text-slate-500 mt-2">Edita el nombre, la descripción y los enlaces de las imágenes de cada opción. Usa enlaces directos a imágenes y coloca uno por línea. Guarda con el botón Guardar cambios.</p></div>
+            ${getPrintServices().map((service,index)=>`<details class="md:col-span-2 border border-slate-200 rounded-xl p-4"><summary class="cursor-pointer font-bold text-slate-900">${esc(service.icon)} ${esc(service.name)}</summary><input type="hidden" name="print_service_id_${index}" value="${esc(service.id)}"><div class="grid gap-4 mt-4"><label class="auto-label">Nombre de la opción<input class="auto-field" name="print_service_name_${index}" required maxlength="100" value="${esc(service.name)}"></label><label class="auto-label">Descripción<textarea class="auto-field" name="print_service_description_${index}" rows="4" maxlength="5000">${esc(service.description)}</textarea></label><label class="auto-label">Enlaces de imágenes · uno por línea<textarea class="auto-field" name="print_service_images_${index}" rows="4" placeholder="https://ejemplo.com/imagen.jpg">${esc(service.images.join('\n'))}</textarea></label></div></details>`).join('')}`;
+        }
+        function readPrintServiceSettings(data,current={}) {
+            const result={...current};
+            for(let i=0;data.has('print_service_id_'+i);i++) {
+                const id=String(data.get('print_service_id_'+i));
+                const name=String(data.get('print_service_name_'+i)||'').trim();
+                if(!name) throw new Error('Escribe el nombre del servicio.');
+                const lines=String(data.get('print_service_images_'+i)||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+                const images=lines.map(inventoryImage);
+                if(images.some(s=>!s)) throw new Error('Revisa los enlaces de imágenes de '+name+'. Deben comenzar con https:// o http://.');
+                Object.defineProperty(result,id,{value:{name,description:String(data.get('print_service_description_'+i)||'').trim(),images},enumerable:true,configurable:true,writable:true});
+            }
+            return result;
+        }
+        let activePrintService=null;
+        let printServiceFocus=null;
+        window.openPrintService = index => {
+            const service=getPrintServices()[index];
+            if(!service) return;
+            activePrintService=service;
+            printServiceFocus=document.activeElement;
+            let modal=document.getElementById('print-service-dialog');
+            if(!modal) {
+                modal=document.createElement('dialog');modal.id='print-service-dialog';modal.className='print-service-dialog';
+                modal.setAttribute('aria-labelledby','print-service-title');
+                modal.addEventListener('click',e=>{if(e.target===modal)modal.close();});
+                modal.addEventListener('close',()=>{activePrintService=null;document.body.style.overflow=modal.dataset.previousOverflow||'';if(printServiceFocus?.isConnected)printServiceFocus.focus();});
+                document.body.appendChild(modal);
+            }
+            modal.innerHTML=`<div class="bg-white text-slate-900 rounded-3xl overflow-hidden"><div class="flex justify-between items-center gap-4 p-5 border-b border-slate-200"><div><p class="text-xs text-brand-600 font-bold uppercase tracking-widest mb-1">Centro de Impresión</p><h2 id="print-service-title" class="text-xl font-black">${esc(service.icon)} ${esc(service.name)}</h2></div><button type="button" autofocus onclick="document.getElementById('print-service-dialog').close()" class="rounded-full p-3 bg-slate-50 text-slate-900" aria-label="Cerrar ventana">✕</button></div><div class="print-service-content grid md:grid-cols-2 gap-6 p-5 sm:p-7"><div>${service.images.length?`<img id="print-service-main-image" src="${esc(service.images[0])}" alt="${esc(service.name)} · imagen 1" class="w-full h-64 sm:h-80 object-contain rounded-2xl bg-slate-50" onerror="this.hidden=true;document.getElementById('print-service-image-error').hidden=false"><p id="print-service-image-error" hidden class="text-sm text-slate-500 p-4">No se pudo cargar esta imagen.</p><div class="flex flex-wrap gap-2 mt-3">${service.images.map((url,i)=>`<button type="button" onclick="window.selectPrintServiceImage(${i})" class="p-1 border border-slate-200 rounded-lg" aria-label="Ver imagen ${i+1}"><img src="${esc(url)}" alt="Imagen ${i+1}" class="w-14 h-14 object-cover rounded-md" loading="lazy"></button>`).join('')}</div>`:`<div class="h-64 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-4"><span class="text-6xl">${esc(service.icon)}</span><span class="text-sm text-slate-500">Imágenes próximamente</span></div>`}</div><div><h3 class="font-bold mb-3">Acerca de este servicio</h3><p class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">${esc(service.description)||'Consulta los detalles de este servicio con nuestro equipo.'}</p><button type="button" onclick="document.getElementById('print-service-dialog').close();document.getElementById('cotizador').scrollIntoView({behavior:'smooth'})" class="mt-6 rounded-xl px-5 py-3 bg-brand-500 text-white font-bold">Ir al cotizador</button></div></div></div>`;
+            modal.dataset.previousOverflow=document.body.style.overflow;
+            document.body.style.overflow='hidden';
+            modal.showModal();
+        };
+        window.selectPrintServiceImage = index => {
+            const url=activePrintService?.images[index];if(!url)return;
+            const image=document.getElementById('print-service-main-image');
+            image.hidden=false;document.getElementById('print-service-image-error').hidden=true;
+            image.alt=activePrintService.name+' · imagen '+(index+1);image.src=url;
+        };
+
         function renderAdminSettingsTab() {
             const s = state.settings;
             return `
@@ -1137,6 +1200,7 @@
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Dirección Física</label><input type="text" name="contactAddress" value="${s.contactAddress}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Anuncio Superior Web</label><input type="text" name="announcement" value="${s.announcement}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" /></div>
 
+                            ${renderPrintServiceSettings()}
                             ${renderAutoPriceSettings()}
                             <label class="text-xs font-bold text-slate-600">Correo<input name="contactEmail" type="text" value="${s.contactEmail || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
                             <label class="text-xs font-bold text-slate-600">Horario<input name="footerSchedule" type="text" value="${s.footerSchedule || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
@@ -1300,3 +1364,4 @@
     </script>
 </body>
 </html>
+
