@@ -92,6 +92,12 @@
         .print-service-dialog {border:0;padding:0;background:transparent;width:min(920px,calc(100vw - 24px));max-height:90dvh;border-radius:24px;box-shadow:0 30px 100px #0008;overflow:auto;color:inherit}
         .print-service-dialog::backdrop {background:#111827b8;backdrop-filter:blur(6px)}
         .print-service-content {max-height:72dvh;overflow-y:auto}
+        .service-card {position:relative;overflow:hidden;isolation:isolate;min-height:245px}
+        .service-card > span {position:relative;z-index:2}
+        .service-card .service-card-background {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+        .service-card.has-background .service-card-shade {position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,rgba(12,18,35,.82),rgba(12,18,35,.64))}
+        .service-card:not(.has-background) .service-card-shade {display:none}
+        html .service-card.has-background .service-card-title,html .service-card.has-background .service-card-description,html .service-card.has-background .service-card-link {color:#fff!important;text-shadow:0 1px 3px #0007}
     </style>
 </head>
 <body class="h-full bg-[#f8fafc] text-slate-900 overflow-x-hidden selection:bg-brand-200">
@@ -163,6 +169,7 @@
             // Nuevos campos SEO
             seoTitle: 'Grafiplot - Imprenta, Gigantografías y Equipos',
             seoDescription: 'Tu centro integral de impresión digital, copias, planos y diseño gráfico. Atención rápida y profesional a nivel nacional.',
+            faqContent: null,
             printServiceDetails: {},
             autoPrices: {}
         };
@@ -352,7 +359,7 @@
             // Listeners seguros (no rompen si la colección está vacía)
             onSnapshot(servicesRef, (snap) => { state.services = snap.docs.map(d => ({ id: d.id, ...d.data() })); if(!(state.view==='admin' && state.adminTab==='settings')) render(); }, e => console.warn(e));
             onSnapshot(quotesRef, (snap) => { state.quotes = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
-            onSnapshot(faqsRef, (snap) => { state.faqs = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
+            onSnapshot(faqsRef, (snap) => { state.faqs = snap.docs.map(d => ({ id: d.id, ...d.data() })); if(!(state.view==='admin' && state.adminTab==='settings')) render(); }, e => console.warn(e));
             onSnapshot(testimonialsRef, (snap) => { state.testimonials = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, e => console.warn(e));
         }
 
@@ -422,6 +429,7 @@
                     if (!Number.isFinite(value) || value < 0) throw new Error('Precio inválido');
                     newSettings.autoPrices[key] = value;
                 }
+                newSettings.faqContent = readFaqSettings(data);
                 newSettings.printServiceDetails = readPrintServiceSettings(data,state.settings.printServiceDetails);
                 await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config'), newSettings);
                 state.settings = newSettings; updateSEO();
@@ -660,11 +668,7 @@
             // Datos por defecto (si BD está vacía) para visualización profesional
             const displayServices = getPrintServices();
 
-            const displayFaqs = state.faqs.length > 0 ? state.faqs : [
-                { q: '¿Qué formatos de archivo aceptan?', a: 'Sugerimos siempre enviar archivos en PDF para evitar desconfiguraciones. También aceptamos JPG, PNG, Illustrator, CorelDraw y la suite Office.' },
-                { q: '¿Realizan envíos a nivel nacional?', a: 'Sí, despachamos equipos, insumos y trabajos de imprenta de gran volumen a todo el Perú mediante agencias de transporte.' },
-                { q: '¿Cuánto demora el servicio de diseño?', a: 'Depende del requerimiento. Diseños rápidos como tarjetas o flyers toman de 24 a 48 horas tras confirmar la información.' }
-            ];
+            const displayFaqs = getEditableFaqs();
 
             return `
                 <div class="fade-in flex flex-col min-h-screen">
@@ -784,11 +788,12 @@
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     ${displayServices.map((srv,index) => `
-                                        <button type="button" onclick="window.openPrintService(${index})" class="text-left p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-500 hover:shadow-lg transition-all group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500">
+                                        <button type="button" onclick="window.openPrintService(${index})" class="service-card ${srv.background ? 'has-background' : ''} text-left p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brand-500 hover:shadow-lg transition-all group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500">
+                                            ${srv.background ? `<img class="service-card-background" src="${esc(srv.background)}" alt="" loading="lazy" onerror="this.hidden=true;this.closest('button').classList.remove('has-background')"><span class="service-card-shade" aria-hidden="true"></span>` : ''}
                                             <span class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-1 transition-transform border border-slate-100">${esc(srv.icon)}</span>
-                                            <span class="block text-lg font-black text-slate-900 mb-2">${esc(srv.name)}</span>
-                                            <span class="block text-sm text-slate-600 leading-relaxed font-medium line-clamp-3">${esc(srv.description)}</span>
-                                            <span class="block text-xs font-bold text-brand-600 mt-4">Ver imágenes y detalles ↗</span>
+                                            <span class="service-card-title block text-lg font-black text-slate-900 mb-2">${esc(srv.name)}</span>
+                                            <span class="service-card-description block text-sm text-slate-600 leading-relaxed font-medium line-clamp-3">${esc(srv.description)}</span>
+                                            <span class="service-card-link block text-xs font-bold text-brand-600 mt-4">Ver imágenes y detalles ↗</span>
                                         </button>
                                     `).join('')}
                                 </div>
@@ -945,7 +950,7 @@
                         </section>
 
                         <!-- 7. PREGUNTAS FRECUENTES -->
-                        <section class="py-16 bg-white border-t border-slate-100">
+                        <section ${displayFaqs.length ? '' : 'hidden'} class="py-16 bg-white border-t border-slate-100">
                             <div class="max-w-[50rem] mx-auto px-4 sm:px-6 lg:px-8">
                                 <div class="text-center mb-10">
                                     <h2 class="text-3xl font-black text-slate-900 tracking-tight">Preguntas Frecuentes</h2>
@@ -953,8 +958,8 @@
                                 <div class="space-y-4">
                                     ${displayFaqs.map((faq, i) => `
                                         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:bg-white transition cursor-default">
-                                            <h4 class="font-black text-sm text-slate-900 flex gap-3"><span class="text-brand-500">P.</span> ${faq.q || faq.question}</h4>
-                                            <p class="text-sm text-slate-600 mt-2 font-medium leading-relaxed flex gap-3"><span class="text-slate-300">R.</span> ${faq.a || faq.answer}</p>
+                                            <h4 class="font-black text-sm text-slate-900 flex gap-3"><span class="text-brand-500">P.</span> ${esc(faq.q)}</h4>
+                                            <p class="text-sm text-slate-600 mt-2 font-medium leading-relaxed flex gap-3"><span class="text-slate-300">R.</span> ${esc(faq.a)}</p>
                                         </div>
                                     `).join('')}
                                 </div>
@@ -1113,6 +1118,34 @@
             return `<div class="max-w-6xl mx-auto space-y-6"><div class="bg-white p-6 rounded-2xl border border-slate-200"><h2 class="text-2xl font-black text-slate-900">Productos del inventario</h2><p class="text-sm text-slate-500 mt-2">Los productos, fotos, precios y existencias se administran desde tu aplicación de inventario. Aquí se muestran automáticamente.</p><p class="text-sm mt-3">${inventoryStatusText()}</p></div><div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left border-b"><th class="p-4">Producto</th><th class="p-4">Categoría</th><th class="p-4">Existencias</th><th class="p-4">Venta</th><th class="p-4">Por mayor</th></tr></thead><tbody>${state.products.map(p=>`<tr class="border-b border-slate-100"><td class="p-4 font-bold">${esc(p.name)}</td><td class="p-4">${esc(p.category)}</td><td class="p-4">${stockLabel(p)}</td><td class="p-4">S/ ${window.formatPrice(p.price)}</td><td class="p-4">${p.bulkPrice>0?'S/ '+window.formatPrice(p.bulkPrice):'No indicado'}</td></tr>`).join('') || '<tr><td class="p-6" colspan="5">Sin productos para mostrar.</td></tr>'}</tbody></table></div></div>`;
         }
 
+        const DEFAULT_FAQS = [
+                { q: '¿Qué formatos de archivo aceptan?', a: 'Sugerimos siempre enviar archivos en PDF para evitar desconfiguraciones. También aceptamos JPG, PNG, Illustrator, CorelDraw y la suite Office.' },
+                { q: '¿Realizan envíos a nivel nacional?', a: 'Sí, despachamos equipos, insumos y trabajos de imprenta de gran volumen a todo el Perú mediante agencias de transporte.' },
+                { q: '¿Cuánto demora el servicio de diseño?', a: 'Depende del requerimiento. Diseños rápidos como tarjetas o flyers toman de 24 a 48 horas tras confirmar la información.' }
+            ];
+        function getEditableFaqs() {
+            const source=Array.isArray(state.settings.faqContent)?state.settings.faqContent:state.faqs.length?state.faqs:DEFAULT_FAQS;
+            return source.map(f=>({q:String(f.q??f.question??''),a:String(f.a??f.answer??'')}));
+        }
+        function faqEditorRow(f={q:'',a:''}) {
+            return `<div class="faq-editor-row border border-slate-200 rounded-xl p-4 space-y-3"><label class="auto-label block">Pregunta<input name="faq_question" class="auto-field" maxlength="500" value="${esc(f.q)}" placeholder="Escribe una pregunta"></label><label class="auto-label block">Respuesta<textarea name="faq_answer" class="auto-field" maxlength="5000" rows="3" placeholder="Escribe la respuesta">${esc(f.a)}</textarea></label><button type="button" onclick="this.closest('.faq-editor-row').remove()" class="text-sm font-bold text-red-600">Eliminar pregunta</button></div>`;
+        }
+        function renderFaqSettings() {
+            return `<div class="md:col-span-2 border-t pt-6"><h3 class="text-xl font-black text-slate-900">Preguntas frecuentes</h3><p class="text-sm text-slate-500 mt-2 mb-4">Edita, añade o elimina preguntas y respuestas. Los cambios se publican al pulsar Guardar cambios.</p><div id="faq-editor-rows" class="space-y-4">${getEditableFaqs().map(faqEditorRow).join('')}</div><button type="button" onclick="window.addFaqRow()" class="mt-4 px-4 py-2 rounded-xl bg-brand-500 text-white font-bold text-sm">+ Añadir pregunta</button></div>`;
+        }
+        window.addFaqRow = () => {
+            const container=document.getElementById('faq-editor-rows');
+            container.insertAdjacentHTML('beforeend',faqEditorRow());
+            container.lastElementChild.querySelector('input').focus();
+        };
+        function readFaqSettings(data) {
+            const questions=data.getAll('faq_question');const answers=data.getAll('faq_answer');
+            return questions.map((q,i)=>({q:String(q).trim(),a:String(answers[i]||'').trim()})).filter(f=>f.q||f.a).map(f=>{
+                if(!f.q||!f.a) throw new Error('Completa la pregunta y su respuesta, o elimina la fila vacía.');
+                return f;
+            });
+        }
+
         const DEFAULT_PRINT_SERVICES = [
             {id:'impresion',name:'Impresión B/N y Color',icon:'📄',description:'Formatos A4, A3, Carta y Oficio con calidad láser.'},
             {id:'planos',name:'Ploteo de Planos',icon:'📐',description:'Impresión de planos en formato A0, A1, A2 en papel bond.'},
@@ -1130,12 +1163,12 @@
                 const name=custom.name??(/anillados\s+y\s+empastados/i.test(originalName)?'Anillados':originalName);
                 const originals=Array.isArray(service.images)?service.images:service.image?[service.image]:[];
                 const images=(Array.isArray(custom.images)?custom.images:originals).map(img=>inventoryImage(typeof img==='string'?img:img?.url)).filter(Boolean);
-                return {id,name,icon:service.icon||'📌',description:custom.description??service.description??service.desc??'',images};
+                return {id,name,icon:service.icon||'📌',description:custom.description??service.description??service.desc??'',images,background:inventoryImage(custom.background??service.background??'')};
             });
         }
         function renderPrintServiceSettings() {
             return `<div class="md:col-span-2 border-t pt-6"><h3 class="text-xl font-black text-slate-900">Centro de Impresión · Ventanas flotantes</h3><p class="text-sm text-slate-500 mt-2">Edita el nombre, la descripción y los enlaces de las imágenes de cada opción. Usa enlaces directos a imágenes y coloca uno por línea. Guarda con el botón Guardar cambios.</p></div>
-            ${getPrintServices().map((service,index)=>`<details class="md:col-span-2 border border-slate-200 rounded-xl p-4"><summary class="cursor-pointer font-bold text-slate-900">${esc(service.icon)} ${esc(service.name)}</summary><input type="hidden" name="print_service_id_${index}" value="${esc(service.id)}"><div class="grid gap-4 mt-4"><label class="auto-label">Nombre de la opción<input class="auto-field" name="print_service_name_${index}" required maxlength="100" value="${esc(service.name)}"></label><label class="auto-label">Descripción<textarea class="auto-field" name="print_service_description_${index}" rows="4" maxlength="5000">${esc(service.description)}</textarea></label><label class="auto-label">Enlaces de imágenes · uno por línea<textarea class="auto-field" name="print_service_images_${index}" rows="4" placeholder="https://ejemplo.com/imagen.jpg">${esc(service.images.join('\n'))}</textarea></label></div></details>`).join('')}`;
+            ${getPrintServices().map((service,index)=>`<details class="md:col-span-2 border border-slate-200 rounded-xl p-4"><summary class="cursor-pointer font-bold text-slate-900">${esc(service.icon)} ${esc(service.name)}</summary><input type="hidden" name="print_service_id_${index}" value="${esc(service.id)}"><div class="grid gap-4 mt-4"><label class="auto-label">Nombre de la opción<input class="auto-field" name="print_service_name_${index}" required maxlength="100" value="${esc(service.name)}"></label><label class="auto-label">Descripción<textarea class="auto-field" name="print_service_description_${index}" rows="4" maxlength="5000">${esc(service.description)}</textarea></label><label class="auto-label">Imagen de fondo del recuadro (URL)<input class="auto-field" type="url" name="print_service_background_${index}" value="${esc(service.background)}" placeholder="https://ejemplo.com/fondo.jpg"><span class="block text-xs text-slate-500 mt-2">Deja el campo vacío para quitar el fondo.</span></label><label class="auto-label">Imágenes de la ventana flotante · uno por línea<textarea class="auto-field" name="print_service_images_${index}" rows="4" placeholder="https://ejemplo.com/imagen.jpg">${esc(service.images.join('\n'))}</textarea></label></div></details>`).join('')}`;
         }
         function readPrintServiceSettings(data,current={}) {
             const result={...current};
@@ -1146,7 +1179,10 @@
                 const lines=String(data.get('print_service_images_'+i)||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
                 const images=lines.map(inventoryImage);
                 if(images.some(s=>!s)) throw new Error('Revisa los enlaces de imágenes de '+name+'. Deben comenzar con https:// o http://.');
-                Object.defineProperty(result,id,{value:{name,description:String(data.get('print_service_description_'+i)||'').trim(),images},enumerable:true,configurable:true,writable:true});
+                const backgroundRaw=String(data.get('print_service_background_'+i)||'').trim();
+                const background=inventoryImage(backgroundRaw);
+                if(backgroundRaw && !background) throw new Error('Revisa el enlace del fondo de '+name+'.');
+                Object.defineProperty(result,id,{value:{name,background,description:String(data.get('print_service_description_'+i)||'').trim(),images},enumerable:true,configurable:true,writable:true});
             }
             return result;
         }
@@ -1200,6 +1236,7 @@
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Dirección Física</label><input type="text" name="contactAddress" value="${s.contactAddress}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Anuncio Superior Web</label><input type="text" name="announcement" value="${s.announcement}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" /></div>
 
+                            ${renderFaqSettings()}
                             ${renderPrintServiceSettings()}
                             ${renderAutoPriceSettings()}
                             <label class="text-xs font-bold text-slate-600">Correo<input name="contactEmail" type="text" value="${s.contactEmail || ''}" class="block w-full mt-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl" /></label>
@@ -1364,4 +1401,5 @@
     </script>
 </body>
 </html>
+
 
