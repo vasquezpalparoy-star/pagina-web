@@ -58,6 +58,13 @@
         .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
+        .brand-logo-link { display:inline-flex; flex-shrink:0; border-radius:8px; background:#fff; }
+        .brand-logo-link:focus-visible { outline:3px solid #e31837; outline-offset:4px; }
+        .brand-logo { display:block; width:clamp(120px,38vw,180px); height:auto; object-fit:contain; border-radius:8px; background:#fff; }
+        .brand-logo-footer { width:100%; max-width:280px; }
+        @media (min-width:640px) { .brand-logo-link .brand-logo { width:260px; } }
+        @media (min-width:1024px) { .brand-logo-link .brand-logo { width:300px; } }
+
         /* Estilos del Logo Recreados de la imagen */
         .logo-g { font-size: 2.3rem; letter-spacing: -0.06em; }
         .logo-rafiplot { font-size: 2.3rem; letter-spacing: -0.04em; margin-left: -0.02em; }
@@ -642,12 +649,9 @@
         }
 
         const getLogoHTML = () => `
-            <div class="relative inline-block pb-3 sm:pb-4 pr-16 sm:pr-24 select-none cursor-pointer group" onclick="window.setView('store')">
-                <div class="font-black leading-none flex items-baseline">
-                    <span class="text-[#1a1a1a] logo-g transition-transform group-hover:scale-105 origin-bottom-left">G</span><span class="text-brand-500 logo-rafiplot">rafiplot</span>
-                </div>
-                <div class="text-[#1a1a1a] font-extrabold absolute logo-vasquez leading-none">vasquez</div>
-            </div>
+            <a href="#hero" class="brand-logo-link" aria-label="Grafiplot Vasquez — Inicio" onclick="window.setView('store')">
+                <img src="./logo-grafiplot.webp" alt="Grafiplot Vasquez — Copias, ploteos e impresiones al por mayor y menor" width="2048" height="682" class="brand-logo" fetchpriority="high" decoding="async">
+            </a>
         `;
 
         function renderStorefront() {
@@ -977,7 +981,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                                 <!-- Columna de Identidad -->
                                 <div>
-                                    <div class="mb-4 brightness-0 invert opacity-100"><div class="relative inline-block pb-3"><div class="font-black leading-none flex items-baseline"><span class="text-[#1a1a1a] logo-g">G</span><span class="text-brand-500 logo-rafiplot">rafiplot</span></div><div class="text-[#1a1a1a] font-extrabold absolute logo-vasquez leading-none">vasquez</div></div></div>
+                                    <div class="mb-4"><img src="./logo-grafiplot.webp" alt="Grafiplot Vasquez" width="2048" height="682" class="brand-logo brand-logo-footer" loading="lazy" decoding="async"></div>
                                     <p class="text-xs text-slate-400 leading-relaxed font-medium mb-6">${s.footerAbout}</p>
                                     ${s.ruc ? `<p class="text-[10px] text-slate-500 font-mono tracking-wider">RUC: ${s.ruc}</p>` : ''}
                                     ${s.companyName ? `<p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">${s.companyName}</p>` : ''}
