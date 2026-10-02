@@ -386,7 +386,7 @@ function loadCloudConfig(data){
  applyPreviewConfig(cloudConfig.designConfig||{});
  quotePrices=cloudConfig.autoPrices&&typeof cloudConfig.autoPrices==='object'?cloudConfig.autoPrices:{};
  galleryDraft=Array.isArray(cloudConfig.galleryItems)?cloudConfig.galleryItems:[];
- if(Array.isArray(cloudConfig.faqContent))faqDraft=cloudConfig.faqContent;
+ if(Array.isArray(cloudConfig.faqContent))faqDraft=cloudConfig.faqContent.filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')}));
  if(cloudConfig.logoUrl){try{root.querySelector('.gp-logo').src=httpsLink(cloudConfig.logoUrl,false)}catch(_){}}
  root.querySelector('#gp-settings-logo').value=cloudConfig.logoUrl||'https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png';
  root.querySelector('#gp-settings-phone').value=configuredPhone();
@@ -409,7 +409,7 @@ async function saveSiteSettings(e){
  const faqContent=faqDraft.filter(item=>item.question.trim()).map(item=>({question:item.question.trim(),answer:item.answer}));
  const patch={designConfig,galleryItems,faqContent,autoPrices,logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
- await setDoc(settingsRef,patch,{merge:true});
+ await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});
  cloudConfig={...cloudConfig,...patch};applyPreviewConfig(designConfig);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  }catch(error){feedback('No se pudo guardar: '+(error.message||error.code),true)}finally{buttons.forEach(b=>b.disabled=false)}
@@ -466,7 +466,7 @@ async function connectSite(){
  const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);await signInAnonymously(siteAuth);
  settingsRef=doc(siteDb,'artifacts','grafiplot-tienda-v4','public','data','settings','config');
  onSnapshot(settingsRef,snapshot=>{cloudReady=true;loadCloudConfig(snapshot.exists()?snapshot.data():{});root.querySelector('#gp-cloud-status').textContent='Configuración conectada a Firebase.'},error=>{cloudReady=false;root.querySelector('#gp-cloud-status').textContent='No se pudo leer la configuración: '+error.code});
- onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(i=>typeof i.question==='string');if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor()}}});
+ onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')})).filter(f=>f.question.trim());if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor()}}});
  }catch(error){cloudReady=false;root.querySelector('#gp-cloud-status').textContent='Firebase no está disponible: '+error.code}
 }
 async function connectInventory(){
