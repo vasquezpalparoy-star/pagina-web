@@ -460,11 +460,11 @@
                 newSettings.logoUrl = safeSettingsURL(newSettings.logoUrl,false);
                 newSettings.mapLink = safeSettingsURL(newSettings.mapLink,false);
                 newSettings.campaignUrl = safeSettingsURL(newSettings.campaignUrl,!newSettings.campaignEnabled);
-                const gallery = JSON.parse(String(data.get('galleryItems') || '[]'));
-                if (!Array.isArray(gallery) || gallery.length > 100) throw new Error('La galería debe ser una lista de hasta 100 trabajos.');
-                newSettings.galleryItems = gallery.map(item => {
-                    if (!item || typeof item.title !== 'string' || !item.title.trim()) throw new Error('Cada trabajo necesita un título.');
-                    return { title:item.title.trim(), description:String(item.description||''), image:safeSettingsURL(item.image) };
+                const titles=data.getAll('gallery_title'), images=data.getAll('gallery_image'), descriptions=data.getAll('gallery_description');
+                if(titles.length>100)throw new Error('Máximo 100 imágenes por galería.');
+                newSettings.galleryItems=titles.map((title,index)=>({title:String(title).trim(),image:String(images[index]||'').trim(),description:String(descriptions[index]||'')})).filter(item=>item.title||item.image||item.description).map(item=>{
+                    if(!item.title)throw new Error('Cada imagen necesita un título.');
+                    return {...item,image:safeSettingsURL(item.image)};
                 });
                 newSettings.faqContent = readFaqSettings(data);
                 newSettings.printServiceDetails = readPrintServiceSettings(data,state.settings.printServiceDetails);
@@ -693,13 +693,26 @@
                 <label class="auto-label">Tema principal<select class="auto-field" name="defaultTheme"><option value="dark" ${s.defaultTheme==='dark'?'selected':''}>Oscuro</option><option value="light" ${s.defaultTheme==='light'?'selected':''}>Claro</option></select></label>
                 ${field('servicesTitle','Título de servicios')}${field('servicesSubtitle','Descripción de servicios')}
                 ${field('galleryTitle','Título de galería')}${field('gallerySubtitle','Descripción de galería')}
-                <label class="auto-label md:col-span-2">Trabajos de galería (lista JSON: título, imagen y descripción)<textarea class="auto-field" name="galleryItems" rows="6">${esc(JSON.stringify(s.galleryItems||[],null,2))}</textarea></label>
+                <div class="md:col-span-2"><h4 class="font-bold">Imágenes de la galería</h4><p class="text-xs text-slate-500 mt-2">Añade cada imagen con su enlace directo, título y descripción.</p><div id="gallery-settings-rows">${(s.galleryItems||[]).map(galleryWorkEditor).join('')}</div><button type="button" onclick="window.addGalleryWork()" class="px-4 py-2 bg-brand-500 text-white rounded-lg font-bold">Añadir imagen</button></div>
                 <label class="auto-label"><input type="checkbox" name="campaignEnabled" ${s.campaignEnabled?'checked':''}> Activar campaña en la portada</label>
                 <label class="auto-label">Tipo<select class="auto-field" name="campaignType"><option value="sorteo" ${s.campaignType==='sorteo'?'selected':''}>Sorteo</option><option value="promo" ${s.campaignType==='promo'?'selected':''}>Promoción</option></select></label>
                 ${field('campaignTitle','Título de la campaña')}${field('campaignDescription','Descripción de campaña')}
                 ${field('campaignButton','Texto del botón')}${field('campaignUrl','Enlace de inscripción / oferta','url')}
                 <p class="md:col-span-2 text-xs text-slate-500">Guardar cambios conserva estos ajustes en el mismo documento de Firebase. Al volver a abrir la web se recuperan automáticamente.</p>`;
         }
+        function galleryWorkEditor(item={}) {
+            return `<div data-gallery-editor-row class="border border-slate-200 rounded-xl p-4 my-4 grid gap-3">
+                <label class="auto-label">Título<input class="auto-field" name="gallery_title" value="${esc(item.title||'')}"></label>
+                <label class="auto-label">Enlace directo de la imagen<input class="auto-field" name="gallery_image" type="url" placeholder="https://…" value="${esc(item.image||'')}"></label>
+                <label class="auto-label">Descripción<textarea class="auto-field" name="gallery_description" rows="3">${esc(item.description||'')}</textarea></label>
+                <button type="button" onclick="this.closest('[data-gallery-editor-row]').remove()" class="text-brand-600 text-sm font-bold text-left">Quitar imagen</button>
+            </div>`;
+        }
+        window.addGalleryWork = () => {
+            const container=document.getElementById('gallery-settings-rows');
+            const row=document.createElement('div');row.innerHTML=galleryWorkEditor();container.append(row.firstElementChild);
+        };
+
         function renderConfiguredCampaign() {
             const s=state.settings;if(!s.campaignEnabled||!s.campaignUrl)return '';
             let link;try{link=safeSettingsURL(s.campaignUrl,false)}catch(_){return ''}
