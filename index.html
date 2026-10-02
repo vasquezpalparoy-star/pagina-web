@@ -369,7 +369,7 @@ root.querySelectorAll(targetTags).forEach(element=>{
 const previewStorage='grafiplot-config-preview-v1';
 let storedPreview={};
 function applyPreviewConfig(config){
- const texts=config.texts||{};settingsTargets.forEach((target,index)=>{if(typeof texts[index]==='string')target.node.textContent=texts[index]});
+ const texts=config.texts||{};settingsTargets.forEach((target,index)=>{if(typeof texts[index]==='string'){let value=texts[index];if(target.node.parentElement?.id==='gp-cart-send'&&value==='Consultar pedido por WhatsApp')value='Enviar pedido por WhatsApp';if(target.node.parentElement?.tagName==='H2'&&target.node.parentElement.closest('#gp-cart')&&value==='Tu pedido')value='Carrito de compras';target.node.textContent=value}});
  root.dataset.appearance='dark';root.querySelector('#gp-settings-theme').value='dark';
  if(/^#[0-9a-f]{6}$/i.test(config.brand||'')){root.style.setProperty('--gp-red',config.brand);root.querySelector('#gp-settings-brand').value=config.brand}
  if(config.map){try{const url=new URL(config.map);if(url.protocol==='https:'){root.querySelector('.gp-route-card a').href=url.href;root.querySelector('#gp-settings-map').value=url.href}}catch(_){}}
