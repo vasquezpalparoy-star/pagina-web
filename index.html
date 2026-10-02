@@ -163,7 +163,7 @@
             contactAddress: 'Av. Garcilaso de la Vega 1236, Lima, Perú',
             contactPhone: '51952628844',
             contactEmail: 'ventas@grafiplot.com',
-            mapLink: 'https://maps.app.goo.gl/Limacentro',
+            mapLink: 'https://maps.app.goo.gl/N1Gic3VsKwBRi9D68',
             footerAbout: 'Líderes en brindar soluciones integrales para la industria publicitaria, estudiantes y empresas. Calidad y rapidez garantizada.',
             footerSchedule: 'Lunes a Sábado: 9:00 AM - 7:00 PM',
             socialFacebook: 'https://facebook.com',
@@ -175,7 +175,20 @@
             footerLink1Url: '#',
             footerLink2Text: 'Cotizaciones para Empresas',
             footerLink2Url: '#',
-            adminPassword: 'admin',
+            adminPassword: '2024',
+            logoUrl: 'https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png',
+            defaultTheme: 'dark',
+            servicesTitle: 'Nuestros Servicios de Impresión',
+            servicesSubtitle: 'Soluciones para tus proyectos, entregas y negocios.',
+            galleryTitle: 'Galería de trabajos',
+            gallerySubtitle: 'Conoce nuestros trabajos de impresión y diseño.',
+            galleryItems: [],
+            campaignEnabled: false,
+            campaignType: 'sorteo',
+            campaignTitle: '¡Participa y gana con Grafiplot!',
+            campaignDescription: 'Conoce los premios y completa tu inscripción.',
+            campaignButton: 'Inscribirme al sorteo',
+            campaignUrl: '',
             // Nuevos campos SEO
             seoTitle: 'Grafiplot - Imprenta, Gigantografías y Equipos',
             seoDescription: 'Tu centro integral de impresión digital, copias, planos y diseño gráfico. Atención rápida y profesional a nivel nacional.',
@@ -359,6 +372,7 @@
             onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     state.settings = { ...DEFAULT_SETTINGS, ...docSnap.data() };
+                    document.documentElement.dataset.theme = localStorage.getItem('grafiplot-theme') || state.settings.defaultTheme;
                     updateSEO();
                 } else if (auth.currentUser) {
                     setDoc(settingsDocRef, DEFAULT_SETTINGS);
@@ -409,7 +423,7 @@
         window.handleAdminLogin = (e) => {
             e.preventDefault();
             const pass = document.getElementById('login-password').value;
-            if (pass === state.settings.adminPassword) {
+            if (pass === '2024') {
                 state.isAdminAuthenticated = true; state.showAdminLogin = false; 
                 window.setView('admin'); window.showToast("Acceso Permitido", "Has iniciado sesión como administrador.", "success");
             } else {
@@ -428,6 +442,7 @@
             try {
             Object.keys(DEFAULT_SETTINGS).forEach(field => {
                 const val = data.get(field);
+                if (['galleryItems','campaignEnabled'].includes(field)) return;
                 if (val !== null) { if (field.startsWith('price')) { const amount = Number(val); if (!Number.isFinite(amount) || amount < 0) { window.showToast('Precio inválido', field, 'error'); throw new Error('Precio inválido'); } newSettings[field] = amount; } else newSettings[field] = val; }
             });
                 if (!state.isAdminAuthenticated) return;
@@ -439,9 +454,21 @@
                     if (!Number.isFinite(value) || value < 0) throw new Error('Precio inválido');
                     newSettings.autoPrices[key] = value;
                 }
+                newSettings.adminPassword = '2024';
+                newSettings.campaignEnabled = data.has('campaignEnabled');
+                newSettings.defaultTheme = data.get('defaultTheme') === 'light' ? 'light' : 'dark';
+                newSettings.logoUrl = safeSettingsURL(newSettings.logoUrl,false);
+                newSettings.mapLink = safeSettingsURL(newSettings.mapLink,false);
+                newSettings.campaignUrl = safeSettingsURL(newSettings.campaignUrl,!newSettings.campaignEnabled);
+                const gallery = JSON.parse(String(data.get('galleryItems') || '[]'));
+                if (!Array.isArray(gallery) || gallery.length > 100) throw new Error('La galería debe ser una lista de hasta 100 trabajos.');
+                newSettings.galleryItems = gallery.map(item => {
+                    if (!item || typeof item.title !== 'string' || !item.title.trim()) throw new Error('Cada trabajo necesita un título.');
+                    return { title:item.title.trim(), description:String(item.description||''), image:safeSettingsURL(item.image) };
+                });
                 newSettings.faqContent = readFaqSettings(data);
                 newSettings.printServiceDetails = readPrintServiceSettings(data,state.settings.printServiceDetails);
-                await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config'), newSettings);
+                await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'config'), newSettings, { merge: true });
                 state.settings = newSettings; updateSEO();
                 window.showToast("Sincronizado", "Configuración actualizada para todos los usuarios.", "success");
             } catch(error) { window.showToast("No se pudo guardar", error.message || "Revisa la conexión a Firebase.", "error"); }
@@ -621,7 +648,7 @@
             localStorage.setItem('grafiplot-theme',next);
             document.querySelector('[data-theme-toggle]').textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
         };
-        document.documentElement.dataset.theme = localStorage.getItem('grafiplot-theme') || 'light';
+        document.documentElement.dataset.theme = localStorage.getItem('grafiplot-theme') || 'dark';
 
         window.sendDesignRequest = (e) => {
             e.preventDefault();
@@ -650,9 +677,38 @@
 
         const getLogoHTML = () => `
             <a href="#hero" class="brand-logo-link" aria-label="Grafiplot Vasquez — Inicio" onclick="window.setView('store')">
-                <img src="https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png" alt="Grafiplot Vasquez — Copias, ploteos e impresiones al por mayor y menor" width="1279" height="426" class="brand-logo" fetchpriority="high" decoding="async">
+                <img src="${esc(state.settings.logoUrl)}" alt="Grafiplot Vasquez — Copias, ploteos e impresiones al por mayor y menor" width="1279" height="426" class="brand-logo" fetchpriority="high" decoding="async">
             </a>
         `;
+
+        function safeSettingsURL(value,optional=true) {
+            const text=String(value||'').trim();if(!text&&optional)return '';
+            const url=new URL(text);if(url.protocol!=='https:')throw new Error('Los enlaces deben comenzar con https://');return url.href;
+        }
+        function renderExtendedSettings() {
+            const s=state.settings;
+            const field=(name,label,type='text')=>`<label class="auto-label">${esc(label)}<input class="auto-field" type="${type}" name="${name}" value="${esc(s[name]||'')}"></label>`;
+            return `<div class="md:col-span-2 border-b border-slate-100 pb-2"><h3 class="font-black text-base text-slate-800">Diseño, galería y campañas</h3></div>
+                ${field('logoUrl','Logo principal (enlace HTTPS)','url')}
+                <label class="auto-label">Tema principal<select class="auto-field" name="defaultTheme"><option value="dark" ${s.defaultTheme==='dark'?'selected':''}>Oscuro</option><option value="light" ${s.defaultTheme==='light'?'selected':''}>Claro</option></select></label>
+                ${field('servicesTitle','Título de servicios')}${field('servicesSubtitle','Descripción de servicios')}
+                ${field('galleryTitle','Título de galería')}${field('gallerySubtitle','Descripción de galería')}
+                <label class="auto-label md:col-span-2">Trabajos de galería (lista JSON: título, imagen y descripción)<textarea class="auto-field" name="galleryItems" rows="6">${esc(JSON.stringify(s.galleryItems||[],null,2))}</textarea></label>
+                <label class="auto-label"><input type="checkbox" name="campaignEnabled" ${s.campaignEnabled?'checked':''}> Activar campaña en la portada</label>
+                <label class="auto-label">Tipo<select class="auto-field" name="campaignType"><option value="sorteo" ${s.campaignType==='sorteo'?'selected':''}>Sorteo</option><option value="promo" ${s.campaignType==='promo'?'selected':''}>Promoción</option></select></label>
+                ${field('campaignTitle','Título de la campaña')}${field('campaignDescription','Descripción de campaña')}
+                ${field('campaignButton','Texto del botón')}${field('campaignUrl','Enlace de inscripción / oferta','url')}
+                <p class="md:col-span-2 text-xs text-slate-500">Guardar cambios conserva estos ajustes en el mismo documento de Firebase. Al volver a abrir la web se recuperan automáticamente.</p>`;
+        }
+        function renderConfiguredCampaign() {
+            const s=state.settings;if(!s.campaignEnabled||!s.campaignUrl)return '';
+            let link;try{link=safeSettingsURL(s.campaignUrl,false)}catch(_){return ''}
+            return `<section class="px-6 py-9 bg-brand-600 text-white"><div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6"><div><p class="text-xs font-black uppercase tracking-widest mb-2">${s.campaignType==='sorteo'?'Sorteo especial':'Oferta especial'}</p><h2 class="text-3xl sm:text-4xl font-black">${esc(s.campaignTitle)}</h2><p class="text-sm mt-3">${esc(s.campaignDescription)}</p></div><a class="px-6 py-3 rounded-xl bg-white text-brand-600 font-bold" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(s.campaignButton)} ↗</a></div></section>`;
+        }
+        function renderConfiguredGallery() {
+            const s=state.settings;
+            return `<section id="gallery" class="py-16 bg-white scroll-mt-24"><div class="max-w-6xl mx-auto px-6"><h2 class="text-3xl font-black text-slate-900">${esc(s.galleryTitle)}</h2><p class="text-slate-500 mt-3">${esc(s.gallerySubtitle)}</p><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">${(s.galleryItems||[]).map(item=>`<article class="border border-slate-200 rounded-2xl overflow-hidden">${item.image?`<img src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy" class="w-full h-56 object-cover">`:''}<div class="p-5"><h3 class="text-slate-900 font-bold">${esc(item.title)}</h3><p class="text-sm text-slate-500 mt-2">${esc(item.description||'')}</p></div></article>`).join('')}</div></div></section>`;
+        }
 
         function renderStorefront() {
             const s = state.settings;
@@ -715,7 +771,7 @@
                             <div class="max-w-[90rem] mx-auto px-8 flex items-center justify-center">
                                 <div class="flex items-center gap-10 text-xs font-bold uppercase tracking-wider">
                                     <a href="#hero" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Inicio</a>
-                                    <a href="#services" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Centro de Impresión</a>
+                                    <a href="#gallery" class="hover:text-brand-500 py-3.5 transition-colors">Galería de trabajos</a><a href="#location" class="hover:text-brand-500 py-3.5 transition-colors">Ubicación</a><a href="#services" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Centro de Impresión</a>
                                     <a href="#cotizador" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Cotizador Web</a>
                                     <a href="#catalog" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors text-brand-600">Catálogo / Equipos</a>
                                     <a href="#design" class="hover:text-brand-500 py-3.5 border-b-2 border-transparent transition-colors">Diseño Gráfico</a>
@@ -734,7 +790,7 @@
                                 </button>
                             </div>
                             <div class="flex flex-col gap-1 text-xs font-bold uppercase tracking-wider">
-                                <a href="#services" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Centro de Impresión</a>
+                                <a href="#gallery" onclick="window.toggleMobileMenu()" class="px-4 py-3">Galería de trabajos</a><a href="#location" onclick="window.toggleMobileMenu()" class="px-4 py-3">Ubicación</a><a href="#services" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Centro de Impresión</a>
                                 <a href="#cotizador" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Cotizador Web</a>
                                 <a href="#catalog" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-brand-600 bg-brand-50">Catálogo de Equipos</a>
                                 <a href="#design" onclick="window.toggleMobileMenu()" class="px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50">Diseño Gráfico</a>
@@ -744,6 +800,7 @@
                     </header>
 
                     <main class="flex-1">
+                        ${renderConfiguredCampaign()}
                         <!-- 1. HERO SECTION -->
                         <section id="hero" class="relative bg-grafi-900 min-h-[450px] md:min-h-[550px] flex items-center justify-center overflow-hidden">
                             <img src="${s.heroBanner}" alt="Banner Imprenta" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-105" />
@@ -790,8 +847,8 @@
                         <section id="services" class="py-16 bg-white scroll-mt-20 border-b border-slate-100">
                             <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
                                 <div class="text-center mb-12 max-w-2xl mx-auto">
-                                    <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Nuestros Servicios de Impresión</h2>
-                                    <p class="text-sm text-slate-500 font-medium">Contamos con tecnología de punta para garantizar la mejor resolución y acabados en cada uno de tus proyectos.</p>
+                                    <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">${esc(s.servicesTitle)}</h2>
+                                    <p class="text-sm text-slate-500 font-medium">${esc(s.servicesSubtitle)}</p>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     ${displayServices.map((srv,index) => `
@@ -976,12 +1033,13 @@
                     </main>
 
                     <!-- Footer Editado y Enriquecido -->
-                    <footer class="bg-grafi-900 text-slate-300 pt-16 pb-8 border-t-8 border-brand-500 shrink-0 mt-auto">
+                    ${renderConfiguredGallery()}
+                    <footer id="location" class="bg-grafi-900 text-slate-300 pt-16 pb-8 border-t-8 border-brand-500 shrink-0 mt-auto">
                         <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                                 <!-- Columna de Identidad -->
                                 <div>
-                                    <div class="mb-4"><img src="https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png" alt="Grafiplot Vasquez" width="1279" height="426" class="brand-logo brand-logo-footer" loading="lazy" decoding="async"></div>
+                                    <div class="mb-4"><img src="${esc(state.settings.logoUrl)}" alt="Grafiplot Vasquez" width="1279" height="426" class="brand-logo brand-logo-footer" loading="lazy" decoding="async"></div>
                                     <p class="text-xs text-slate-400 leading-relaxed font-medium mb-6">${s.footerAbout}</p>
                                     ${s.ruc ? `<p class="text-[10px] text-slate-500 font-mono tracking-wider">RUC: ${s.ruc}</p>` : ''}
                                     ${s.companyName ? `<p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider">${s.companyName}</p>` : ''}
@@ -1243,6 +1301,7 @@
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Dirección Física</label><input type="text" name="contactAddress" value="${s.contactAddress}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" /></div>
                             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase">Anuncio Superior Web</label><input type="text" name="announcement" value="${s.announcement}" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" /></div>
 
+                            ${renderExtendedSettings()}
                             ${renderFaqSettings()}
                             ${renderPrintServiceSettings()}
                             ${renderAutoPriceSettings()}
@@ -1408,5 +1467,6 @@
     </script>
 </body>
 </html>
+
 
 
