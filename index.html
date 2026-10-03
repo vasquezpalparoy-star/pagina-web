@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="google-site-verification" content="rvQu2hS7-hLzxB_QaNp9rdSavTgHre5qVI82EC8ktik"><meta name="description" content="Impresiones, copias, ploteo, gigantografías y diseño gráfico en Huánuco. Cotiza tu trabajo con Grafiplot Vasquez."><link rel="icon" href="/favicon.png"><link rel="canonical" href="https://www.grafiplotvasquez.com/"><title>Grafiplot Vasquez | Impresión y ploteo en Huánuco</title><script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script><link rel="stylesheet" href="./assets/v1/styles.css"><link rel="modulepreload" href="./assets/v1/config.js"><link rel="modulepreload" href="./assets/v1/cotizador.js"></head><body><div id="grafiplot-preview" data-appearance="dark">
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="google-site-verification" content="rvQu2hS7-hLzxB_QaNp9rdSavTgHre5qVI82EC8ktik"><meta name="description" content="Impresiones, copias, ploteo, gigantografías y diseño gráfico en Huánuco. Cotiza tu trabajo con Grafiplot Vasquez."><link rel="icon" href="/favicon.png"><link rel="canonical" href="https://www.grafiplotvasquez.com/"><title>Grafiplot Vasquez | Impresión y ploteo en Huánuco</title><script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script><link rel="stylesheet" href="./assets/v1/styles.css"><link rel="modulepreload" href="./assets/v1/config.js"><link rel="modulepreload" href="./assets/v1/cotizador.js"><link rel="stylesheet" href="./assets/v1/grafibot.css"></head><body><div id="grafiplot-preview" data-appearance="dark">
 
 <div class="gp-top"><span>HUÁNUCO · CAYHUAYNA · FRENTE A LA UNHEVAL</span><span>Envíos a todo el Perú</span></div>
 <header class="gp-header gp-wrap"><img class="gp-logo" src="./logo-grafiplot.webp" alt="Grafiplot Vasquez"><nav class="gp-nav" aria-label="Navegación"><button data-go="gp-home">Inicio</button><button data-go="gp-services">Servicios</button><button data-go="gp-gallery">Galería de trabajos</button><button data-go="gp-catalog">Catálogo</button><button data-go="gp-location">Ubicación</button><button id="gp-cart-nav" data-go="gp-cart">Carrito (<span id="gp-cart-count">0</span>)</button></nav><button class="gp-button" data-go="gp-quote">Cotizar trabajo <i data-lucide="arrow-up-right"></i></button></header>
@@ -55,4 +55,17 @@
 <script type="module" src="./assets/v1/app.js"></script>
 </div>
 
+<aside id="gp-grafibot" aria-label="Asistente Grafibot">
+  <section id="gp-grafibot-panel" aria-label="Chat de Grafibot" hidden>
+    <header class="gb-head"><img src="./assets/v1/grafibot-wolf.png" alt=""><div><strong>Grafibot</strong><small>Consultas y cotizaciones</small></div><button id="gb-close" type="button" aria-label="Cerrar chat">×</button></header>
+    <div id="gb-messages" role="log" aria-live="polite" aria-label="Conversación"><div class="gb-message gb-assistant"><p>¡Hola! Soy Grafibot, tu lobito de impresión. Pregúntame por nuestros servicios o escribe «cotizar».</p></div></div>
+    <div class="gb-companion"><span id="gb-thought">¿Qué necesitas imprimir hoy?</span><img id="gb-wolf" src="./assets/v1/grafibot-wolf.png" alt="Lobito Grafibot"></div>
+    <div class="gb-quick"><button type="button" data-gb-query="cotizar">Cotizar</button><button type="button" data-gb-query="servicios">Servicios</button><button type="button" data-gb-query="horario">Horarios</button></div>
+    <form id="gb-form"><textarea id="gb-input" aria-label="Mensaje para Grafibot" placeholder="Escribe tu pregunta…" rows="2" maxlength="2000"></textarea><button type="submit" id="gb-send" aria-label="Enviar mensaje">➤</button></form>
+    <footer>Tarifas de referencia del asistente. Confirma tu pedido por WhatsApp.</footer>
+  </section>
+  <button id="gp-grafibot-toggle" type="button" aria-controls="gp-grafibot-panel" aria-expanded="false"><img src="./assets/v1/grafibot-wolf.png" alt=""><span>Chatear con Grafibot</span></button>
+</aside>
+
+<script type="module" src="./assets/v1/grafibot.js"></script>
 </body></html>
