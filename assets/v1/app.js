@@ -126,6 +126,7 @@ function applyServiceImages(images={}){
  root.querySelectorAll('.gp-service[data-service-key]').forEach(card=>{let image='';try{image=httpsLink(images[card.dataset.serviceKey])}catch(_){}card.style.backgroundImage=image?'url('+JSON.stringify(image)+')':'none';card.dataset.hasImage=String(!!image);});
 }
 function renderServiceImagesEditor(){const editor=root.querySelector('#gp-service-images-editor');editor.replaceChildren();root.querySelectorAll('.gp-service[data-service-key]').forEach(card=>{const f=field(card.dataset.service,cloudConfig.serviceImages?.[card.dataset.serviceKey]||'','url');f.input.dataset.serviceImage=card.dataset.serviceKey;f.input.placeholder='https://…';editor.append(f.label)});}
+function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
  if(!siteSettings.hidden||!campaignAdmin.hidden)return;
@@ -137,6 +138,7 @@ function loadCloudConfig(data){
  root.querySelector('#gp-settings-logo').value=cloudConfig.logoUrl||'https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png';
  root.querySelector('#gp-settings-phone').value=configuredPhone();
  root.querySelector('#gp-settings-email').value=cloudConfig.contactEmail||'';
+ root.querySelector('#gp-settings-sublimacion').value=cloudConfig.orderPages?.sublimacion||'';root.querySelector('#gp-settings-textil').value=cloudConfig.orderPages?.textil||'';applyOrderPages(cloudConfig.orderPages);
  root.querySelector('#gp-settings-route-bg').value=cloudConfig.routeBackgroundUrl||'https://www.grafiplotvasquez.com/local.jpeg';
  const route=root.querySelector('.gp-route-card');try{const image=httpsLink(cloudConfig.routeBackgroundUrl)||'./local.jpeg';route.style.backgroundImage='url('+JSON.stringify(image)+')'}catch(_){route.style.backgroundImage='none'}
 
@@ -158,14 +160,14 @@ async function saveSiteSettings(e){
  const autoPrices={};root.querySelectorAll('[data-rate-key]').forEach(input=>{if(input.value==='')return;const n=Number(input.value);if(!Number.isFinite(n)||n<0)throw Error('Revisa las tarifas: usa números mayores o iguales a cero.');autoPrices[input.dataset.rateKey]=n});
  const faqContent=faqDraft.filter(item=>item.question.trim()).map(item=>({question:item.question.trim(),answer:item.answer}));
  const serviceImages={};root.querySelectorAll('[data-service-image]').forEach(input=>serviceImages[input.dataset.serviceImage]=httpsLink(input.value));
- const patch={designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const patch={orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
  const waitNotice=setTimeout(()=>{feedback('Firebase aún no confirma el guardado. Revisa tu conexión; los cambios siguen pendientes.',true);saveStatus('Sin confirmación del servidor.');},12000);
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
  saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
- cloudConfig={...cloudConfig,...patch};applyPreviewConfig(designConfig);applyServiceImages(serviceImages);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
+ cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);applyServiceImages(serviceImages);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
 }
@@ -194,7 +196,7 @@ function renderCatalog(){
  const stock=document.createElement('p');stock.textContent=item.isService?'Servicio · consultar disponibilidad':item.stock>0?'En stock: '+item.stock+' '+item.measureUnit:'Sin stock';
  const actions=document.createElement('div');actions.className='gp-product-actions';const consult=document.createElement('button');consult.type='button';consult.className='gp-button secondary';consult.textContent='Consultar';consult.addEventListener('click',()=>whatsapp('Hola Grafiplot, deseo consultar por '+item.name+'. Precio de referencia: '+money(item.price)));
  actions.append(consult);
- if(item.isService||item.stock>0){const add=document.createElement('button');add.type='button';add.className='gp-button';add.textContent='Añadir al carrito';add.addEventListener('click',()=>{const existing=cart.find(i=>i.id===item.id);if(existing){existing.quantity=Math.min(existing.quantity+1,item.isService?10000:item.stock)}else cart.push({...item,quantity:1});renderCart();root.querySelector('#gp-cart-notice').textContent=item.name+' añadido al carrito.';openCart()});actions.append(add)}
+ if(item.isService||item.stock>0){const add=document.createElement('button');add.type='button';add.className='gp-button';add.textContent='Añadir al carrito';add.addEventListener('click',()=>{const existing=cart.find(i=>i.id===item.id);if(existing){existing.quantity=Math.min(existing.quantity+1,item.isService?10000:item.stock)}else cart.push({...item,quantity:1});renderCart();root.querySelector('#gp-cart-notice').textContent=item.name+' añadido al carrito.'});actions.append(add)}
  card.append(name,description,price,bulk,stock,actions);grid.append(card);searchEntries.push({title:item.name,type:'Producto',terms:item.name+' '+item.description,target:card.id,image:item.image,price:item.price});
  });
  const status=root.querySelector('#gp-catalog-status');status.textContent=inventoryItems.length?inventoryItems.length+' productos y servicios en el catálogo.':'No hay productos disponibles por el momento.';
