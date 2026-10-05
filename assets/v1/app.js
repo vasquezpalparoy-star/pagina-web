@@ -1,6 +1,7 @@
+import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
-let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js'));
+let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=email-settings-20261005'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
 function openCart(){renderCart();if(!cartDialog.open)cartDialog.showModal();document.body.classList.add('gp-cart-open');root.querySelector('#gp-cart-nav').setAttribute('aria-expanded','true')}
@@ -69,21 +70,18 @@ if(storedPreview&&typeof storedPreview==='object')storedPreview.theme='dark';
 if(!storedPreview||typeof storedPreview!=='object'||Array.isArray(storedPreview))storedPreview={};
 try{applyPreviewConfig(storedPreview)}catch(_){}
 function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textIndex=index;label.append(input);groups.get(target.group).append(label)});}
-function enterSettings(e){
- if(e)e.preventDefault();
- const pass=root.querySelector('#gp-settings-password').value.trim();
- if(pass!=='2024'){root.querySelector('#gp-login-feedback').textContent='Clave incorrecta. Usa 2024 en esta vista previa.';return}
- if(!cloudReady){root.querySelector('#gp-login-feedback').textContent='La configuración todavía no se ha conectado a Firebase. Espera unos segundos y vuelve a entrar.';return}
- settingsUnlocked=true;
- root.querySelector('#gp-login-feedback').textContent='';
- root.querySelector('#gp-settings-password').value='';
- fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;go('gp-site-settings');
-}
-root.querySelector('#gp-settings-enter').addEventListener('click',enterSettings);
-root.querySelector('#gp-settings-login-form').addEventListener('submit',enterSettings);
-root.querySelector('#gp-settings-password').addEventListener('keydown',e=>{if(e.key==='Enter')enterSettings(e)});
+let ownerAuth,ownerUser;
+const ownerFeedback=text=>root.querySelector('#gp-login-feedback').textContent=text;
+function ownerSession(allowed,user){settingsUnlocked=allowed;ownerUser=user;root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;root.querySelector('#gp-settings-login-form').hidden=!!user;if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');}
+async function enterOwnerSettings(e){e.preventDefault();if(!ownerAuth){ownerFeedback('La conexión con Firebase aún no está lista.');return;}const button=root.querySelector('#gp-settings-enter');button.disabled=true;try{const user=await ownerAuth.login(root.querySelector('#gp-settings-owner-email').value,root.querySelector('#gp-settings-owner-password').value);root.querySelector('#gp-settings-owner-password').value='';ownerSession(user.emailVerified===true,user);if(settingsUnlocked){fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;go('gp-site-settings');ownerFeedback('');}}catch(error){ownerFeedback(settingsAuthError(error));}finally{button.disabled=false;}}
+root.querySelector('#gp-settings-login-form').addEventListener('submit',enterOwnerSettings);
+root.querySelector('#gp-settings-send-verification').addEventListener('click',async()=>{const b=root.querySelector('#gp-settings-send-verification');b.disabled=true;try{await ownerAuth.sendVerification();ownerFeedback('Correo de verificación enviado. Revisa Recibidos y Spam, abre el enlace y pulsa Ya confirmé mi correo.');}catch(error){ownerFeedback(settingsAuthError(error));}finally{b.disabled=false;}});
+root.querySelector('#gp-settings-check-verification').addEventListener('click',async()=>{try{const user=await ownerAuth.refresh();ownerSession(user.emailVerified===true,user);if(settingsUnlocked){fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;go('gp-site-settings');ownerFeedback('');}else ownerFeedback('Tu correo aún no está verificado. Abre el enlace recibido.');}catch(error){ownerFeedback(settingsAuthError(error));}});
+root.querySelector('#gp-settings-reset').addEventListener('click',async()=>{const b=root.querySelector('#gp-settings-reset');b.disabled=true;try{if(!ownerAuth)throw Error('Firebase aún está conectando.');await ownerAuth.reset(root.querySelector('#gp-settings-owner-email').value);ownerFeedback('Solicitud aceptada. Si el correo tiene una cuenta, recibirás el enlace para restablecer la contraseña. Revisa también Spam.');}catch(error){ownerFeedback(settingsAuthError(error));}finally{b.disabled=false;}});
 root.querySelector('#gp-settings-cancel').addEventListener('click',()=>loginPanel.hidden=true);
-root.querySelector('#gp-settings-logout').addEventListener('click',()=>{settingsUnlocked=false;siteSettings.hidden=true;campaignAdmin.hidden=true});
+async function closeOwnerSession(){settingsUnlocked=false;siteSettings.hidden=true;campaignAdmin.hidden=true;try{await ownerAuth?.logout();ownerFeedback('Sesión cerrada.');}catch(error){ownerFeedback(settingsAuthError(error));}}
+root.querySelector('#gp-settings-logout').addEventListener('click',closeOwnerSession);
+root.querySelector('#gp-settings-verification-logout').addEventListener('click',closeOwnerSession);
 root.querySelector('#gp-settings-campaign').addEventListener('click',()=>{if(!settingsUnlocked)return;campaignAdmin.hidden=false;go('gp-campaign-admin')});
 const formatSelect=root.querySelector('#gp-format');formatSelect.replaceChildren();PREVIEW_FORMATS.forEach(f=>{const option=document.createElement('option');option.value=f.id;option.textContent=f.label;formatSelect.append(option)});formatSelect.value='A4_1c';
 let galleryDraft=Array.from(root.querySelectorAll('.gp-work')).map(e=>({title:e.querySelector('h3').textContent,description:'',image:'',category:e.dataset.category}));
@@ -224,8 +222,8 @@ root.querySelector('#gp-campaign-form').addEventListener('submit',saveCampaign);
 root.querySelector('#gp-campaign-disable').addEventListener('click',e=>saveCampaign(e,true));
 async function connectSite(){
  try{
- const {initializeApp,getAuth,signInAnonymously,getFirestore,doc,onSnapshot,collection}=await loadFirebase();
- const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);await signInAnonymously(siteAuth);
+ const sdk=await loadFirebase();const {initializeApp,getAuth,getFirestore,doc,onSnapshot,collection}=sdk;
+ const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);ownerAuth=createSettingsAuth(sdk,siteAuth);await ownerAuth.watch(ownerSession);
  settingsRef=doc(siteDb,'artifacts','grafiplot-tienda-v4','public','data','settings','config');
  onSnapshot(settingsRef,{includeMetadataChanges:true},snapshot=>{cloudReady=!snapshot.metadata.fromCache;loadCloudConfig(snapshot.exists()?snapshot.data():{});cloudStatus(cloudReady?'Conectado · configuración recibida del servidor.':'Sin conexión confirmada · mostrando datos en caché.',cloudReady?'connected':'connecting')},error=>{cloudReady=false;cloudStatus('Error de lectura: '+error.code,'error')});
  onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')})).filter(f=>f.question.trim());if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor()}}});

@@ -1,10 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Preserve existing permissions outside delivery; delivery paths have private rules below.
     match /{topLevel}/{document=**} {
       allow read, write: if request.auth != null
-        && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders']);
+        && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders','artifacts']);
+    }
+    match /artifacts/{artifact}/public/data/{collection}/{document=**} {
+      allow read, write: if request.auth != null
+        && !(artifact == 'grafiplot-tienda-v4' && collection in ['settings','faqs']);
+    }
+    function settingsOwner() {
+      return request.auth != null
+        && request.auth.uid == 'EUMQy18i2YTDZnuxIKda2DvPxU32'
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.token.email_verified == true;
+    }
+    match /artifacts/grafiplot-tienda-v4/public/data/settings/{document} {
+      allow read: if true;
+      allow create, update: if document == 'config' && settingsOwner();
+      allow delete: if false;
+    }
+    match /artifacts/grafiplot-tienda-v4/public/data/faqs/{document} {
+      allow read: if true;
+      allow create, update: if settingsOwner();
+      allow delete: if false;
     }
     function passwordAccount() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
