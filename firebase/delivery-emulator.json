@@ -1,1 +1,1 @@
-{"firestore":{"rules":"firestore.delivery.rules"},"emulators":{"firestore":{"port":8080},"ui":{"enabled":false},"singleProjectMode":true}}
+{"firestore":{"rules":"firestore.production.rules"},"emulators":{"firestore":{"port":8080},"ui":{"enabled":false},"singleProjectMode":true}}

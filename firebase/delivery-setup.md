@@ -1,6 +1,6 @@
 # Activación de delivery
 
-Preparado para el proyecto existente `pagina-web-grafiplot-oficial`. El código usa `USER_FIREBASE_CONFIG` y una instancia de Auth separada del acceso anónimo de la tienda. La bandera `DELIVERY_ENABLED` permanece en `false` hasta verificar la protección real de Firebase.
+Preparado para el proyecto existente `pagina-web-grafiplot-oficial`. El código usa `USER_FIREBASE_CONFIG` y una instancia de Auth separada del acceso anónimo de la tienda. La bandera `DELIVERY_ENABLED` está activada después de publicar el ruleset privado.
 
 1. En Firebase Console → Authentication → Sign-in method, activar **Email/Password**. Mantener el acceso anónimo existente de la tienda.
 2. Crear o seleccionar una cuenta de correo/contraseña para la administración de delivery. El dueño define la contraseña en Firebase; nunca ponerla en código, Firestore o GitHub. Copiar el UID de Authentication.
@@ -26,4 +26,6 @@ Preparado para el proyecto existente `pagina-web-grafiplot-oficial`. El código 
 
 ## Estado de esta entrega
 
-Interfaz y código preparados. Validación local: 11 pruebas de lógica/interfaz y 6 pruebas de reglas en el emulador de Firestore aprobadas; también pasó la regresión de tienda, carrito y configuración. No se ha iniciado sesión en Firebase Console, activado Email/Password, creado un administrador ni cambiado las reglas de producción. No se han creado cuentas reales ni pedidos de clientes. No activar la bandera solo porque los tests de lógica pasen.
+Email/Password habilitado, cuenta administradora y registro enabled:true comprobados en la consola. El ruleset desplegado anteriormente permitía todo a cualquier usuario autenticado. Se publicó `firestore.production.rules`, que conserva ese comportamiento fuera de delivery y restringe las tres colecciones privadas. El archivo `firestore.before-delivery.rules` guarda el baseline anterior para auditoría; no restaurarlo si existen pedidos privados porque los expondría a usuarios anónimos autenticados.
+
+Validación: 11 pruebas de lógica/interfaz y 7 pruebas de permisos del ruleset completo en el emulador, más la regresión existente de tienda. No se han creado clientes ni pedidos reales. La sesión Google de la consola no equivale a la cuenta de correo/contraseña del panel de delivery: la primera entrada al panel requiere las credenciales que creó el dueño.

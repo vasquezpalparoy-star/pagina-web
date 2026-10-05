@@ -1,2 +1,2 @@
-// Keep disabled until Firebase Auth and private rules are configured and tested.
-export const DELIVERY_ENABLED = false;
+// Firebase password access and private delivery rules configured.
+export const DELIVERY_ENABLED = true;

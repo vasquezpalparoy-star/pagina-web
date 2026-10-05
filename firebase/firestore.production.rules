@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Preserve existing permissions outside delivery; delivery paths have private rules below.
+    match /{topLevel}/{document=**} {
+      allow read, write: if request.auth != null
+        && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders']);
+    }
+    function registered() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function deliveryAdmin() {
+      return registered()
+        && exists(/databases/$(database)/documents/deliveryAdmins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/deliveryAdmins/$(request.auth.uid)).data.enabled == true;
+    }
+    function validOrder(d) {
+      return d.keys().hasAll(['customerUid','customerName','details','address','amount','deliveryFee','status','estimatedAt','createdAt','updatedAt','leftStoreAt','deliveredAt'])
+        && d.keys().hasOnly(['customerUid','customerName','details','address','amount','deliveryFee','status','estimatedAt','createdAt','updatedAt','leftStoreAt','deliveredAt'])
+        && d.customerUid is string && d.customerUid.size() > 0
+        && exists(/databases/$(database)/documents/deliveryCustomers/$(d.customerUid))
+        && d.customerName is string && d.customerName.size() > 0 && d.customerName.size() <= 120
+        && d.details is string && d.details.size() > 0 && d.details.size() <= 3000
+        && d.address is string && d.address.size() > 0 && d.address.size() <= 500
+        && d.amount is number && d.amount >= 0 && d.amount <= 100000
+        && d.deliveryFee is number && d.deliveryFee >= 0 && d.deliveryFee <= 10000
+        && d.status in ['recibido','en_proceso','listo','en_camino','entregado']
+        && (d.estimatedAt == null || d.estimatedAt is timestamp)
+        && d.createdAt is timestamp && d.updatedAt == request.time
+        && ((d.status in ['en_camino','entregado'] && d.leftStoreAt is timestamp)
+          || (d.status in ['recibido','en_proceso','listo'] && d.leftStoreAt == null))
+        && ((d.status == 'entregado' && d.deliveredAt is timestamp)
+          || (d.status != 'entregado' && d.deliveredAt == null));
+    }
+    match /deliveryAdmins/{uid} {
+      allow get: if registered() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+    match /deliveryCustomers/{uid} {
+      allow get: if deliveryAdmin() || (registered() && request.auth.uid == uid);
+      allow list: if deliveryAdmin();
+      allow create: if deliveryAdmin()
+        && request.resource.data.keys().hasAll(['name','username','phone','createdAt'])
+        && request.resource.data.keys().hasOnly(['name','username','phone','createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.username is string && request.resource.data.username.matches('^[a-z0-9][a-z0-9._-]{2,39}$')
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 30
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+    match /deliveryOrders/{orderId} {
+      allow read: if deliveryAdmin() || (registered() && resource.data.customerUid == request.auth.uid
+        && exists(/databases/$(database)/documents/deliveryCustomers/$(request.auth.uid)));
+      allow create: if deliveryAdmin() && validOrder(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if deliveryAdmin() && validOrder(request.resource.data)
+        && request.resource.data.customerUid == resource.data.customerUid
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+  }
+}
