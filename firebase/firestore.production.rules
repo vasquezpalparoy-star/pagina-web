@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /{topLevel}/{document=**} {
       allow read, write: if request.auth != null
-        && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders','artifacts']);
+        && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders','deliveryOrderLinks','artifacts']);
     }
     match /artifacts/{artifact}/public/data/{collection}/{document=**} {
       allow read, write: if request.auth != null
@@ -38,7 +38,8 @@ service cloud.firestore {
     }
     function validOrder(d) {
       return d.keys().hasAll(['customerUid','customerName','details','address','amount','deliveryFee','status','estimatedAt','createdAt','updatedAt','leftStoreAt','deliveredAt'])
-        && d.keys().hasOnly(['customerUid','customerName','details','address','amount','deliveryFee','status','estimatedAt','createdAt','updatedAt','leftStoreAt','deliveredAt'])
+        && d.keys().hasOnly(['customerUid','customerName','details','address','amount','deliveryFee','status','estimatedAt','createdAt','updatedAt','leftStoreAt','deliveredAt','trackingToken'])
+        && (!('trackingToken' in d) || (d.trackingToken is string && d.trackingToken.matches('^[a-f0-9]{64}$')))
         && d.customerUid is string && d.customerUid.size() > 0
         && exists(/databases/$(database)/documents/deliveryCustomers/$(d.customerUid))
         && d.customerName is string && d.customerName.size() > 0 && d.customerName.size() <= 120
@@ -53,6 +54,26 @@ service cloud.firestore {
           || (d.status in ['recibido','en_proceso','listo'] && d.leftStoreAt == null))
         && ((d.status == 'entregado' && d.deliveredAt is timestamp)
           || (d.status != 'entregado' && d.deliveredAt == null));
+    }
+    function trackingMatches(d) {
+      let o=getAfter(/databases/$(database)/documents/deliveryOrders/$(d.orderId)).data;
+      return d.keys().hasAll(['orderId','details','amount','deliveryFee','status','estimatedAt','updatedAt','leftStoreAt','deliveredAt','expiresAt'])
+        && d.keys().hasOnly(['orderId','details','amount','deliveryFee','status','estimatedAt','updatedAt','leftStoreAt','deliveredAt','expiresAt'])
+        && d.expiresAt is timestamp && d.expiresAt <= request.time + duration.value(30, 'd')
+        && d.details == o.details && d.amount == o.amount && d.deliveryFee == o.deliveryFee
+        && d.status == o.status && d.estimatedAt == o.estimatedAt
+        && d.updatedAt == o.updatedAt && d.leftStoreAt == o.leftStoreAt && d.deliveredAt == o.deliveredAt;
+    }
+    match /deliveryOrderLinks/{token} {
+      allow get: if deliveryAdmin() || (token.matches('^[a-f0-9]{64}$')
+        && resource.data.expiresAt > request.time
+        && get(/databases/$(database)/documents/deliveryOrders/$(resource.data.orderId)).data.status != 'entregado'
+        && get(/databases/$(database)/documents/deliveryOrders/$(resource.data.orderId)).data.trackingToken == token);
+      allow list, delete: if false;
+      allow create: if deliveryAdmin() && token.matches('^[a-f0-9]{64}$') && trackingMatches(request.resource.data)
+        && getAfter(/databases/$(database)/documents/deliveryOrders/$(request.resource.data.orderId)).data.trackingToken == token;
+      allow update: if deliveryAdmin() && request.resource.data.orderId == resource.data.orderId
+        && (trackingMatches(request.resource.data) || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expiresAt']) && request.resource.data.expiresAt <= request.time));
     }
     match /deliveryAdmins/{uid} {
       allow get: if passwordAccount() && request.auth.uid == uid;
