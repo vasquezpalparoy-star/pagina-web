@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 import {STATES} from '../assets/v1/delivery-core.mjs';
 const html=await readFile(new URL('../delivery.html',import.meta.url),'utf8');
-const source=(await readFile(new URL('../assets/v1/delivery.js',import.meta.url),'utf8')).replace(/^import .*;$/gm,'').replace("await import('./delivery-sdk.js?v=links-20261005')",'({})');
+const source=(await readFile(new URL('../assets/v1/delivery.js',import.meta.url),'utf8')).replace(/^import .*;$/gm,'').replace(/await import\('\.\/delivery-sdk\.js\?v=[^']+'\)/g,'({})');
 const adminHtml=await readFile(new URL('../delivery-admin.html',import.meta.url),'utf8');
 function mount(enabled,service={},admin=false){const {window,document}=parseHTML(admin==='tracking'?html.replace('data-delivery-role="customer"','data-delivery-role="tracking"'):admin?adminHtml:html);window.HTMLElement.prototype.scrollIntoView=function(){};const context={document,window,console,Intl,Date,location:{hash:'#'+'a'.repeat(64),href:'https://example.com/delivery-admin.html'},navigator:{clipboard:{writeText:async()=>{}}},Option:function(text,value){const n=document.createElement('option');n.textContent=text;n.value=value;return n;},STATES,DELIVERY_ENABLED:enabled,USER_FIREBASE_CONFIG:{},createDeliveryService:()=>service};vm.runInNewContext(source,context);return {window,document};}
 const tick=()=>new Promise(r=>setImmediate(r));
