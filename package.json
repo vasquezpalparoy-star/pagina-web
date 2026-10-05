@@ -5,8 +5,7 @@
   "scripts": {
     "test": "node --test tests/delivery-core.test.mjs tests/delivery-ui.test.mjs",
     "test:delivery:rules": "firebase emulators:exec --config firebase/delivery-emulator.json --project demo-grafiplot-delivery --only firestore 'node --test tests/delivery-rules.test.mjs'",
-    "test:settings": "node --test tests/settings-auth.test.mjs tests/settings-ui.test.mjs",
-    "test:settings:rules": "firebase emulators:exec --config firebase/delivery-emulator.json --project demo-grafiplot-delivery --only firestore \"node --test --test-concurrency=1 tests/settings-rules.test.mjs tests/delivery-rules.test.mjs\""
+    "test:tracking:rules": "firebase emulators:exec --config firebase/delivery-emulator.json --project demo-grafiplot-delivery --only firestore \"node --test --test-concurrency=1 tests/tracking-rules.test.mjs tests/delivery-rules.test.mjs tests/settings-rules.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "4.0.1",
