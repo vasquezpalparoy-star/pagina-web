@@ -3,9 +3,9 @@ export const STATES = [
   ['en_camino','Salió con el delivery'],['entregado','Entregado']
 ];
 export function usernameEmail(value) {
-  const name=String(value||'').trim().toLowerCase();
-  if(!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(name))throw Error('Usa de 3 a 40 letras, números, puntos, guiones o guiones bajos para el usuario.');
-  return name+'@clientes.grafiplotvasquez.com';
+  const email=String(value||'').trim().toLowerCase();
+  if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error('Escribe un correo electrónico válido.');
+  return email;
 }
 export function securePassword(crypto=globalThis.crypto) {
   const bytes=crypto.getRandomValues(new Uint8Array(18));
@@ -30,18 +30,21 @@ export function createDeliveryService(sdk,config) {
   const ready=sdk.setPersistence(auth,sdk.browserSessionPersistence);
   let adminUid=null;
   const isPasswordUser=u=>u&&!u.isAnonymous;
-  const needAdmin=()=>{if(!isPasswordUser(auth.currentUser)||auth.currentUser.uid!==adminUid)throw Error('Inicia sesión con una cuenta autorizada de la tienda.');};
+  const needAdmin=()=>{if(!isPasswordUser(auth.currentUser)||!auth.currentUser.emailVerified||auth.currentUser.uid!==adminUid)throw Error('Inicia sesión con una cuenta autorizada de la tienda.');};
   return {
-    async login(username,password,admin=false){await ready;adminUid=null;const email=admin?String(username).trim():usernameEmail(username);await sdk.signInWithEmailAndPassword(auth,email,password);if(admin){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',auth.currentUser.uid));if(!record.exists()||record.data().enabled!==true)throw Error('Esta cuenta no está autorizada para administrar delivery.');adminUid=auth.currentUser.uid;}catch(e){await sdk.signOut(auth);throw e;}}return auth.currentUser;},
+    async login(username,password,admin=false){await ready;adminUid=null;const email=usernameEmail(username);await sdk.signInWithEmailAndPassword(auth,email,password);if(admin){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',auth.currentUser.uid));if(!record.exists()||record.data().enabled!==true)throw Error('Esta cuenta no está autorizada para administrar delivery.');adminUid=auth.currentUser.uid;}catch(e){await sdk.signOut(auth);throw e;}}return auth.currentUser;},
     async watchSession(fn){await ready;return sdk.onAuthStateChanged(auth,async user=>{adminUid=null;let admin=false;if(isPasswordUser(user)){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',user.uid));admin=record.exists()&&record.data().enabled===true;}catch(_){}if(auth.currentUser?.uid!==user.uid)return;if(admin)adminUid=user.uid;}fn(isPasswordUser(user)?user:null,admin);});},
+    async sendVerification(){if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');auth.languageCode='es';await sdk.sendEmailVerification(auth.currentUser);},
+    async refreshVerification(){if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');await sdk.reload(auth.currentUser);await sdk.getIdToken(auth.currentUser,true);return auth.currentUser;},
+    async resetPassword(email){await ready;auth.languageCode='es';try{await sdk.sendPasswordResetEmail(auth,usernameEmail(email));}catch(e){if(e.code!=='auth/user-not-found')throw e;}},
     async logout(){adminUid=null;await sdk.signOut(auth);},
     async changePassword(password){if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');if(password.length<12)throw Error('La nueva contraseña debe tener al menos 12 caracteres.');await sdk.updatePassword(auth.currentUser,password);},
-    subscribeOrders(next,fail,admin=false){if(admin)needAdmin();if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');const ref=sdk.collection(db,'deliveryOrders');const q=admin?ref:sdk.query(ref,sdk.where('customerUid','==',auth.currentUser.uid));return sdk.onSnapshot(q,snapshot=>next(snapshot.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0))),fail);},
+    subscribeOrders(next,fail,admin=false){if(admin)needAdmin();if(!isPasswordUser(auth.currentUser)||!auth.currentUser.emailVerified)throw Error('Verifica tu correo para consultar los pedidos.');const ref=sdk.collection(db,'deliveryOrders');const q=admin?ref:sdk.query(ref,sdk.where('customerUid','==',auth.currentUser.uid));return sdk.onSnapshot(q,snapshot=>next(snapshot.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0))),fail);},
     subscribeCustomers(next,fail){needAdmin();return sdk.onSnapshot(sdk.collection(db,'deliveryCustomers'),snapshot=>next(snapshot.docs.map(d=>({uid:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name))),fail);},
     async createCustomer({name,username,phone}){
       needAdmin();name=String(name||'').trim();phone=String(phone||'').trim();const email=usernameEmail(username);if(!name||name.length>120||phone.length>30)throw Error('Revisa el nombre y teléfono del cliente.');
       const password=securePassword();const secondary=sdk.initializeApp(config,'delivery-provision-'+securePassword().slice(0,12));const customerAuth=sdk.getAuth(secondary);let user;
-      try{await sdk.setPersistence(customerAuth,sdk.inMemoryPersistence);user=(await sdk.createUserWithEmailAndPassword(customerAuth,email,password)).user;await sdk.setDoc(sdk.doc(db,'deliveryCustomers',user.uid),{name,username:email.split('@')[0],phone,createdAt:sdk.serverTimestamp()});return {uid:user.uid,username:email.split('@')[0],password};}
+      try{await sdk.setPersistence(customerAuth,sdk.inMemoryPersistence);user=(await sdk.createUserWithEmailAndPassword(customerAuth,email,password)).user;await sdk.setDoc(sdk.doc(db,'deliveryCustomers',user.uid),{name,email,phone,createdAt:sdk.serverTimestamp()});let verificationSent=true;try{customerAuth.languageCode='es';await sdk.sendEmailVerification(user);}catch(_){verificationSent=false;}return {uid:user.uid,email,password,verificationSent};}
       catch(error){if(user){try{await sdk.deleteUser(user);}catch(_){throw Error('No se guardó el cliente y no se pudo retirar su cuenta. Revisa Authentication en Firebase antes de volver a crear ese usuario.');}}throw error;}
       finally{await sdk.signOut(customerAuth).catch(()=>{});await sdk.deleteApp(secondary).catch(()=>{});}
     },

@@ -6,8 +6,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null
         && !(topLevel in ['deliveryAdmins','deliveryCustomers','deliveryOrders']);
     }
-    function registered() {
+    function passwordAccount() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function registered() {
+      return passwordAccount() && request.auth.token.email_verified == true;
     }
     function deliveryAdmin() {
       return registered()
@@ -33,17 +36,17 @@ service cloud.firestore {
           || (d.status != 'entregado' && d.deliveredAt == null));
     }
     match /deliveryAdmins/{uid} {
-      allow get: if registered() && request.auth.uid == uid;
+      allow get: if passwordAccount() && request.auth.uid == uid;
       allow list, write: if false;
     }
     match /deliveryCustomers/{uid} {
       allow get: if deliveryAdmin() || (registered() && request.auth.uid == uid);
       allow list: if deliveryAdmin();
       allow create: if deliveryAdmin()
-        && request.resource.data.keys().hasAll(['name','username','phone','createdAt'])
-        && request.resource.data.keys().hasOnly(['name','username','phone','createdAt'])
+        && request.resource.data.keys().hasAll(['name','email','phone','createdAt'])
+        && request.resource.data.keys().hasOnly(['name','email','phone','createdAt'])
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
-        && request.resource.data.username is string && request.resource.data.username.matches('^[a-z0-9][a-z0-9._-]{2,39}$')
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254 && request.resource.data.email.matches('^[^ @]+@[^ @]+[.][^ @]+$')
         && request.resource.data.phone is string && request.resource.data.phone.size() <= 30
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
