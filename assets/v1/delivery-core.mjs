@@ -34,15 +34,15 @@ export function validateOrder(input) {
   if(eta&&!Number.isFinite(eta.getTime()))throw Error('La fecha de entrega no es válida.');
   return {customerUid,details,address,amount:Math.round(amount*100)/100,deliveryFee:Math.round(deliveryFee*100)/100,status,estimatedAt:eta};
 }
-export function createDeliveryService(sdk,config) {
+export function createDeliveryService(sdk,config,{rememberSession=false}={}) {
   const app=sdk.initializeApp(config,'grafiplot-delivery');
   const auth=sdk.getAuth(app),db=sdk.getFirestore(app);
-  const ready=sdk.setPersistence(auth,sdk.browserSessionPersistence);
+  const ready=sdk.setPersistence(auth,rememberSession?sdk.browserLocalPersistence:sdk.browserSessionPersistence);
   let adminUid=null;
   const isPasswordUser=u=>u&&!u.isAnonymous;
   const needAdmin=()=>{if(!isPasswordUser(auth.currentUser)||!auth.currentUser.emailVerified||auth.currentUser.uid!==adminUid)throw Error('Inicia sesión con una cuenta autorizada de la tienda.');};
   return {
-    async login(username,password,admin=false){await ready;adminUid=null;const email=admin?usernameEmail(username):customerEmail(username);await sdk.signInWithEmailAndPassword(auth,email,password);if(admin){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',auth.currentUser.uid));if(!record.exists()||record.data().enabled!==true)throw Error('Esta cuenta no está autorizada para administrar delivery.');adminUid=auth.currentUser.uid;}catch(e){await sdk.signOut(auth);throw e;}}return auth.currentUser;},
+    async login(username,password,admin=false,remember=rememberSession){await ready;await sdk.setPersistence(auth,!admin&&remember?sdk.browserLocalPersistence:sdk.browserSessionPersistence);adminUid=null;const email=admin?usernameEmail(username):customerEmail(username);await sdk.signInWithEmailAndPassword(auth,email,password);if(admin){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',auth.currentUser.uid));if(!record.exists()||record.data().enabled!==true)throw Error('Esta cuenta no está autorizada para administrar delivery.');adminUid=auth.currentUser.uid;}catch(e){await sdk.signOut(auth);throw e;}}return auth.currentUser;},
     async watchSession(fn){await ready;return sdk.onAuthStateChanged(auth,async user=>{adminUid=null;let admin=false;if(isPasswordUser(user)){try{const record=await sdk.getDoc(sdk.doc(db,'deliveryAdmins',user.uid));admin=record.exists()&&record.data().enabled===true;}catch(_){}if(auth.currentUser?.uid!==user.uid)return;if(admin)adminUid=user.uid;}fn(isPasswordUser(user)?user:null,admin);});},
     async sendVerification(){if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');auth.languageCode='es';await sdk.sendEmailVerification(auth.currentUser);},
     async refreshVerification(){if(!isPasswordUser(auth.currentUser))throw Error('Inicia sesión primero.');await sdk.reload(auth.currentUser);await sdk.getIdToken(auth.currentUser,true);return auth.currentUser;},
