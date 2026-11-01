@@ -1,6 +1,7 @@
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
+import {updateBotContext} from './grafibot-context.js';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=email-settings-20261005'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -144,7 +145,20 @@ function loadCloudConfig(data){
  renderGalleryContent();renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();applyCampaign(cloudConfig);update();
  root.querySelector('.gp-gallery-notice').textContent=galleryDraft.length?'':'Nos estamos preparando para compartir nuestros trabajos. Consulta por WhatsApp.';
  if(cloudConfig.seoTitle)document.title=cloudConfig.seoTitle;
+ root.querySelector('#gp-ai-enabled').checked=cloudConfig.grafibotAI?.enabled===true;
+ root.querySelector('#gp-ai-sitekey').value=cloudConfig.grafibotAI?.siteKey||'';
+ publishBotContext();
 }
+function publishBotContext(){updateBotContext(cloudConfig,{faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
+root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
+ const button=root.querySelector('#gp-ai-test'),status=root.querySelector('#gp-ai-test-status');
+ const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();
+ if(!/^[\w-]{20,200}$/.test(siteKey)||siteKey.startsWith('AIza')){status.textContent='Primero registra App Check e ingresa la clave pública de sitio reCAPTCHA Enterprise.';return;}
+ button.disabled=true;status.textContent='Comprobando App Check y Gemini…';
+ try{const {generateWithGemini}=await import('./grafibot-ai.js');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:'gemini-2.5-flash-lite'}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
+ catch{status.textContent='No se pudo conectar. Revisa AI Logic, Gemini Developer API, App Check, los dominios de reCAPTCHA y el cupo disponible. No se ha confirmado la activación.';}
+ finally{button.disabled=false;}
+});
 async function saveSiteSettings(e){
  e.preventDefault();if(!settingsUnlocked)return;
  if(!cloudReady||!settingsRef){feedback('No hay conexión con Firebase. Tus cambios no se han guardado; inténtalo de nuevo.',true);return}
@@ -158,8 +172,11 @@ async function saveSiteSettings(e){
  const autoPrices={};root.querySelectorAll('[data-rate-key]').forEach(input=>{if(input.value==='')return;const n=Number(input.value);if(!Number.isFinite(n)||n<0)throw Error('Revisa las tarifas: usa números mayores o iguales a cero.');autoPrices[input.dataset.rateKey]=n});
  const faqContent=faqDraft.filter(item=>item.question.trim()).map(item=>({question:item.question.trim(),answer:item.answer}));
  const serviceImages={};root.querySelectorAll('[data-service-image]').forEach(input=>serviceImages[input.dataset.serviceImage]=httpsLink(input.value));
+ const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim()};
+ if(grafibotAI.siteKey.startsWith('AIza')||(grafibotAI.enabled&&!/^[\w-]{20,200}$/.test(grafibotAI.siteKey)))throw Error('Para activar IA, configura la clave pública de sitio reCAPTCHA Enterprise registrada en App Check. No uses una clave privada de Gemini.');
  const patch={orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
+ patch.grafibotAI=grafibotAI;
  feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
  const waitNotice=setTimeout(()=>{feedback('Firebase aún no confirma el guardado. Revisa tu conexión; los cambios siguen pendientes.',true);saveStatus('Sin confirmación del servidor.');},12000);
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
@@ -167,6 +184,7 @@ async function saveSiteSettings(e){
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
  cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);applyServiceImages(serviceImages);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
+ publishBotContext();
  }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
 }
 async function saveCampaign(e,disable=false){
@@ -226,7 +244,7 @@ async function connectSite(){
  const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);ownerAuth=createSettingsAuth(sdk,siteAuth);await ownerAuth.watch(ownerSession);
  settingsRef=doc(siteDb,'artifacts','grafiplot-tienda-v4','public','data','settings','config');
  onSnapshot(settingsRef,{includeMetadataChanges:true},snapshot=>{cloudReady=!snapshot.metadata.fromCache;loadCloudConfig(snapshot.exists()?snapshot.data():{});cloudStatus(cloudReady?'Conectado · configuración recibida del servidor.':'Sin conexión confirmada · mostrando datos en caché.',cloudReady?'connected':'connecting')},error=>{cloudReady=false;cloudStatus('Error de lectura: '+error.code,'error')});
- onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')})).filter(f=>f.question.trim());if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor()}}});
+ onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')})).filter(f=>f.question.trim());if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor();publishBotContext()}}});
  }catch(error){cloudReady=false;cloudStatus('Firebase no está disponible: '+error.code,'error')}
 }
 async function connectInventory(){
@@ -238,6 +256,7 @@ async function connectInventory(){
  },error=>root.querySelector('#gp-catalog-status').textContent='No se pudo cargar el inventario. Consulta disponibilidad por WhatsApp.');
  }catch(error){root.querySelector('#gp-catalog-status').textContent='No se pudo conectar al inventario. Consulta por WhatsApp.'}
 }
-galleryDraft=[];renderGalleryContent();renderCatalog();connectSite();connectInventory();
+galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
 
 update();if(window.lucide)window.lucide.createIcons();else window.addEventListener('load',()=>window.lucide?.createIcons(),{once:true});})();
+
