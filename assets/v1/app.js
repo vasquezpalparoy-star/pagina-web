@@ -70,7 +70,7 @@ function applyPreviewConfig(config){
 if(storedPreview&&typeof storedPreview==='object')storedPreview.theme='dark';
 if(!storedPreview||typeof storedPreview!=='object'||Array.isArray(storedPreview))storedPreview={};
 try{applyPreviewConfig(storedPreview)}catch(_){}
-function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textIndex=index;label.append(input);groups.get(target.group).append(label)});}
+function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product,.gp-service'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textIndex=index;label.append(input);groups.get(target.group).append(label)});}
 let ownerAuth,ownerUser;
 const ownerFeedback=text=>root.querySelector('#gp-login-feedback').textContent=text;
 function ownerSession(allowed,user){settingsUnlocked=allowed;ownerUser=user;root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;root.querySelector('#gp-settings-login-form').hidden=!!user;if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');}
@@ -124,7 +124,25 @@ function applyCampaign(config){
 function applyServiceImages(images={}){
  root.querySelectorAll('.gp-service[data-service-key]').forEach(card=>{let image='';try{image=httpsLink(images[card.dataset.serviceKey])}catch(_){}card.style.backgroundImage=image?'url('+JSON.stringify(image)+')':'none';card.dataset.hasImage=String(!!image);});
 }
-function renderServiceImagesEditor(){const editor=root.querySelector('#gp-service-images-editor');editor.replaceChildren();root.querySelectorAll('.gp-service[data-service-key]').forEach(card=>{const f=field(card.dataset.service,cloudConfig.serviceImages?.[card.dataset.serviceKey]||'','url');f.input.dataset.serviceImage=card.dataset.serviceKey;f.input.placeholder='https://…';editor.append(f.label)});}
+const defaultServiceImage='https://www.grafiplotvasquez.com/assets/v1/printing-hero.webp';
+let servicesDraft=[];
+function renderServices(){
+ const grid=root.querySelector('.gp-service-grid');grid.replaceChildren();
+ searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Servicio'));
+ servicesDraft.forEach((item,i)=>{const card=document.createElement('button');card.type='button';card.className='gp-service';card.id='gp-service-'+i;card.dataset.serviceKey=item.id;card.dataset.service=item.name;
+ const title=document.createElement('h3');title.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;const action=document.createElement('span');action.className='gp-link';action.textContent='Consultar servicio ↗';card.append(title,description,action);
+ const image=item.image||defaultServiceImage;card.style.backgroundImage='url('+JSON.stringify(image)+')';card.dataset.hasImage='true';
+ card.onclick=()=>whatsapp('Hola Grafiplot, deseo cotizar: '+item.name);grid.append(card);searchEntries.push({title:item.name,type:'Servicio',terms:item.name+' '+item.description,target:card.id});});
+ publishBotContext();
+}
+function renderServiceImagesEditor(){
+ const editor=root.querySelector('#gp-service-images-editor');editor.replaceChildren();
+ const hero=field('Imagen de portada · enlace HTTPS',cloudConfig.heroImage||defaultServiceImage,'url');hero.input.id='gp-hero-image';editor.append(hero.label);
+ servicesDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';for(const [key,label]of [['name','Nombre del servicio'],['description','Descripción'],['image','Imagen · enlace HTTPS']]){const f=field(label,item[key],key==='image'?'url':'text');f.input.oninput=()=>item[key]=f.input.value;row.append(f.label);}const remove=document.createElement('button');remove.type='button';remove.textContent='Eliminar servicio';remove.className='gp-button secondary';remove.onclick=()=>{servicesDraft.splice(index,1);renderServiceImagesEditor()};row.append(remove);editor.append(row)});
+ const add=document.createElement('button');add.type='button';add.className='gp-button';add.textContent='Añadir servicio';add.onclick=()=>{servicesDraft.push({id:'service-'+Date.now(),name:'Nuevo servicio',description:'',image:defaultServiceImage});renderServiceImagesEditor()};editor.append(add);
+}
+const originalServices=Array.from(root.querySelectorAll('.gp-service')).map(card=>({id:card.dataset.serviceKey,name:card.querySelector('h3').textContent,description:card.querySelector('p').textContent,image:defaultServiceImage}));
+function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudConfig.services.map(s=>({...s})):originalServices.map(s=>({...s,image:cloudConfig.serviceImages?.[s.id]||s.image}));renderServices();const hero=root.querySelector('.gp-art');hero.replaceChildren();const img=document.createElement('img');img.src=cloudConfig.heroImage||defaultServiceImage;img.alt='Planos, impresiones y anillados de Grafiplot';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:12px';hero.append(img);}
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
@@ -141,7 +159,7 @@ function loadCloudConfig(data){
  root.querySelector('#gp-settings-route-bg').value=cloudConfig.routeBackgroundUrl||'https://www.grafiplotvasquez.com/local.jpeg';
  const route=root.querySelector('.gp-route-card');try{const image=httpsLink(cloudConfig.routeBackgroundUrl)||'./local.jpeg';route.style.backgroundImage='url('+JSON.stringify(image)+')'}catch(_){route.style.backgroundImage='none'}
 
- applyServiceImages(cloudConfig.serviceImages);renderServiceImagesEditor();
+ loadServices();renderServiceImagesEditor();
  renderCatalog();renderGalleryContent();renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();applyCampaign(cloudConfig);update();
  root.querySelector('.gp-gallery-notice').textContent=galleryDraft.length?'':'Nos estamos preparando para compartir nuestros trabajos. Consulta por WhatsApp.';
  if(cloudConfig.seoTitle)document.title=cloudConfig.seoTitle;
@@ -175,7 +193,8 @@ async function saveSiteSettings(e){
  const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim()};
  if(grafibotAI.siteKey.startsWith('AIza')||(grafibotAI.enabled&&!/^[\w-]{20,200}$/.test(grafibotAI.siteKey)))throw Error('Para activar IA, configura la clave pública de sitio reCAPTCHA Enterprise registrada en App Check. No uses una clave privada de Gemini.');
  const catalogTexts={};root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};catalogTexts[id][input.dataset.copyField]=input.value;});
- const patch={catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);
+ const patch={services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
  feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
@@ -183,7 +202,7 @@ async function saveSiteSettings(e){
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
  saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
- cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);applyServiceImages(serviceImages);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
+ cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderCatalog();renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  publishBotContext();
  }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
@@ -261,7 +280,8 @@ async function connectInventory(){
  },error=>root.querySelector('#gp-catalog-status').textContent='No se pudo cargar el inventario. Consulta disponibilidad por WhatsApp.');
  }catch(error){root.querySelector('#gp-catalog-status').textContent='No se pudo conectar al inventario. Consulta por WhatsApp.'}
 }
-galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
+loadServices();renderServiceImagesEditor();galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
 
 update();if(window.lucide)window.lucide.createIcons();else window.addEventListener('load',()=>window.lucide?.createIcons(),{once:true});})();
+
 
