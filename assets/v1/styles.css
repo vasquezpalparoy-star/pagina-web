@@ -17,3 +17,15 @@ body.gp-cart-open{overflow:hidden}
 @media(max-width:740px){#grafiplot-preview .gp-header-actions{gap:8px}#grafiplot-preview .gp-header-whatsapp{padding:8px 10px;font-size:12px}#grafiplot-preview .gp-header-whatsapp strong{font-size:14px}#grafiplot-preview .gp-header-actions>.gp-button{padding:10px 12px;font-size:12px}}
 @media(max-width:480px){#grafiplot-preview .gp-header-actions{width:100%;justify-content:space-between}#grafiplot-preview #gp-cart-dialog #gp-cart{padding:18px}#grafiplot-preview .gp-cart-heading h2{font-size:23px}#grafiplot-preview #gp-cart-dialog .gp-cart-summary{bottom:-18px;align-items:stretch;flex-direction:column}}
 @media(max-width:600px){#grafiplot-preview .gp-header{grid-template-columns:1fr}#grafiplot-preview .gp-header-actions{grid-column:1/-1;grid-row:2;margin-left:0;width:100%;justify-content:space-between}#grafiplot-preview .gp-nav{grid-row:3}#grafiplot-preview .gp-header-actions>.gp-button{padding:10px 12px}}
+
+#grafiplot-preview[data-appearance=light]{--gp-bg:#fff;--gp-panel:#f4f5f7;--gp-ink:#101c30;--gp-muted:#526078;--gp-border:#dce1e8; background:#fff;color:var(--gp-ink);color-scheme:light}
+#grafiplot-preview[data-appearance=light] .gp-header,#grafiplot-preview[data-appearance=light] .gp-search-area,#grafiplot-preview[data-appearance=light] .gp-footer{background:#fff}
+#grafiplot-preview[data-appearance=light] input,#grafiplot-preview[data-appearance=light] select,#grafiplot-preview[data-appearance=light] textarea{background:#fff!important;color:#101c30!important}
+#grafiplot-preview .gp-hero{border-radius:20px;margin-top:20px}
+#grafiplot-preview .gp-service,#grafiplot-preview .gp-product{border-radius:16px;transition:transform .2s}
+#grafiplot-preview .gp-service:hover,#grafiplot-preview .gp-product:hover{transform:translateY(-4px)}
+#grafiplot-preview .gp-nav{flex-wrap:wrap;gap:18px}
+#grafiplot-preview .gp-button.secondary{color:var(--gp-ink);background:var(--gp-panel)}
+#grafiplot-preview .gp-campaign{border-radius:16px;margin-top:22px}
+#grafiplot-preview .gp-service[data-has-image=true]{color:white}
+#grafiplot-preview .gp-service[data-has-image=true] h3,#grafiplot-preview .gp-service[data-has-image=true] p{color:white}

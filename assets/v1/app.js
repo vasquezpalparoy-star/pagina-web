@@ -63,7 +63,7 @@ const previewStorage='grafiplot-config-preview-v1';
 let storedPreview={};
 function applyPreviewConfig(config){
  const texts=config.texts||{};settingsTargets.forEach((target,index)=>{if(typeof texts[index]==='string'){let value=texts[index];if(target.node.parentElement?.id==='gp-cart-send'&&value==='Consultar pedido por WhatsApp')value='Enviar pedido por WhatsApp';if(target.node.parentElement?.tagName==='H2'&&target.node.parentElement.closest('#gp-cart')&&value==='Tu pedido')value='Carrito de compras';target.node.textContent=value}});
- root.dataset.appearance='dark';root.querySelector('#gp-settings-theme').value='dark';
+ root.dataset.appearance=window.gpTheme||'light';root.querySelector('#gp-settings-theme').value='dark';
  if(/^#[0-9a-f]{6}$/i.test(config.brand||'')){root.style.setProperty('--gp-red',config.brand);root.querySelector('#gp-settings-brand').value=config.brand}
  if(config.map){try{const url=new URL(config.map);if(url.protocol==='https:'){root.querySelector('.gp-route-card a').href=url.href;root.querySelector('#gp-settings-map').value=url.href}}catch(_){}}
 }
@@ -107,7 +107,7 @@ function describeSaveError(error){if(error.code==='permission-denied')return 'Fi
 const money=n=>'S/ '+Number(n).toFixed(2);
 const feedback=(text,error=false)=>{const node=root.querySelector('#gp-settings-feedback');node.textContent=text;node.setAttribute('role',error?'alert':'status')};
 const httpsLink=(value,optional=true)=>{const text=String(value||'').trim();if(!text&&optional)return '';const url=new URL(text);if(url.protocol!=='https:')throw Error('Usa enlaces que comiencen con https://.');return url.href};
-function configuredPhone(){return String(cloudConfig.contactPhone||'51952628844').replace(/\D/g,'')}
+function configuredPhone(){return '51952628844'}
 function whatsapp(message){window.open('https://wa.me/'+configuredPhone()+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer')}
 function applyCampaign(config){
  const active=config.campaignEnabled===true;
@@ -141,8 +141,8 @@ function loadCloudConfig(data){
  root.querySelector('#gp-settings-route-bg').value=cloudConfig.routeBackgroundUrl||'https://www.grafiplotvasquez.com/local.jpeg';
  const route=root.querySelector('.gp-route-card');try{const image=httpsLink(cloudConfig.routeBackgroundUrl)||'./local.jpeg';route.style.backgroundImage='url('+JSON.stringify(image)+')'}catch(_){route.style.backgroundImage='none'}
 
- applyServiceImages(cloudConfig.serviceImages);renderServiceImagesEditor();root.querySelector('[data-service-key=anillados] h3').textContent='Anillados y espiralados';
- renderGalleryContent();renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();applyCampaign(cloudConfig);update();
+ applyServiceImages(cloudConfig.serviceImages);renderServiceImagesEditor();
+ renderCatalog();renderGalleryContent();renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();applyCampaign(cloudConfig);update();
  root.querySelector('.gp-gallery-notice').textContent=galleryDraft.length?'':'Nos estamos preparando para compartir nuestros trabajos. Consulta por WhatsApp.';
  if(cloudConfig.seoTitle)document.title=cloudConfig.seoTitle;
  root.querySelector('#gp-ai-enabled').checked=cloudConfig.grafibotAI?.enabled===true;
@@ -174,7 +174,8 @@ async function saveSiteSettings(e){
  const serviceImages={};root.querySelectorAll('[data-service-image]').forEach(input=>serviceImages[input.dataset.serviceImage]=httpsLink(input.value));
  const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim()};
  if(grafibotAI.siteKey.startsWith('AIza')||(grafibotAI.enabled&&!/^[\w-]{20,200}$/.test(grafibotAI.siteKey)))throw Error('Para activar IA, configura la clave pública de sitio reCAPTCHA Enterprise registrada en App Check. No uses una clave privada de Gemini.');
- const patch={orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const catalogTexts={};root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};catalogTexts[id][input.dataset.copyField]=input.value;});
+ const patch={catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
  feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
@@ -183,7 +184,7 @@ async function saveSiteSettings(e){
  saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
  cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);applyServiceImages(serviceImages);quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
- root.querySelector('.gp-logo').src=patch.logoUrl;renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
+ root.querySelector('.gp-logo').src=patch.logoUrl;renderCatalog();renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  publishBotContext();
  }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
 }
@@ -200,9 +201,13 @@ async function saveCampaign(e,disable=false){
  }catch(error){campaignFeedback.textContent='No se pudo guardar la campaña: '+error.message}finally{button.disabled=false}
 }
 function renderCatalog(){
+ let editor=root.querySelector('#gp-product-editor');
+ if(!editor){editor=document.createElement('details');editor.id='gp-product-editor';editor.className='gp-settings-group';root.querySelector('#gp-settings-editor').append(editor);}
+ if(!editor.contains(document.activeElement)){editor.replaceChildren();const summary=document.createElement('summary');summary.textContent='Productos · corregir nombres y descripciones';editor.append(summary);inventoryItems.forEach(item=>{for(const key of ['name','description']){const f=field(item.name+' · '+(key==='name'?'Nombre':'Descripción'),cloudConfig.catalogTexts?.[item.id]?.[key]??item[key]);f.input.dataset.productCopy=item.id;f.input.dataset.copyField=key;editor.append(f.label);}});}
+
  const grid=root.querySelector('.gp-products');grid.replaceChildren();
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Producto'));
- const display=inventoryItems.slice().sort((a,b)=>Number(b.isPriority)-Number(a.isPriority)||b.createdAt-a.createdAt);
+ const display=inventoryItems.map(item=>({...item,...(cloudConfig.catalogTexts?.[item.id]||{})})).sort((a,b)=>Number(b.isPriority)-Number(a.isPriority)||b.createdAt-a.createdAt);
  display.forEach((item,index)=>{
  const card=document.createElement('article');card.className='gp-product';card.id='gp-product-'+index;
  if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.loading='lazy';img.className='gp-catalog-image';img.addEventListener('error',()=>img.hidden=true);card.append(img)}
