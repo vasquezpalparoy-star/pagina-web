@@ -131,7 +131,7 @@ function renderServices(){
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Servicio'));
  servicesDraft.forEach((item,i)=>{const card=document.createElement('button');card.type='button';card.className='gp-service';card.id='gp-service-'+i;card.dataset.serviceKey=item.id;card.dataset.service=item.name;
  const title=document.createElement('h3');title.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;const action=document.createElement('span');action.className='gp-link';action.textContent='Consultar servicio ↗';card.append(title,description,action);
- const image=item.image||defaultServiceImage;card.style.backgroundImage='url('+JSON.stringify(image)+')';card.dataset.hasImage='true';
+ const image=item.image||defaultServiceImage;const photo=document.createElement('img');photo.src=image;photo.alt=item.name;photo.loading='lazy';photo.className='gp-service-photo';photo.onerror=()=>{photo.onerror=null;photo.src=defaultServiceImage};card.prepend(photo);
  card.onclick=()=>whatsapp('Hola Grafiplot, deseo cotizar: '+item.name);grid.append(card);searchEntries.push({title:item.name,type:'Servicio',terms:item.name+' '+item.description,target:card.id});});
  publishBotContext();
 }
@@ -141,7 +141,7 @@ function renderServiceImagesEditor(){
  servicesDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';for(const [key,label]of [['name','Nombre del servicio'],['description','Descripción'],['image','Imagen · enlace HTTPS']]){const f=field(label,item[key],key==='image'?'url':'text');f.input.oninput=()=>item[key]=f.input.value;row.append(f.label);}const remove=document.createElement('button');remove.type='button';remove.textContent='Eliminar servicio';remove.className='gp-button secondary';remove.onclick=()=>{servicesDraft.splice(index,1);renderServiceImagesEditor()};row.append(remove);editor.append(row)});
  const add=document.createElement('button');add.type='button';add.className='gp-button';add.textContent='Añadir servicio';add.onclick=()=>{servicesDraft.push({id:'service-'+Date.now(),name:'Nuevo servicio',description:'',image:defaultServiceImage});renderServiceImagesEditor()};editor.append(add);
 }
-const originalServices=Array.from(root.querySelectorAll('.gp-service')).map(card=>({id:card.dataset.serviceKey,name:card.querySelector('h3').textContent,description:card.querySelector('p').textContent,image:defaultServiceImage}));
+const originalServices=Array.from(root.querySelectorAll('.gp-service')).map(card=>({id:card.dataset.serviceKey,name:card.querySelector('h3').textContent,description:card.querySelector('p').textContent,image:'https://www.grafiplotvasquez.com/assets/v1/service-'+({'impresiones':0,'planos':1,'anillados':2,'gigantografias':3,'tarjetas':4,'diseno':5,'universitarios':2}[card.dataset.serviceKey]??0)+'.webp'}));
 function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudConfig.services.map(s=>({...s})):originalServices.map(s=>({...s,image:cloudConfig.serviceImages?.[s.id]||s.image}));renderServices();const hero=root.querySelector('.gp-art');hero.replaceChildren();const img=document.createElement('img');img.src=cloudConfig.heroImage||defaultServiceImage;img.alt='Planos, impresiones y anillados de Grafiplot';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:12px';hero.append(img);}
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
@@ -228,7 +228,7 @@ function renderCatalog(){
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Producto'));
  const display=inventoryItems.map(item=>({...item,...(cloudConfig.catalogTexts?.[item.id]||{})})).sort((a,b)=>Number(b.isPriority)-Number(a.isPriority)||b.createdAt-a.createdAt);
  display.forEach((item,index)=>{
- const card=document.createElement('article');card.className='gp-product';card.id='gp-product-'+index;
+ const card=document.createElement('article');card.className='gp-product';card.dataset.category=item.category||'Otros';card.id='gp-product-'+index;
  if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.loading='lazy';img.className='gp-catalog-image';img.addEventListener('error',()=>img.hidden=true);card.append(img)}
  const name=document.createElement('h3');name.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;
  const price=document.createElement('strong');price.textContent=money(item.price);price.className='gp-product-price';
@@ -241,7 +241,7 @@ function renderCatalog(){
  });
  const status=root.querySelector('#gp-catalog-status');status.textContent=inventoryItems.length?inventoryItems.length+' productos y servicios en el catálogo.':'No hay productos disponibles por el momento.';
  const notice=root.querySelector('#gp-catalog-note');notice.textContent='Consulta disponibilidad y condiciones de los precios por mayor.';
- renderCart();if(searchInput.value.trim())search();
+ renderCart();window.dispatchEvent(new window.Event('gp-catalog-rendered'));if(searchInput.value.trim())search();
 }
 function updateCartSummary(){root.querySelector('#gp-cart-count').textContent=cart.reduce((sum,item)=>sum+item.quantity,0);root.querySelector('#gp-cart-total').textContent=money(cart.reduce((sum,item)=>sum+item.price*item.quantity,0));}
 function renderCart(){

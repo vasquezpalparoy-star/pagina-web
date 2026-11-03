@@ -1,0 +1,47 @@
+/* Proposal layout: isolated overrides for both supported themes. */
+#grafiplot-preview{font-family:Arial,Helvetica,sans-serif;--gp-red:#e60020}
+#grafiplot-preview .gp-wrap{max-width:1240px;padding-left:28px;padding-right:28px}
+#grafiplot-preview .gp-header{grid-template-columns:210px 1fr;padding-top:18px;gap:18px}
+#grafiplot-preview .gp-logo{width:200px;max-width:100%}
+#grafiplot-preview .gp-nav{justify-content:center;padding:16px 0;gap:24px;border-bottom:1px solid var(--gp-border)}
+#grafiplot-preview .gp-nav button,#grafiplot-preview .gp-nav a{font-size:14px;font-weight:700}
+#grafiplot-preview .gp-search-area{display:none}
+#grafiplot-preview .gp-hero{max-width:1400px;padding:0;gap:0;min-height:440px;margin-top:0;border-radius:0;background:#071b33;grid-template-columns:44% 56%;overflow:hidden}
+#grafiplot-preview .gp-hero>div:first-child{padding:56px 35px;color:white;z-index:1}
+#grafiplot-preview .gp-hero h1{font-size:clamp(36px,4.4vw,60px);line-height:1.04;color:white;letter-spacing:-2px}
+#grafiplot-preview .gp-hero h1 em{color:white;font-style:normal}
+#grafiplot-preview .gp-hero .gp-intro,#grafiplot-preview .gp-hero .gp-location{color:#e1e7ef}
+#grafiplot-preview .gp-hero .gp-eyebrow{display:none}
+#grafiplot-preview .gp-art{height:100%;min-height:440px;border:0;border-radius:0;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);margin-left:-40px;background:#071b33!important}
+#grafiplot-preview .gp-art img{border-radius:0!important}
+#grafiplot-preview .gp-trust{justify-content:space-around;padding:25px;max-width:1400px;font-size:14px;font-weight:700}
+#grafiplot-preview h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-1px}
+#grafiplot-preview #gp-services .gp-section-head{text-align:center;justify-content:center}
+#grafiplot-preview .gp-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+#grafiplot-preview .gp-service{padding:0 0 18px;overflow:hidden;text-align:left;min-height:0;background:var(--gp-panel)!important;border:0;border-radius:12px}
+#grafiplot-preview .gp-service:before{display:none}
+#grafiplot-preview .gp-service-photo{display:block;width:100%;height:210px;object-fit:cover;margin-bottom:14px}
+#grafiplot-preview .gp-service h3,#grafiplot-preview .gp-service p,#grafiplot-preview .gp-service .gp-link{margin-left:16px;margin-right:16px;color:var(--gp-ink)}
+#grafiplot-preview .gp-service h3{font-size:19px}#grafiplot-preview .gp-service .gp-link{color:var(--gp-red);display:block;margin-top:12px}
+#grafiplot-preview .gp-quote{border:0;border-radius:18px;margin-top:20px;grid-template-columns:1fr 1.5fr;gap:30px}
+#grafiplot-preview .gp-form{box-shadow:none;border-radius:15px;background:var(--gp-bg)!important}
+#grafiplot-preview .gp-products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+#grafiplot-preview .gp-product{padding:15px;border:1px solid var(--gp-border);box-shadow:none}
+#grafiplot-preview .gp-product h3{font-size:17px}#grafiplot-preview .gp-product-actions .gp-button{flex:1;padding:12px 6px}
+#grafiplot-preview .gp-catalog-image{height:180px;object-fit:contain}
+#grafiplot-preview .gp-campaign{min-height:245px;padding:35px;margin-top:28px;background:linear-gradient(110deg,#dc001f 0%,#b90020 48%,#071b33 100%);color:white;position:relative}
+#grafiplot-preview .gp-campaign h2{color:white;max-width:650px}#grafiplot-preview .gp-campaign p{font-size:16px}
+#grafiplot-preview .gp-campaign-cta{background:white;color:#af001c}
+.gp-catalog-tools{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px}.gp-catalog-tools input{flex:1;min-width:180px}.gp-catalog-tools select{max-width:240px}
+.gp-delivery-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:25px;margin-top:25px}.gp-delivery-grid form,.gp-delivery-info{padding:24px;border-radius:14px;background:var(--gp-bg);border:1px solid var(--gp-border)}
+.gp-delivery-grid input{margin:12px 0!important}.gp-delivery-grid a{display:inline-block;margin-top:16px}.gp-status-steps{display:flex;list-style:none;padding:0;margin:28px 0;gap:8px;justify-content:space-between}.gp-status-steps li{font-size:12px;text-align:center;flex:1}.gp-status-steps li:before{content:'○';display:block;color:var(--gp-red);font-size:32px;border-bottom:3px solid var(--gp-border);padding-bottom:8px;margin-bottom:10px}
+#grafiplot-preview #gp-delivery-access{display:block}.gp-track-error{color:var(--gp-red)}
+#grafiplot-preview .gp-footer{background:#071b33!important;color:white;max-width:1400px}#grafiplot-preview .gp-footer a,#grafiplot-preview .gp-footer button{color:white}
+#grafiplot-preview .gp-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#grafiplot-preview .gp-header-whatsapp{background:#009c38;border:0}.gp-button{cursor:pointer}
+@media(max-width:760px){#grafiplot-preview .gp-wrap{padding-left:18px;padding-right:18px}#grafiplot-preview .gp-header{grid-template-columns:1fr}#grafiplot-preview .gp-header-actions{justify-content:flex-start}#grafiplot-preview .gp-nav{gap:14px;justify-content:flex-start}#grafiplot-preview .gp-hero{grid-template-columns:1fr}#grafiplot-preview .gp-hero>div:first-child{padding:35px 22px}#grafiplot-preview .gp-art{clip-path:none;margin:0;min-height:260px;height:260px}#grafiplot-preview .gp-service-grid,#grafiplot-preview .gp-products{grid-template-columns:repeat(2,minmax(0,1fr))}#grafiplot-preview .gp-service-photo{height:150px}#grafiplot-preview .gp-quote,.gp-delivery-grid{grid-template-columns:1fr}#grafiplot-preview .gp-campaign{min-height:0;padding:24px}#grafiplot-preview .gp-gallery-grid{grid-template-columns:1fr}#grafiplot-preview .gp-product-actions{flex-direction:column}.gp-status-steps{flex-wrap:wrap}}
+#grafiplot-preview .gp-product[hidden]{display:none}
+#grafiplot-preview .gp-service-photo{background:#fff}
+#grafiplot-preview .gp-product p{overflow-wrap:anywhere}
+
+#grafiplot-preview .gp-campaign{background-image:linear-gradient(90deg,#d60020 0%,#bc0020ed 45%,#071b3355 100%),url('./service-2.webp');background-position:center,right center;background-size:cover,50% auto;background-repeat:no-repeat}
