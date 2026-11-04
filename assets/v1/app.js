@@ -230,7 +230,7 @@ function renderCatalog(){
  const display=inventoryItems.map(item=>({...item,...(cloudConfig.catalogTexts?.[item.id]||{})})).sort((a,b)=>Number(b.isPriority)-Number(a.isPriority)||b.createdAt-a.createdAt);
  display.forEach((item,index)=>{
  const card=document.createElement('article');card.className='gp-product';card.dataset.category=item.category||'Otros';card.id='gp-product-'+index;
- if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.loading='lazy';img.className='gp-catalog-image';img.addEventListener('error',()=>img.hidden=true);card.append(img)}
+ if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.loading='lazy';img.className='gp-catalog-image';img.addEventListener('error',()=>img.hidden=true);card.append(img)}else{const placeholder=document.createElement('div');placeholder.className='gp-catalog-placeholder';placeholder.textContent='Imagen por actualizar';card.append(placeholder)}
  const name=document.createElement('h3');name.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;
  const price=document.createElement('strong');price.textContent=money(item.price);price.className='gp-product-price';
  const bulk=document.createElement('p');bulk.textContent='Por mayor: '+money(item.bulkPrice);
