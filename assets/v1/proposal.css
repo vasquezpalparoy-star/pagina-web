@@ -62,3 +62,5 @@
 #grafiplot-preview[data-appearance] .gp-campaign p{color:#fff}
 #grafiplot-preview[data-appearance] a:not([class]){color:var(--gp-ink);text-decoration:underline}
 #grafiplot-preview[data-appearance] :focus-visible{outline:3px solid #2780e3;outline-offset:3px}
+#grafiplot-preview[data-appearance] .gp-trust{background:var(--gp-panel);color:var(--gp-ink)}
+#grafiplot-preview[data-appearance] .gp-nav a{color:var(--gp-ink)}
