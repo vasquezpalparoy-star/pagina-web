@@ -64,3 +64,91 @@
 #grafiplot-preview[data-appearance] :focus-visible{outline:3px solid #2780e3;outline-offset:3px}
 #grafiplot-preview[data-appearance] .gp-trust{background:var(--gp-panel);color:var(--gp-ink)}
 #grafiplot-preview[data-appearance] .gp-nav a{color:var(--gp-ink)}
+
+/* Compact storefront matching the approved visual proposal. */
+#grafiplot-preview .gp-header{display:grid;grid-template-columns:180px 1fr auto;gap:18px;padding-top:14px;padding-bottom:14px;align-items:center}
+#grafiplot-preview .gp-logo{width:180px}
+#grafiplot-preview .gp-nav{padding:0;border:0;gap:20px;flex-wrap:wrap}
+#grafiplot-preview .gp-header-actions{gap:9px;flex-wrap:wrap;justify-content:flex-end}
+#grafiplot-preview .gp-header-actions .gp-button,#grafiplot-preview .gp-header-whatsapp{padding:10px 12px;font-size:12px}
+#grafiplot-preview .gp-promo-nav{border:1px solid var(--gp-red);color:var(--gp-ink);background:var(--gp-bg);padding:10px 13px;border-radius:7px;font-weight:700}
+#grafiplot-preview .gp-shop-nav{display:flex;align-items:center;justify-content:space-evenly;gap:18px;padding-top:12px;padding-bottom:12px;border-bottom:1px solid var(--gp-border)}
+#grafiplot-preview .gp-shop-nav button,#grafiplot-preview .gp-shop-nav a{border:0;background:none;color:var(--gp-ink);font-weight:700;font-size:14px;text-decoration:none}
+#grafiplot-preview .gp-shop-nav .gp-order-shortcut:disabled{display:none}
+#grafiplot-preview [hidden]{display:none!important}
+#grafiplot-preview .gp-hero{position:relative;min-height:400px;grid-template-columns:42% 58%}
+#grafiplot-preview .gp-hero>div:first-child{padding:42px 32px}
+#grafiplot-preview .gp-hero h1{font-size:clamp(34px,4vw,54px);max-width:460px}
+#grafiplot-preview .gp-hero .gp-intro{line-height:1.5;font-size:16px;max-width:360px;margin:22px 0}
+#grafiplot-preview .gp-art{min-height:400px;border-left:10px solid var(--gp-red)}
+#grafiplot-preview .gp-trust{padding-top:17px;padding-bottom:17px}
+#grafiplot-preview .gp-trust svg{color:var(--gp-red)}
+#grafiplot-preview .gp-promo-toast{position:absolute;right:25px;top:20px;width:255px;background:var(--gp-bg);color:var(--gp-ink);padding:20px;border-radius:14px;box-shadow:0 8px 35px #0004;z-index:3;border:1px solid var(--gp-border)}
+#grafiplot-preview .gp-promo-toast h2{font-size:24px;line-height:1.05;letter-spacing:-.6px;margin:9px 0}
+#grafiplot-preview .gp-promo-toast p{font-size:12px;margin-bottom:12px}
+#grafiplot-preview .gp-promo-toast .gp-button{padding:9px 18px;width:100%}
+#grafiplot-preview .gp-promo-close{position:absolute;right:8px;top:3px;border:0;background:none;color:var(--gp-ink);font-size:25px}
+#grafiplot-preview .gp-promo-tag{background:#d50020;color:white;font-size:10px;font-weight:bold;padding:4px 7px;border-radius:3px}
+#grafiplot-preview .gp-campaign{border-radius:15px;min-height:235px;margin:18px auto 0;max-width:1184px;padding:30px;display:block;background-size:cover,55% auto}
+#grafiplot-preview .gp-campaign h2{max-width:55%;font-size:clamp(30px,3.5vw,46px);line-height:1.05}
+#grafiplot-preview .gp-campaign p{max-width:53%;margin:12px 0}
+#grafiplot-preview .gp-campaign-cta{display:inline-flex;padding:12px 22px}
+#grafiplot-preview .gp-section{padding-top:32px;padding-bottom:32px}
+#grafiplot-preview .gp-section-head{margin-bottom:18px}
+#grafiplot-preview #gp-services .gp-eyebrow,#grafiplot-preview #gp-services .gp-subtitle{display:none}
+#grafiplot-preview .gp-service-grid{gap:14px}
+#grafiplot-preview .gp-service{border-radius:9px;padding-bottom:12px}
+#grafiplot-preview .gp-service-photo{height:170px;margin-bottom:10px}
+#grafiplot-preview .gp-service p{display:none}
+#grafiplot-preview .gp-service .gp-link{margin-top:3px}
+#grafiplot-preview .gp-quote{max-width:1240px;border-radius:0;padding:22px 28px;grid-template-columns:1fr 1.9fr;gap:24px;align-items:center;margin:0 auto}
+#grafiplot-preview .gp-quote h2{font-size:clamp(30px,3vw,40px);line-height:1.02}
+#grafiplot-preview .gp-quote h2 span{text-decoration:underline;text-decoration-color:var(--gp-red);text-underline-offset:7px;text-decoration-thickness:4px}
+#grafiplot-preview .gp-quote>div>.gp-eyebrow,#grafiplot-preview .gp-quote>div>.gp-location{display:none}
+#grafiplot-preview .gp-quote>div>p{font-size:13px;line-height:1.4;margin:18px 0 0;max-width:340px}
+#grafiplot-preview .gp-form{padding:18px;border:1px solid var(--gp-border);box-shadow:0 5px 18px #0001}
+#grafiplot-preview .gp-quote-steps{display:flex;justify-content:space-between;gap:12px;list-style:none;padding:0;margin:0 0 16px}
+#grafiplot-preview .gp-quote-steps li{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;flex:1;color:var(--gp-muted)}
+#grafiplot-preview .gp-quote-steps b{display:grid;place-items:center;border-radius:50%;width:24px;height:24px;background:var(--gp-border);color:var(--gp-ink);flex-shrink:0}
+#grafiplot-preview .gp-quote-steps .active b{background:#d50020;color:#fff}
+#grafiplot-preview .gp-form>.gp-fields{grid-template-columns:.65fr .65fr 1.7fr 1.35fr;gap:12px}
+#grafiplot-preview .gp-form label{font-size:11px;font-weight:700;color:var(--gp-ink)}
+#grafiplot-preview .gp-form input,#grafiplot-preview .gp-form select{font-size:12px;padding:8px}
+#grafiplot-preview .gp-quote-advanced{margin:10px 0;color:var(--gp-muted);font-size:12px}
+#grafiplot-preview .gp-quote-advanced summary{cursor:pointer;padding:5px 0}
+#grafiplot-preview .gp-extra-fields{margin-top:12px;grid-template-columns:1fr 1fr;gap:10px}
+#grafiplot-preview .gp-form>.gp-total{margin:8px 0;padding:0;border:0;font-size:11px}
+#grafiplot-preview .gp-form>.gp-total strong{font-size:12px}
+#grafiplot-preview .gp-quote-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--gp-panel);border-radius:8px;padding:10px;margin-top:10px}
+#grafiplot-preview .gp-quote-bottom .gp-total-box{background:none;border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;font-size:12px}
+#grafiplot-preview .gp-quote-bottom .gp-total-box strong{font-size:19px;color:var(--gp-ink)}
+#grafiplot-preview #gp-send,#grafiplot-preview .gp-whatsapp{background:#008a2e;border-color:#008a2e;color:#fff;font-size:12px;padding:11px 15px;width:auto}
+#grafiplot-preview .gp-form .gp-note{font-size:10px;margin:5px 0}
+#grafiplot-preview .gp-message:empty{display:none}
+#grafiplot-preview .gp-category-pills{display:flex;gap:7px;flex-wrap:wrap}
+#grafiplot-preview .gp-category-pill{background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:24px;padding:8px 18px;color:var(--gp-ink);font-size:12px;font-weight:700}
+#grafiplot-preview .gp-category-pill[aria-pressed=true]{background:#d50020;color:white;border-color:#d50020}
+#grafiplot-preview .gp-catalog-tools{align-items:center}
+#grafiplot-preview .gp-catalog-tools input{max-width:530px}
+#grafiplot-preview .gp-product{padding:10px;border-radius:12px;display:flex;flex-direction:column;background:var(--gp-bg)}
+#grafiplot-preview .gp-product h3{font-size:15px;line-height:1.25;margin-top:10px}
+#grafiplot-preview .gp-product>p{font-size:11px}
+#grafiplot-preview .gp-product>h3+p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#grafiplot-preview .gp-product-price{font-size:17px;margin-top:7px}
+#grafiplot-preview .gp-product-actions{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:6px}
+#grafiplot-preview .gp-product-actions>.secondary{display:none}
+#grafiplot-preview .gp-quantity{display:flex;justify-content:center;align-items:center;align-self:center;border:1px solid var(--gp-border);border-radius:6px;overflow:hidden}
+#grafiplot-preview .gp-quantity button{background:var(--gp-panel);color:var(--gp-ink);border:0;font-size:20px;width:34px;height:30px}
+#grafiplot-preview .gp-quantity input{appearance:textfield;width:44px;text-align:center;border:0;margin:0;padding:5px;border-radius:0;font-size:13px}
+#grafiplot-preview .gp-catalog-cartbar{display:flex;align-items:center;justify-content:center;gap:30px;padding:12px;border:1px solid var(--gp-border);border-radius:10px;margin-top:15px;font-size:13px}
+#grafiplot-preview #gp-delivery-access{background:var(--gp-panel);max-width:1240px;margin:auto}
+#grafiplot-preview .gp-delivery-grid{grid-template-columns:1fr 1.75fr;gap:22px;margin-top:18px}
+#grafiplot-preview .gp-delivery-info,#grafiplot-preview .gp-delivery-grid form{box-shadow:0 3px 9px #0001}
+#grafiplot-preview .gp-delivery-info h3{font-size:20px}
+#grafiplot-preview .gp-delivery-info p{font-size:12px;color:var(--gp-muted)}
+#grafiplot-preview #gp-gallery .gp-section-head{text-align:center;justify-content:center}
+#grafiplot-preview .gp-gallery-photo{height:180px;width:100%;object-fit:cover}
+#grafiplot-preview .gp-footer{padding-top:18px;padding-bottom:18px}
+@media(max-width:1050px){#grafiplot-preview .gp-header{grid-template-columns:150px 1fr}#grafiplot-preview .gp-nav{grid-column:1/-1;grid-row:2}#grafiplot-preview .gp-header-actions{grid-column:2;grid-row:1}#grafiplot-preview .gp-logo{width:150px}#grafiplot-preview .gp-quote{grid-template-columns:1fr 1.6fr}}
+@media(max-width:760px){#grafiplot-preview .gp-header{gap:12px}#grafiplot-preview .gp-header-actions{gap:5px}#grafiplot-preview .gp-header-actions .gp-button,#grafiplot-preview .gp-header-whatsapp,#grafiplot-preview .gp-promo-nav{padding:8px;font-size:11px}#grafiplot-preview .gp-shop-nav{gap:12px;flex-wrap:wrap}#grafiplot-preview .gp-shop-nav button,#grafiplot-preview .gp-shop-nav a{font-size:12px}#grafiplot-preview .gp-hero{grid-template-columns:1fr}#grafiplot-preview .gp-hero>div:first-child{padding:30px 22px}#grafiplot-preview .gp-art{min-height:260px;border-left:0;border-top:5px solid var(--gp-red)}#grafiplot-preview .gp-promo-toast{position:relative;right:auto;top:auto;width:auto;margin:12px 18px;grid-column:1/-1}#grafiplot-preview .gp-campaign{margin:15px 12px 0;padding:24px;background-size:cover,80% auto}#grafiplot-preview .gp-campaign h2,#grafiplot-preview .gp-campaign p{max-width:78%}#grafiplot-preview .gp-service-photo{height:140px}#grafiplot-preview .gp-quote{grid-template-columns:1fr;padding:24px 18px}#grafiplot-preview .gp-quote>div>p{max-width:none}#grafiplot-preview .gp-delivery-grid{grid-template-columns:1fr}#grafiplot-preview .gp-catalog-cartbar{gap:12px;flex-wrap:wrap}#grafiplot-preview .gp-form>.gp-fields{grid-template-columns:1fr 1fr}#grafiplot-preview .gp-quote-bottom{flex-wrap:wrap}#grafiplot-preview .gp-quote-steps li{font-size:10px;gap:4px}#grafiplot-preview .gp-quote-steps{gap:4px}}
+@media(max-width:420px){#grafiplot-preview .gp-header{grid-template-columns:1fr}#grafiplot-preview .gp-logo{margin:auto}#grafiplot-preview .gp-header-actions{grid-column:1;grid-row:2;justify-content:center}#grafiplot-preview .gp-nav{grid-row:3;gap:18px;justify-content:center}#grafiplot-preview .gp-service h3{font-size:15px}#grafiplot-preview .gp-campaign h2{max-width:95%}}
