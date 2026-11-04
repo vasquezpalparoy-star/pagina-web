@@ -57,12 +57,13 @@ const targetTags='h1,h2,h3,p,span,small,button,a';
 root.querySelectorAll(targetTags).forEach(element=>{
  if(element.closest('#gp-cart-nav,.gp-ui-control,[data-service-key=universitarios]'))return;
  if(element.closest('#gp-campaign-admin,#gp-campaign-banner,#gp-settings-login,#gp-site-settings,#gp-faq')||element.id==='gp-campaign-open'||element.id==='gp-theme-toggle'||element.closest('#gp-theme-toggle'))return;
- Array.from(element.childNodes).forEach(node=>{if(node.nodeType===3&&node.textContent.trim()){settingsTargets.push({node,original:node.textContent,group:element.closest('section')?.id||'Encabezado y pie'})}});
+ Array.from(element.childNodes).forEach(node=>{if(node.nodeType===3&&node.textContent.trim()){settingsTargets.push({node,key:JSON.stringify([element.closest('[id]')?.id||'page',element.tagName,node.textContent.trim()]),original:node.textContent,group:element.closest('section')?.id||'Encabezado y pie'})}});
 });
 const previewStorage='grafiplot-config-preview-v1';
 let storedPreview={};
 function applyPreviewConfig(config){
- const texts=config.texts||{};settingsTargets.forEach((target,index)=>{if(typeof texts[index]==='string'){let value=texts[index];if(target.node.parentElement?.id==='gp-cart-send'&&value==='Consultar pedido por WhatsApp')value='Enviar pedido por WhatsApp';if(target.node.parentElement?.tagName==='H2'&&target.node.parentElement.closest('#gp-cart')&&value==='Tu pedido')value='Carrito de compras';target.node.textContent=value}});
+ // Legacy numeric indexes are retained in storage, but cannot safely identify text after layout changes.
+ const texts=config.textsByKey||{};settingsTargets.forEach(target=>{target.node.textContent=typeof texts[target.key]==='string'?texts[target.key]:target.original});
  root.dataset.appearance=window.gpTheme||'light';root.querySelector('#gp-settings-theme').value='dark';
  if(/^#[0-9a-f]{6}$/i.test(config.brand||'')){root.style.setProperty('--gp-red',config.brand);root.querySelector('#gp-settings-brand').value=config.brand}
  if(config.map){try{const url=new URL(config.map);if(url.protocol==='https:'){root.querySelector('.gp-route-card a').href=url.href;root.querySelector('#gp-settings-map').value=url.href}}catch(_){}}
@@ -70,7 +71,7 @@ function applyPreviewConfig(config){
 if(storedPreview&&typeof storedPreview==='object')storedPreview.theme='dark';
 if(!storedPreview||typeof storedPreview!=='object'||Array.isArray(storedPreview))storedPreview={};
 try{applyPreviewConfig(storedPreview)}catch(_){}
-function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product,.gp-service'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textIndex=index;label.append(input);groups.get(target.group).append(label)});}
+function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product,.gp-service'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textKey=target.key;label.append(input);groups.get(target.group).append(label)});}
 let ownerAuth,ownerUser;
 const ownerFeedback=text=>root.querySelector('#gp-login-feedback').textContent=text;
 function ownerSession(allowed,user){settingsUnlocked=allowed;ownerUser=user;root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;root.querySelector('#gp-settings-login-form').hidden=!!user;if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');}
@@ -182,8 +183,8 @@ async function saveSiteSettings(e){
  if(!cloudReady||!settingsRef){feedback('No hay conexión con Firebase. Tus cambios no se han guardado; inténtalo de nuevo.',true);return}
  const buttons=root.querySelectorAll('#gp-settings-editor button[type="submit"]');buttons.forEach(b=>b.disabled=true);
  try{
- const texts={};root.querySelectorAll('[data-text-index]').forEach(input=>texts[input.dataset.textIndex]=input.value);
- const designConfig={texts,theme:'dark',brand:root.querySelector('#gp-settings-brand').value,map:httpsLink(root.querySelector('#gp-settings-map').value,false)};
+ const textsByKey={};root.querySelectorAll('[data-text-key]').forEach(input=>textsByKey[input.dataset.textKey]=input.value);
+ const designConfig={...(cloudConfig.designConfig||{}),textsByKey,theme:window.gpTheme||'light',brand:root.querySelector('#gp-settings-brand').value,map:httpsLink(root.querySelector('#gp-settings-map').value,false)};
  const galleryItems=galleryDraft.map(item=>({title:String(item.title||'').trim(),description:String(item.description||''),category:String(item.category||'Otros'),image:httpsLink(item.image)})).filter(item=>item.title||item.image||item.description);
  if(galleryItems.some(item=>!item.title))throw Error('Cada imagen de galería necesita un título.');
  if(galleryItems.length>100)throw Error('Añade como máximo 100 trabajos a la galería.');
@@ -283,5 +284,3 @@ async function connectInventory(){
 loadServices();renderServiceImagesEditor();galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
 
 update();if(window.lucide)window.lucide.createIcons();else window.addEventListener('load',()=>window.lucide?.createIcons(),{once:true});})();
-
-

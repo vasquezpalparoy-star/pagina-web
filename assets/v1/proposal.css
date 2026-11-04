@@ -45,3 +45,20 @@
 #grafiplot-preview .gp-product p{overflow-wrap:anywhere}
 
 #grafiplot-preview .gp-campaign{background-image:linear-gradient(90deg,#d60020 0%,#bc0020ed 45%,#071b3355 100%),url('./service-2.webp');background-position:center,right center;background-size:cover,50% auto;background-repeat:no-repeat}
+
+/* Explicit palettes: saved OS preferences must not leak into either theme. */
+#grafiplot-preview[data-appearance=dark]{--gp-bg:#0c1422;--gp-panel:#172438;--gp-ink:#f4f7fc;--gp-muted:#c0ccdc;--gp-border:#40516a;background:var(--gp-bg);color:var(--gp-ink);color-scheme:dark}
+#grafiplot-preview[data-appearance=light]{--gp-bg:#fff;--gp-panel:#f3f5f8;--gp-ink:#101c30;--gp-muted:#45546a;--gp-border:#cbd3df;background:var(--gp-bg);color:var(--gp-ink);color-scheme:light}
+#grafiplot-preview[data-appearance] .gp-hero{background:var(--gp-panel)}
+#grafiplot-preview[data-appearance] .gp-hero>div:first-child,#grafiplot-preview[data-appearance] .gp-hero h1,#grafiplot-preview[data-appearance] .gp-hero h1 em{color:var(--gp-ink)}
+#grafiplot-preview[data-appearance] .gp-hero .gp-intro,#grafiplot-preview[data-appearance] .gp-hero .gp-location{color:var(--gp-muted)}
+#grafiplot-preview[data-appearance] .gp-top,#grafiplot-preview[data-appearance] .gp-footer{background:var(--gp-panel)!important;color:var(--gp-ink);border-color:var(--gp-border)}
+#grafiplot-preview[data-appearance] .gp-footer a,#grafiplot-preview[data-appearance] .gp-footer button{color:var(--gp-ink)}
+#grafiplot-preview[data-appearance] .gp-service[data-has-image=true],#grafiplot-preview[data-appearance] .gp-service[data-has-image=true] h3{color:var(--gp-ink)}
+#grafiplot-preview[data-appearance] .gp-service[data-has-image=true] p{color:var(--gp-muted)}
+#grafiplot-preview[data-appearance] .gp-route-card:before{background:var(--gp-panel);opacity:.96}
+#grafiplot-preview[data-appearance] input,#grafiplot-preview[data-appearance] select,#grafiplot-preview[data-appearance] textarea{background:var(--gp-bg);color:var(--gp-ink);border-color:var(--gp-border)}
+#grafiplot-preview[data-appearance] input::placeholder,#grafiplot-preview[data-appearance] textarea::placeholder{color:var(--gp-muted);opacity:1}
+#grafiplot-preview[data-appearance] .gp-campaign p{color:#fff}
+#grafiplot-preview[data-appearance] a:not([class]){color:var(--gp-ink);text-decoration:underline}
+#grafiplot-preview[data-appearance] :focus-visible{outline:3px solid #2780e3;outline-offset:3px}
