@@ -56,3 +56,20 @@ export function validateOffer(input){
 export function currentOffer(offer,now=Date.now()){
   return offer?.active&&(!offer.expires_at||Date.parse(offer.expires_at)>now)?offer:null;
 }
+
+export function normalizePhone(value){
+ if(typeof value!=='string'||value.length>30)throw Error('Escribe un celular peruano de nueve dígitos.');
+ if(!/^[+\d\s()-]+$/.test(value))throw Error('Escribe un celular peruano de nueve dígitos.');
+ let digits=value.replace(/\D/g,'');if(digits.length===11&&digits.startsWith('51'))digits=digits.slice(2);
+ if(!/^9\d{8}$/.test(digits))throw Error('Escribe un celular peruano de nueve dígitos.');
+ return digits;
+}
+export function validateManualTracking(rows){
+ if(!Array.isArray(rows)||rows.length>100)throw Error('Revisa los estados para sincronizar.');
+ return rows.map(row=>{
+  if(typeof row?.id!=='string'||!/^[-a-zA-Z0-9_]{1,128}$/.test(row.id)||!['recibido','en_proceso','listo','en_camino','entregado','cancelado'].includes(row.status))throw Error('Revisa los estados para sincronizar.');
+  const phone=row.phone===null?null:normalizePhone(row.phone);
+  const date=value=>{if(value===null)return null;if(typeof value!=='string'||!Number.isFinite(Date.parse(value)))throw Error('Fecha inválida.');return new Date(value).toISOString()};
+  return {id:row.id,phone,status:row.status,created_at:date(row.created_at),estimated_at:date(row.estimated_at)};
+ });
+}

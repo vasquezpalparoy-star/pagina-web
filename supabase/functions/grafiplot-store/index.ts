@@ -1,5 +1,6 @@
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {handleAction,RequestError} from './actions.mjs';
+import {trackPhone} from './phone.mjs';
 
 const firebaseProject='pagina-web-grafiplot-oficial';
 const keys=createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
@@ -45,9 +46,13 @@ Deno.serve(async req=>{
   if(origin&&!allowedOrigins.has(origin))return reply({error:'Origen no permitido.'},403);
   if(req.method!=='POST')return reply({error:'Método no permitido.'},405);
   try{
-    const claims=await identify(req);
     const text=await req.text();if(text.length>100000)throw new RequestError('Pedido demasiado extenso.',413);
     let input;try{input=JSON.parse(text)}catch{throw new RequestError('Solicitud inválida.')}
+    if(input?.action==='track_phone'){
+      const address=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';
+      return reply(await trackPhone(input.phone,address,secret,database));
+    }
+    const claims=await identify(req);
     return reply(await handleAction(input,claims,database));
   }catch(error){return reply({error:error instanceof RequestError?error.message:'No se pudo completar la operación.'},error instanceof RequestError?error.status:500)}
 });
