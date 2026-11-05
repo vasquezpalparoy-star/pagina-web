@@ -56,7 +56,7 @@
 #grafiplot-preview[data-appearance] .gp-footer a,#grafiplot-preview[data-appearance] .gp-footer button{color:var(--gp-ink)}
 #grafiplot-preview[data-appearance] .gp-service[data-has-image=true],#grafiplot-preview[data-appearance] .gp-service[data-has-image=true] h3{color:var(--gp-ink)}
 #grafiplot-preview[data-appearance] .gp-service[data-has-image=true] p{color:var(--gp-muted)}
-#grafiplot-preview[data-appearance] .gp-route-card:before{background:var(--gp-panel);opacity:.96}
+#grafiplot-preview[data-appearance] .gp-route-card:before{background:var(--gp-panel);opacity:.58}
 #grafiplot-preview[data-appearance] input,#grafiplot-preview[data-appearance] select,#grafiplot-preview[data-appearance] textarea{background:var(--gp-bg);color:var(--gp-ink);border-color:var(--gp-border)}
 #grafiplot-preview[data-appearance] input::placeholder,#grafiplot-preview[data-appearance] textarea::placeholder{color:var(--gp-muted);opacity:1}
 #grafiplot-preview[data-appearance] .gp-campaign p{color:#fff}

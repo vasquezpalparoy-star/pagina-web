@@ -57,7 +57,7 @@ function displaySession(allowed,account){
  requests=mountPendingOrders($('orders-pending'),user,()=>queue?.refresh());
  showView(new URL(location.href).searchParams.get('view')==='deliveries'?'deliveries':currentView);
  let cursor=null;const checkpoint='gp-delivery-alert-cursor-'+user.uid;
- try{const saved=localStorage.getItem(checkpoint);if(saved&&/^\\d+$/.test(saved))cursor=saved}catch{}
+ try{const saved=localStorage.getItem(checkpoint);if(saved&&/^\d+$/.test(saved))cursor=saved}catch{}
  let polling=false;
  async function poll(){
   if(version!==sessionEpoch||!user||polling)return;

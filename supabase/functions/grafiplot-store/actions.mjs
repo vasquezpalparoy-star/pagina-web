@@ -69,7 +69,7 @@ export async function handleAction(input,claims,database){
         const latestCursor=String(latest[0]?.event_seq||'0');
         if(input.cursor===undefined||input.cursor===null)return {events:[],cursor:latestCursor,more:false};
         const cursor=String(input.cursor);
-        if(!/^\\d{1,18}$/.test(cursor))throw new RequestError('Cursor inválido.');
+        if(!/^\d{1,18}$/.test(cursor))throw new RequestError('Cursor inválido.');
         const events=await database('gp_web_orders?select=id,event_seq,created_at,delivery,total,status&event_seq=gt.'+cursor+'&order=event_seq.asc&limit=101');
         const page=events.slice(0,100);
         return {events:page,cursor:page.length?String(page[page.length-1].event_seq):cursor,more:events.length>100};
