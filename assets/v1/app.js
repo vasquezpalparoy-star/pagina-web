@@ -1,4 +1,4 @@
-import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs';
+import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
 import {updateBotContext} from './grafibot-context.js';
@@ -73,15 +73,67 @@ if(!storedPreview||typeof storedPreview!=='object'||Array.isArray(storedPreview)
 try{applyPreviewConfig(storedPreview)}catch(_){}
 function fillSettingsForm(){const container=root.querySelector('#gp-text-settings');container.replaceChildren();const groups=new Map();settingsTargets.forEach((target,index)=>{if(target.node.parentElement?.closest('.gp-work,.gp-product,.gp-service'))return;if(!groups.has(target.group)){const details=document.createElement('details');details.className='gp-settings-group';const summary=document.createElement('summary');const names={'gp-home':'Portada','gp-services':'Servicios','gp-quote':'Cotizador','gp-gallery':'Galería de trabajos','gp-catalog':'Catálogo','gp-location':'Ubicación','Encabezado y pie':'Menú, contacto y pie de página'};summary.textContent=names[target.group]||'Otros textos';details.append(summary);container.append(details);groups.set(target.group,details)}const label=document.createElement('label');label.textContent=target.original.trim().slice(0,70);const input=document.createElement('textarea');input.rows=2;input.value=target.node.textContent;input.dataset.textKey=target.key;label.append(input);groups.get(target.group).append(label)});}
 let ownerAuth,ownerUser;
-const ownerFeedback=text=>root.querySelector('#gp-login-feedback').textContent=text;
-function ownerSession(allowed,user){window.dispatchEvent(new window.CustomEvent('gp-owner-session',{detail:allowed?user:null}));settingsUnlocked=allowed;ownerUser=user;root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;root.querySelector('#gp-settings-login-form').hidden=!!user;if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');}
-async function enterOwnerSettings(e){e.preventDefault();if(!ownerAuth){ownerFeedback('La conexión con Firebase aún no está lista.');return;}const button=root.querySelector('#gp-settings-enter');button.disabled=true;try{const user=await ownerAuth.login(root.querySelector('#gp-settings-owner-email').value,root.querySelector('#gp-settings-owner-password').value);root.querySelector('#gp-settings-owner-password').value='';ownerSession(user.emailVerified===true,user);if(settingsUnlocked){fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;go('gp-site-settings');ownerFeedback('');}}catch(error){ownerFeedback(settingsAuthError(error));}finally{button.disabled=false;}}
+const ownerFeedback=text=>{root.querySelector('#gp-login-feedback').textContent=text;window.dispatchEvent(new window.CustomEvent('gp-owner-auth-feedback',{detail:text}));};
+function ownerSession(allowed,user){
+ settingsUnlocked=allowed;ownerUser=user;
+ root.dataset.ownerAccess=allowed?'verified':'locked';
+ window.dispatchEvent(new window.CustomEvent('gp-owner-session',{detail:allowed?user:null}));
+ root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;
+ root.querySelector('#gp-settings-login-form').hidden=!!user;
+ if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}
+ if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');
+}
+window.addEventListener('gp-owner-panel-ready',()=>ownerSession(settingsUnlocked,ownerUser));
+async function verifyOwnerWrite(){
+ try{
+  if(!ownerAuth)throw Error('La conexión aún no está lista.');
+  const user=await ownerAuth.assertOwner();
+  ownerSession(true,user);
+  return true;
+ }catch(error){
+  ownerSession(false,null);loginPanel.hidden=false;
+  ownerFeedback(settingsAuthError(error));go('gp-settings-login');
+  return false;
+ }
+}
+async function enterOwnerSettings(event){
+ event.preventDefault();
+ if(!ownerAuth){ownerFeedback('La conexión aún no está lista.');return;}
+ const button=root.querySelector('#gp-settings-enter');
+ const password=root.querySelector('#gp-settings-owner-password');
+ const form=root.querySelector('#gp-settings-login-form');
+ button.disabled=true;button.textContent='Verificando acceso…';form.setAttribute('aria-busy','true');
+ try{
+  const user=await ownerAuth.login(root.querySelector('#gp-settings-owner-email').value,password.value);
+  ownerSession(user.emailVerified===true,user);
+  if(settingsUnlocked){
+   fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;
+   go('gp-site-settings');ownerFeedback('');
+  }
+ }catch(error){ownerFeedback(settingsAuthError(error))}
+ finally{
+  password.value='';button.disabled=false;button.textContent='Entrar a configuración';form.removeAttribute('aria-busy');
+ }
+}
 root.querySelector('#gp-settings-login-form').addEventListener('submit',enterOwnerSettings);
 root.querySelector('#gp-settings-send-verification').addEventListener('click',async()=>{const b=root.querySelector('#gp-settings-send-verification');b.disabled=true;try{await ownerAuth.sendVerification();ownerFeedback('Correo de verificación enviado. Revisa Recibidos y Spam, abre el enlace y pulsa Ya confirmé mi correo.');}catch(error){ownerFeedback(settingsAuthError(error));}finally{b.disabled=false;}});
 root.querySelector('#gp-settings-check-verification').addEventListener('click',async()=>{try{const user=await ownerAuth.refresh();ownerSession(user.emailVerified===true,user);if(settingsUnlocked){fillSettingsForm();loginPanel.hidden=true;siteSettings.hidden=false;go('gp-site-settings');ownerFeedback('');}else ownerFeedback('Tu correo aún no está verificado. Abre el enlace recibido.');}catch(error){ownerFeedback(settingsAuthError(error));}});
 root.querySelector('#gp-settings-reset').addEventListener('click',async()=>{const b=root.querySelector('#gp-settings-reset');b.disabled=true;try{if(!ownerAuth)throw Error('Firebase aún está conectando.');await ownerAuth.reset(root.querySelector('#gp-settings-owner-email').value);ownerFeedback('Solicitud aceptada. Si el correo tiene una cuenta, recibirás el enlace para restablecer la contraseña. Revisa también Spam.');}catch(error){ownerFeedback(settingsAuthError(error));}finally{b.disabled=false;}});
-root.querySelector('#gp-settings-cancel').addEventListener('click',()=>loginPanel.hidden=true);
-async function closeOwnerSession(){settingsUnlocked=false;siteSettings.hidden=true;campaignAdmin.hidden=true;try{await ownerAuth?.logout();ownerFeedback('Sesión cerrada.');}catch(error){ownerFeedback(settingsAuthError(error));}}
+root.querySelector('#gp-settings-cancel').addEventListener('click',()=>{
+ loginPanel.hidden=true;
+ root.querySelector('#gp-settings-owner-password').value='';
+ if(root.querySelector('#gp-settings-login-form').getAttribute('aria-busy')==='true')closeOwnerSession();
+});
+async function closeOwnerSession(){
+ ownerSession(false,null);
+ root.querySelector('#gp-settings-owner-password').value='';
+ try{await ownerAuth?.logout();ownerFeedback('Sesión cerrada.')}
+ catch(error){loginPanel.hidden=false;ownerFeedback('No se pudo completar el cierre de sesión. '+settingsAuthError(error))}
+}
+window.addEventListener('gp-owner-revalidate',async()=>{
+ if(!settingsUnlocked)return;
+ if(await verifyOwnerWrite())ownerFeedback('Cuenta del propietario verificada.');
+});
 root.querySelector('#gp-settings-logout').addEventListener('click',closeOwnerSession);
 root.querySelector('#gp-settings-verification-logout').addEventListener('click',closeOwnerSession);
 root.querySelector('#gp-settings-campaign').addEventListener('click',()=>{if(!settingsUnlocked)return;campaignAdmin.hidden=false;go('gp-campaign-admin')});
@@ -223,6 +275,7 @@ root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
 });
 async function saveSiteSettings(e){
  e.preventDefault();if(!settingsUnlocked)return;
+ if(!await verifyOwnerWrite())return;
  if(!cloudReady||!settingsRef){feedback('No hay conexión con Firebase. Tus cambios no se han guardado; inténtalo de nuevo.',true);return}
  const buttons=root.querySelectorAll('#gp-settings-editor button[type="submit"]');buttons.forEach(b=>b.disabled=true);
  try{
@@ -242,18 +295,19 @@ async function saveSiteSettings(e){
  const patch={pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
- feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
+ window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'saving'}));feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
  const waitNotice=setTimeout(()=>{feedback('Firebase aún no confirma el guardado. Revisa tu conexión; los cambios siguen pendientes.',true);saveStatus('Sin confirmación del servidor.');},12000);
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
- saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
+ window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'saved'}));saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
  cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();applyPageImages();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderCatalog();renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  publishBotContext();
- }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
+ }catch(error){window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'error'}));feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
 }
 async function saveCampaign(e,disable=false){
  if(e)e.preventDefault();if(!settingsUnlocked)return;
+ if(!await verifyOwnerWrite())return;
  if(!cloudReady){campaignFeedback.textContent='No hay conexión con Firebase. La campaña no se ha guardado.';return}
  const button=root.querySelector('#gp-campaign-form button[type="submit"]');button.disabled=true;
  try{
@@ -313,11 +367,11 @@ root.querySelector('#gp-campaign-disable').addEventListener('click',e=>saveCampa
 async function connectSite(){
  try{
  const sdk=await loadFirebase();const {initializeApp,getAuth,getFirestore,doc,onSnapshot,collection}=sdk;
- const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);ownerAuth=createSettingsAuth(sdk,siteAuth);await ownerAuth.watch(ownerSession);
+ const app=initializeApp(USER_FIREBASE_CONFIG);siteAuth=getAuth(app);siteDb=getFirestore(app);ownerAuth=createSettingsAuth(sdk,siteAuth);await ownerAuth.watch(ownerSession);root.querySelector('#gp-settings-enter').disabled=false;root.querySelector('#gp-settings-reset').disabled=false;if(!ownerUser)ownerFeedback('');
  settingsRef=doc(siteDb,'artifacts','grafiplot-tienda-v4','public','data','settings','config');
  onSnapshot(settingsRef,{includeMetadataChanges:true},snapshot=>{cloudReady=!snapshot.metadata.fromCache;loadCloudConfig(snapshot.exists()?snapshot.data():{});cloudStatus(cloudReady?'Conectado · configuración recibida del servidor.':'Sin conexión confirmada · mostrando datos en caché.',cloudReady?'connected':'connecting')},error=>{cloudReady=false;cloudStatus('Error de lectura: '+error.code,'error')});
  onSnapshot(collection(siteDb,'artifacts','grafiplot-tienda-v4','public','data','faqs'),snapshot=>{if(!Array.isArray(cloudConfig.faqContent)&&siteSettings.hidden){const faqs=snapshot.docs.map(d=>d.data()).filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')})).filter(f=>f.question.trim());if(faqs.length){faqDraft=faqs;renderFaqContent();renderFaqEditor();publishBotContext()}}});
- }catch(error){cloudReady=false;cloudStatus('Firebase no está disponible: '+error.code,'error')}
+ }catch(error){cloudReady=false;cloudStatus('Firebase no está disponible: '+error.code,'error');ownerFeedback('No se pudo preparar el acceso. Revisa la conexión y pulsa Reintentar conexión.');root.querySelector('#gp-settings-retry').hidden=false;}
 }
 async function connectInventory(){
  try{

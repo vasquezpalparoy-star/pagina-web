@@ -1,0 +1,81 @@
+/* Owner workspace. Colors follow the public light/dark switch. */
+#grafiplot-preview #gp-site-settings{
+  max-width:1240px;margin:40px auto;padding:28px;background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:22px;color:var(--gp-ink);box-shadow:0 12px 36px #071b3310
+}
+#grafiplot-preview #gp-site-settings>.gp-section-head{align-items:flex-start;gap:20px;border-bottom:1px solid var(--gp-border);padding-bottom:22px;margin-bottom:22px}
+#grafiplot-preview #gp-site-settings>.gp-section-head h2{font-size:clamp(26px,3vw,36px);letter-spacing:-1px}
+#grafiplot-preview #gp-site-settings .gp-eyebrow{margin-bottom:8px}
+#grafiplot-preview .owner-account-line{font-size:12px;margin-top:10px;color:var(--gp-muted);overflow-wrap:anywhere}
+#grafiplot-preview .owner-workspace{display:grid;grid-template-columns:220px minmax(0,1fr);gap:26px;align-items:start}
+#grafiplot-preview .owner-sidebar{display:flex;flex-direction:column;gap:5px;background:var(--gp-panel);padding:10px;border:1px solid var(--gp-border);border-radius:14px;position:sticky;top:16px}
+#grafiplot-preview .owner-nav-item{width:100%;text-align:left;cursor:pointer;border:1px solid transparent;border-radius:8px;padding:12px 13px;font:600 13px Arial;color:var(--gp-muted);background:transparent}
+#grafiplot-preview .owner-nav-item:hover{background:var(--gp-bg);color:var(--gp-ink)}
+#grafiplot-preview .owner-nav-item[aria-pressed=true]{background:var(--gp-bg);color:var(--gp-ink);border-color:var(--gp-border);box-shadow:inset 3px 0 0 var(--gp-red)}
+#grafiplot-preview .owner-main{min-width:0}
+#grafiplot-preview .owner-main .gp-cloud-panel{padding:12px 15px;border-radius:10px;font-size:12px;margin-bottom:22px;border-left:3px solid var(--gp-border)}
+#grafiplot-preview .owner-main .gp-cloud-panel[data-state=connected]{border-left-color:#19825a}
+#grafiplot-preview .owner-main .gp-cloud-panel[data-state=error]{border-left-color:#cf1838}
+#grafiplot-preview .owner-main .gp-cloud-panel p{font-size:12px;margin-top:4px}
+#grafiplot-preview #gp-settings-editor>.gp-campaign-fields:has(>input[type=hidden]:only-child){display:none}
+#grafiplot-preview .owner-pane-title{font-size:24px;line-height:1.2;margin:0 0 7px}
+#grafiplot-preview .owner-pane-description{font-size:13px;color:var(--gp-muted);margin:0 0 22px;line-height:1.6}
+#grafiplot-preview .owner-welcome{font-size:17px;font-weight:700;margin:20px 0 14px}
+#grafiplot-preview .owner-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#grafiplot-preview .owner-shortcut{border:1px solid var(--gp-border);background:var(--gp-bg);color:var(--gp-ink);padding:22px;border-radius:12px;text-align:left;cursor:pointer;transition:border-color .15s,transform .15s;min-height:115px}
+#grafiplot-preview .owner-shortcut:hover{border-color:var(--gp-red);transform:translateY(-2px)}
+#grafiplot-preview .owner-shortcut strong{display:block;font-size:16px;margin-bottom:9px}
+#grafiplot-preview .owner-shortcut span{font-size:12px;color:var(--gp-muted);line-height:1.6}
+#grafiplot-preview .owner-preview-link{margin-top:22px;background:var(--gp-panel);color:var(--gp-ink);border:1px solid var(--gp-border);border-radius:8px;padding:11px 17px;cursor:pointer;font-weight:700}
+#grafiplot-preview .owner-pane>label{padding:17px;margin-bottom:12px;border:1px solid var(--gp-border);background:var(--gp-panel);border-radius:12px}
+#grafiplot-preview .owner-pane label{font-size:12px;font-weight:600;color:var(--gp-ink);min-width:0;line-height:1.6}
+#grafiplot-preview .owner-pane input,#grafiplot-preview .owner-pane select,#grafiplot-preview .owner-pane textarea{font:14px Arial;max-width:100%;padding:11px;border:1px solid var(--gp-border);background:var(--gp-bg);color:var(--gp-ink);border-radius:7px;margin-top:7px;min-width:0}
+#grafiplot-preview .owner-pane textarea{width:100%;min-height:85px;resize:vertical}
+#grafiplot-preview .owner-pane input[type=color]{height:48px;max-width:130px;display:block}
+#grafiplot-preview .owner-pane input[type=checkbox]{width:auto}
+#grafiplot-preview .owner-pane .gp-settings-group{background:var(--gp-panel);border:1px solid var(--gp-border);padding:16px;border-radius:12px;margin:13px 0}
+#grafiplot-preview .owner-pane .gp-settings-group>summary{font-size:14px;font-weight:700;cursor:pointer}
+#grafiplot-preview .owner-pane .gp-settings-group[open]>summary{margin-bottom:17px}
+#grafiplot-preview .owner-pane .gp-edit-row{background:var(--gp-bg);padding:16px;border:1px solid var(--gp-border);border-radius:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:12px 0}
+#grafiplot-preview .owner-pane .gp-edit-row>label:has(textarea){grid-column:1/-1}
+#grafiplot-preview .owner-pane .gp-edit-row>button{justify-self:start;align-self:end}
+#grafiplot-preview #gp-service-images-editor{display:block}
+#grafiplot-preview .owner-pane .gp-button{font-size:12px;padding:10px 14px;white-space:normal}
+#grafiplot-preview .owner-product-card{padding:18px;background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:12px;margin:12px 0}
+#grafiplot-preview .owner-product-card h4{font-size:15px;margin:0 0 10px;overflow-wrap:anywhere}
+#grafiplot-preview .owner-product-card label{display:block;margin-top:12px}
+#grafiplot-preview .owner-savebar{position:sticky;bottom:0;z-index:4;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:25px;padding:16px;background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:12px;box-shadow:0 -6px 22px #071b3310}
+#grafiplot-preview .owner-savebar .gp-campaign-admin-actions{margin:0;gap:8px}
+#grafiplot-preview .owner-save-state{font-size:12px;color:var(--gp-muted)}
+#grafiplot-preview .owner-savebar[data-state=dirty] .owner-save-state{color:var(--gp-red);font-weight:700}
+#grafiplot-preview .owner-savebar[data-state=saved] .owner-save-state{color:#19825a;font-weight:700}
+#grafiplot-preview .owner-savebar #gp-settings-feedback{flex-basis:100%;font-size:12px;min-height:0;margin:0}
+#grafiplot-preview .owner-savebar #gp-settings-feedback:empty{display:none}
+#grafiplot-preview .owner-pane #gp-campaign-admin{padding:0;border:0;background:none;box-shadow:none;margin:0}
+#grafiplot-preview .owner-pane #gp-campaign-admin .gp-section-head h2{font-size:20px}
+#grafiplot-preview .owner-pane .gp-store-admin{margin:0;padding:0;border:0}
+#grafiplot-preview .owner-pane .gp-store-admin>h2{display:none}
+#grafiplot-preview .owner-session-summary{padding:17px;background:var(--gp-panel);border:1px solid var(--gp-border);border-radius:10px;overflow-wrap:anywhere;margin:20px 0}
+#grafiplot-preview #owner-pane-access>.gp-button{margin-right:8px;margin-bottom:10px}
+#grafiplot-preview #gp-settings-login{max-width:600px;margin:35px auto;padding:30px;background:var(--gp-bg);color:var(--gp-ink);border:1px solid var(--gp-border);border-radius:20px;box-shadow:0 14px 40px #071b3314}
+#grafiplot-preview #gp-settings-login h2{font-size:29px;line-height:1.1}
+#grafiplot-preview #gp-settings-login .gp-login-form{display:grid;grid-template-columns:1fr;gap:15px;max-width:none}
+#grafiplot-preview #gp-settings-login label{font-size:12px;font-weight:700;color:var(--gp-ink)}
+#grafiplot-preview #gp-settings-login input{font-size:15px;padding:12px;margin-top:7px}
+#grafiplot-preview #gp-settings-login .gp-ui-control{color:var(--gp-muted);font-size:13px;line-height:1.7}
+#grafiplot-preview #gp-settings-login .owner-password-toggle{display:block;margin-top:6px;padding:4px 0;background:transparent;border:0;color:var(--gp-ink);font:12px Arial;text-decoration:underline;cursor:pointer}
+#grafiplot-preview #gp-settings-login .gp-message:not(:empty){margin-top:18px;background:var(--gp-panel);border-radius:8px;padding:12px;font-size:13px}
+#grafiplot-preview #gp-settings-retry{margin-top:12px}
+@media(max-width:800px){
+ #grafiplot-preview #gp-site-settings{padding:18px;margin:20px 10px}
+ #grafiplot-preview .owner-workspace{grid-template-columns:1fr;gap:18px}
+ #grafiplot-preview .owner-sidebar{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ #grafiplot-preview .owner-nav-item{font-size:12px;padding:10px}
+ #grafiplot-preview .owner-savebar{bottom:6px}
+}
+@media(max-width:500px){
+ #grafiplot-preview #gp-settings-login{margin:20px 10px;padding:20px}
+ #grafiplot-preview .owner-shortcuts{grid-template-columns:1fr}
+ #grafiplot-preview .owner-pane .gp-edit-row{grid-template-columns:1fr}
+ #grafiplot-preview .owner-savebar{position:static}
+ #grafiplot-preview #gp-site-settings>.gp-section-head{flex-wrap:wrap}
+}
