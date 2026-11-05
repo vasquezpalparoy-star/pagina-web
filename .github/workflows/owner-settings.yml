@@ -31,5 +31,5 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run test:settings
-      - run: node --test tests/web-delivery-ui.test.mjs tests/orders-monitor.test.mjs tests/customer-offers.test.mjs tests/owner-panel.test.mjs tests/proposal-layout.test.mjs tests/theme-text.test.mjs tests/store.test.mjs tests/checkout-history.test.mjs
+      - run: node --test tests/phone-tracking.test.mjs tests/web-delivery-ui.test.mjs tests/orders-monitor.test.mjs tests/customer-offers.test.mjs tests/owner-panel.test.mjs tests/proposal-layout.test.mjs tests/theme-text.test.mjs tests/store.test.mjs tests/checkout-history.test.mjs
       - run: npm test

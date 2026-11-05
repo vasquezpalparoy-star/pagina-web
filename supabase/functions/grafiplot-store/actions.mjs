@@ -1,4 +1,4 @@
-import {isOwner,statuses,validateDelivery,validateOrder,validateOffer,currentOffer} from './core.mjs';
+import {isOwner,statuses,validateDelivery,validateOrder,validateOffer,currentOffer,validateManualTracking} from './core.mjs';
 export class RequestError extends Error {constructor(message,status=400){super(message);this.status=status}}
 export async function handleAction(input,claims,database){
  const uid=claims.sub;const owner=isOwner(claims);
@@ -62,6 +62,12 @@ export async function handleAction(input,claims,database){
         let offer;try{offer=validateOffer(input.offer)}catch(error){throw new RequestError(error.message)}
         const saved=await database('gp_web_customer_offers?on_conflict=customer_uid','POST',{...offer,customer_uid:customer,updated_by:uid,updated_at:new Date().toISOString()});
         return {offer:saved[0]};
+      }
+      case 'admin_sync_tracking':{
+        if(!owner)throw new RequestError('Acceso reservado al propietario.',403);
+        let rows;try{rows=validateManualTracking(input.rows)}catch(error){throw new RequestError(error.message)}
+        await database('rpc/gp_web_sync_manual_tracking','POST',{p_rows:rows});
+        return {synced:rows.length};
       }
       case 'admin_live':{
         if(!owner)throw new RequestError('Acceso reservado al propietario.',403);
