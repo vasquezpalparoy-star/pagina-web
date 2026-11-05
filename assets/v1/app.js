@@ -81,6 +81,9 @@ function ownerSession(allowed,user){
  root.querySelector('#gp-settings-email-verification').hidden=!user||allowed;
  root.querySelector('#gp-settings-login-form').hidden=!!user;
  if(!allowed){siteSettings.hidden=true;campaignAdmin.hidden=true;}
+ if(allowed&&!loginPanel.hidden){
+  loginPanel.hidden=true;fillSettingsForm();siteSettings.hidden=false;
+ }
  if(user&&!allowed)ownerFeedback('Confirma tu correo antes de editar la página.');
 }
 window.addEventListener('gp-owner-panel-ready',()=>ownerSession(settingsUnlocked,ownerUser));
