@@ -1,5 +1,5 @@
 import {USER_FIREBASE_CONFIG} from './config.js';
-import {storeRequest,createCustomerHistory} from './store-client.js';
+import {storeRequest,createCustomerHistory} from './store-client.js?v=customer-offers1';
 
 const byId=id=>document.getElementById(id);
 const details=byId('delivery-details');
@@ -15,6 +15,18 @@ let uid='', files=[], urls=[], revision=0, authReady;
 const history=createCustomerHistory(async()=>{const {auth}=await authClient();return auth.currentUser});
 byId('gp-checkout').insertBefore(history.panel,byId('gp-checkout').querySelector('h3'));
 history.panel.hidden=true;
+const personalOffer=document.createElement('div');personalOffer.id='delivery-personal-offer';personalOffer.hidden=true;
+history.panel.after(personalOffer);
+function showPersonalOffer(offer){
+  personalOffer.replaceChildren();personalOffer.hidden=!offer;
+  if(!offer)return;
+  const title=document.createElement('strong');title.textContent=offer.title;
+  const text=document.createElement('p');
+  text.textContent=(offer.kind==='percent'?offer.amount+'% de descuento':money(Number(offer.amount))+' de descuento')+' para tus productos al registrar el pedido.';
+  if(offer.expires_at)text.textContent+=' Válido hasta '+new Date(offer.expires_at).toLocaleDateString('es-PE',{timeZone:'America/Lima'})+'.';
+  personalOffer.append(title,text);
+}
+
 const profileKey=id=>'grafiplot.delivery.profile.v1.'+id;
 function invalidate(){
  revision++;
@@ -23,7 +35,7 @@ function invalidate(){
 }
 async function customerChanged(user){
  const next=user?.uid||'';
- if(uid!==next){if(uid)details.reset();invalidate();history.clear()}
+ if(uid!==next){if(uid)details.reset();invalidate();history.clear();showPersonalOffer(null)}
  uid=next;authForm.hidden=!!uid;byId('delivery-logout').hidden=!uid;
  byId('delivery-remember-label').hidden=true;byId('delivery-profile-save').hidden=!uid;history.panel.hidden=!uid;
  byId('gp-cart-send').textContent=uid?'Registrar pedido y preparar imagen':'Preparar imagen del pedido';
@@ -31,8 +43,10 @@ async function customerChanged(user){
  if(!uid)return;
  const currentRevision=revision;
  try{
-  const {profile}=await storeRequest(user,'profile');
-  if(user.uid!==uid||currentRevision!==revision)return;
+  const {profile,offer}=await storeRequest(user,'profile');
+  if(user.uid!==uid)return;
+  showPersonalOffer(offer);
+  if(currentRevision!==revision)return;
   const saved=profile||JSON.parse(localStorage.getItem(profileKey(uid))||'null');
   if(saved)fields.forEach(key=>details.elements[key].value=String(saved[key]||''));
  }catch{if(user.uid===uid)accountStatus.textContent+=' No se pudieron cargar los datos de tu cuenta. Puedes volver a ingresar o completar la dirección para este pedido.'}
@@ -81,14 +95,18 @@ function wrap(ctx,text,width){
  }
  if(current)lines.push(current);return lines;
 }
-async function makeReceipt(data,items,code){
+async function makeReceipt(data,items,code,summary){
  const canvas=document.createElement('canvas');canvas.width=900;canvas.height=1400;
  const ctx=canvas.getContext('2d');if(!ctx)throw Error('No se pudo crear la imagen.');
  const stamp=new Date();
  const lines=[];function add(text,bold=false){ctx.font=(bold?'700 ':'')+'25px Arial';wrap(ctx,text,800).forEach(line=>lines.push({line,bold}))}
  add('DATOS DE ENTREGA',true);add(data.recipient+' · '+data.phone);add(data.address);if(data.reference)add('Referencia: '+data.reference);add('Pago: '+data.payment);
  add('PRODUCTOS',true);let total=0;items.forEach(({quantity,name,price})=>{add(quantity+' × '+name,true);add(money(price)+' c/u   ·   '+money(quantity*price));total+=quantity*price});
- add('Total de productos: '+money(total),true);add('Costo de delivery y disponibilidad por confirmar.');
+ if(Number(summary?.discount_amount)>0){
+  add('Subtotal: '+money(Number(summary.subtotal)));
+  add('Descuento: −'+money(Number(summary.discount_amount))+' · '+summary.offer_snapshot.title,true);
+ }
+ add('Total de productos: '+money(Number(summary?.total??total)),true);add('Costo de delivery y disponibilidad por confirmar.');
  const result=[],perPage=31,count=Math.ceil(lines.length/perPage);
  for(let page=0;page<count;page++){
   const rows=lines.slice(page*perPage,(page+1)*perPage);canvas.height=230+rows.length*36;
@@ -127,13 +145,14 @@ async function requestId(data,items){
  const id=crypto.randomUUID();try{sessionStorage.setItem(key,JSON.stringify({signature,id}))}catch{}
  return id;
 }
-function orderText(data,items,code){
+function orderText(data,items,code,summary){
  const total=items.reduce((sum,item)=>sum+Math.round(item.price*100)*item.quantity,0)/100;
  return ['GRAFIPLOT VASQUEZ · PEDIDO DE DELIVERY '+code,
   'Cliente: '+data.recipient,'Contacto: '+data.phone,'Dirección: '+data.address,
   data.reference?'Referencia: '+data.reference:'','Pago: '+data.payment,'',
   ...items.map(item=>item.quantity+' × '+item.name+' · '+money(item.price)+' c/u · '+money(item.quantity*item.price)),
-  '','Total de productos: '+money(total),'Costo de delivery y disponibilidad por confirmar.'
+  '',...(Number(summary?.discount_amount)>0?['Subtotal: '+money(Number(summary.subtotal)),'Descuento: −'+money(Number(summary.discount_amount))+' · '+summary.offer_snapshot.title]:[]),
+  'Total de productos: '+money(Number(summary?.total??total)),'Costo de delivery y disponibilidad por confirmar.'
  ].filter(line=>line!=='').join('\n');
 }
 function copyImage(file,chatUrl){
@@ -153,20 +172,26 @@ window.addEventListener('gp-prepare-delivery',async e=>{
  try{
   const id=await requestId(data,items);const code=id.slice(0,8).toUpperCase();
   if(version!==revision)return;
-  const text=orderText(data,items,code);
-  const chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
+  let summary=null;
+  let text=orderText(data,items,code,summary);
+  let chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
   byId('delivery-text').textContent=text;byId('delivery-send-text').href=chatUrl;byId('delivery-chat').href=chatUrl;receipt.hidden=false;
   if(currentUid){
    try{
     const {auth}=await authClient();
     if(auth.currentUser?.uid!==currentUid)throw Error('Tu sesión cambió. Revisa el pedido.');
-    await storeRequest(auth.currentUser,'submit_order',{order:{id,delivery:data,items}});
+    const saved=await storeRequest(auth.currentUser,'submit_order',{order:{id,delivery:data,items}});
+    summary=saved.order;
+    showPersonalOffer(Number(summary.discount_amount)>0?summary.offer_snapshot:null);
     saveNote=' Solicitud guardada en tu historial. El local confirmará la compra.';
    }catch(error){saveNote=' No se pudo guardar en tu historial: '+error.message+' Puedes volver a pulsar Registrar pedido para reintentar.'}
   }
   if(version!==revision)return;
   try{
-   const {result}=await makeReceipt(data,items,code);if(revision!==version)return;
+   text=orderText(data,items,code,summary);
+   chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
+   byId('delivery-text').textContent=text;byId('delivery-send-text').href=chatUrl;byId('delivery-chat').href=chatUrl;
+   const {result}=await makeReceipt(data,items,code,summary);if(revision!==version)return;
    files=result;
    files.forEach((file,i)=>{
     const url=URL.createObjectURL(file);urls.push(url);
