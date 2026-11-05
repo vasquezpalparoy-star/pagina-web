@@ -41,3 +41,13 @@ test('registered customer profile is recovered from Supabase instead of being ti
  assert.equal(f.fields.recipient.value,'Cliente guardado');assert.equal(f.fields.address.value,'Dirección guardada');
  assert.equal(f.document.getElementById('delivery-profile-save').hidden,false);
 });
+
+test('text receipt shows the discount and the server-confirmed products total',async()=>{
+ const f=await fixture();
+ f.context.data=f.data;f.context.items=[{name:'Papel',quantity:1,price:100}];
+ f.context.summary={subtotal:100,discount_amount:10,total:90,offer_snapshot:{title:'Cliente frecuente'}};
+ const text=vm.runInContext("orderText(data,items,'TEST',summary)",f.context);
+ assert.match(text,/Subtotal: S\/ 100.00/);
+ assert.match(text,/Descuento: −S\/ 10.00/);
+ assert.match(text,/Total de productos: S\/ 90.00/);
+});

@@ -6,6 +6,7 @@ on:
       - 'assets/v1/**'
       - 'index.html'
       - 'tests/**'
+      - 'supabase/**'
       - 'package*.json'
       - '.github/workflows/owner-settings.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
       - 'assets/v1/**'
       - 'index.html'
       - 'tests/**'
+      - 'supabase/**'
       - 'package*.json'
       - '.github/workflows/owner-settings.yml'
 permissions:
@@ -29,5 +31,5 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run test:settings
-      - run: node --test tests/owner-panel.test.mjs tests/proposal-layout.test.mjs tests/theme-text.test.mjs tests/store.test.mjs tests/checkout-history.test.mjs
+      - run: node --test tests/customer-offers.test.mjs tests/owner-panel.test.mjs tests/proposal-layout.test.mjs tests/theme-text.test.mjs tests/store.test.mjs tests/checkout-history.test.mjs
       - run: npm test

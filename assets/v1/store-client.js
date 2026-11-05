@@ -18,6 +18,9 @@ function showOrder(order,user,admin=false){
   const date=new Date(order.created_at).toLocaleString('es-PE');
   card.append(textElement('summary',date+' · '+money(order.total)+' · '+(labels[order.status]||order.status)));
   card.append(textElement('p','Pedido '+order.id));
+  if(Number(order.discount_amount)>0){
+    card.append(textElement('p','Subtotal: '+money(order.subtotal)+' · Descuento: −'+money(order.discount_amount)+' · '+(order.offer_snapshot?.title||'Beneficio del cliente')));
+  }
   const info=order.delivery;
   card.append(textElement('p',[info.recipient,info.phone,info.address,info.reference,'Pago: '+info.payment].filter(Boolean).join(' · ')));
   const list=document.createElement('ul');
@@ -60,6 +63,46 @@ export function createCustomerHistory(getUser){
   panel.append(load,status,list,more);
   return {panel,clear(){epoch++;panel.open=false;list.replaceChildren();status.textContent='';more.hidden=true;offset=0}};
 }
+function customerOfferEditor(customer,user){
+  const panel=document.createElement('details');panel.className='gp-customer-offer';
+  panel.append(textElement('summary','Descuento exclusivo para este cliente'));
+  const status=textElement('p','');status.setAttribute('role','status');
+  const fields=document.createElement('div');fields.className='gp-offer-fields';fields.hidden=true;
+  const label=(text,input)=>{const node=textElement('label',text);node.append(input);fields.append(node)};
+  const title=document.createElement('input');title.maxLength=120;title.required=true;title.value='Beneficio para ti';label('Nombre del beneficio',title);
+  const kind=document.createElement('select');
+  for(const [value,text] of [['percent','Porcentaje (%)'],['fixed','Monto en soles (S/)']]){const option=textElement('option',text);option.value=value;kind.append(option)}
+  label('Tipo de descuento',kind);
+  const amount=document.createElement('input');amount.type='number';amount.min='0.01';amount.step='0.01';amount.required=true;amount.value='10';label('Valor del descuento',amount);
+  const expires=document.createElement('input');expires.type='date';label('Vence el día (opcional)',expires);
+  const active=document.createElement('input');active.type='checkbox';label('Activar para este cliente',active);
+  const button=textElement('button','Guardar descuento');button.type='button';fields.append(button);
+  fields.append(textElement('small','Se aplica a los productos de este cliente hasta que lo desactives o venza. El costo de delivery se confirma aparte.'));
+  let loaded=false;
+  function display(offer){
+    if(offer){
+      title.value=offer.title;kind.value=offer.kind;amount.value=String(offer.amount);active.checked=offer.active;
+      expires.value=offer.expires_at?new Date(Date.parse(offer.expires_at)-5*60*60*1000).toISOString().slice(0,10):'';
+    }
+    amount.max=kind.value==='percent'?'100':'1000000';
+  }
+  kind.onchange=()=>amount.max=kind.value==='percent'?'100':'1000000';
+  panel.addEventListener('toggle',async()=>{
+    if(!panel.open||loaded)return;
+    loaded=true;status.textContent='Consultando descuento…';
+    try{const result=await storeRequest(user,'admin_offer',{customer:customer.customer_uid});display(result.offer);fields.hidden=false;status.textContent=result.offer?'Edita el beneficio de este cliente.':'Este cliente aún no tiene un descuento asignado.'}
+    catch(error){loaded=false;status.textContent=error.message}
+  });
+  button.onclick=async()=>{
+    if(!title.reportValidity()||!amount.reportValidity()||!expires.reportValidity())return;
+    button.disabled=true;
+    try{
+      const result=await storeRequest(user,'admin_save_offer',{customer:customer.customer_uid,offer:{title:title.value,kind:kind.value,amount:Number(amount.value),active:active.checked,expiresOn:expires.value}});
+      display(result.offer);status.textContent=result.offer.active?'Descuento guardado para este cliente.':'Descuento desactivado para este cliente.';
+    }catch(error){status.textContent=error.message}finally{button.disabled=false}
+  };
+  panel.append(status,fields);return panel;
+}
 // Owner authentication stays in the existing Configuración form.
 const admin=document.createElement('section');admin.className='gp-store-admin';admin.hidden=true;
 admin.append(textElement('h2','Clientes y pedidos de la web'));
@@ -90,7 +133,7 @@ async function readCustomers(reset){
     result.customers.forEach(customer=>{
       const card=document.createElement('article');card.className='gp-history-customer';
       card.append(textElement('h3',customer.recipient),textElement('p',customer.email+' · '+customer.phone),textElement('p',customer.address),textElement('p',customer.reference),textElement('p','Pago preferido: '+customer.payment));
-      const button=textElement('button','Ver sus pedidos');button.type='button';button.onclick=()=>readOrders(true,customer.customer_uid);card.append(button);customers.append(card);
+      const button=textElement('button','Ver sus pedidos');button.type='button';button.onclick=()=>readOrders(true,customer.customer_uid);card.append(button,customerOfferEditor(customer,user));customers.append(card);
     });
     customerOffset+=result.customers.length;moreCustomers.hidden=!result.more;status.textContent=customers.children.length?'':'No se encontraron clientes.';
   }catch(error){if(version===adminEpoch)status.textContent=error.message}finally{searchButton.disabled=false;moreCustomers.disabled=false}

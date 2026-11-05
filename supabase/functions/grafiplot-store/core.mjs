@@ -28,3 +28,26 @@ export function validateOrder(input){
   if(totalCents>10000000000)throw Error('El pedido supera el importe permitido.');
   return {id:input.id,delivery,items,total:totalCents/100};
 }
+
+export function validateOffer(input){
+  if(typeof input?.title!=='string')throw Error('Escribe el nombre del beneficio.');
+  const title=input.title.trim();
+  if(!title||title.length>120)throw Error('Escribe un título de hasta 120 caracteres.');
+  if(!['percent','fixed'].includes(input?.kind))throw Error('Selecciona porcentaje o soles.');
+  const amount=Math.round(input.amount*100)/100;
+  if(typeof input.amount!=='number'||!Number.isFinite(amount)||amount<=0||amount>1000000||(input.kind==='percent'&&amount>100)){
+    throw Error('Revisa el descuento. El porcentaje debe estar entre 0 y 100.');
+  }
+  if(typeof input.active!=='boolean')throw Error('Indica si el descuento está activo.');
+  let expires_at=null;
+  if(input.expiresOn){
+    if(typeof input.expiresOn!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(input.expiresOn))throw Error('Revisa la fecha de vencimiento.');
+    const calendar=new Date(input.expiresOn+'T00:00:00Z');
+    if(!Number.isFinite(calendar.getTime())||calendar.toISOString().slice(0,10)!==input.expiresOn)throw Error('Revisa la fecha de vencimiento.');
+    expires_at=new Date(input.expiresOn+'T23:59:59.999-05:00').toISOString();
+  }
+  return {title,kind:input.kind,amount:Math.round(amount*100)/100,active:input.active,expires_at};
+}
+export function currentOffer(offer,now=Date.now()){
+  return offer?.active&&(!offer.expires_at||Date.parse(offer.expires_at)>now)?offer:null;
+}

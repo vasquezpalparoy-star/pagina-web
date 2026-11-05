@@ -1,11 +1,12 @@
-import {isOwner,statuses,validateDelivery,validateOrder} from './core.mjs';
+import {isOwner,statuses,validateDelivery,validateOrder,validateOffer,currentOffer} from './core.mjs';
 export class RequestError extends Error {constructor(message,status=400){super(message);this.status=status}}
 export async function handleAction(input,claims,database){
  const uid=claims.sub;const owner=isOwner(claims);
   switch(input.action){
       case 'profile':{
         const rows=await database('gp_web_customers?customer_uid=eq.'+encodeURIComponent(uid)+'&select=*');
-        return ({profile:rows[0]||null});
+        const offers=await database('gp_web_customer_offers?customer_uid=eq.'+encodeURIComponent(uid)+'&select=title,kind,amount,active,expires_at');
+        return ({profile:rows[0]||null,offer:currentOffer(offers[0])});
       }
       case 'save_profile':{
         let profile;try{profile=validateDelivery(input.profile)}catch(e){throw new RequestError(e.message)}
@@ -33,6 +34,21 @@ export async function handleAction(input,claims,database){
         let path='gp_web_customers?select=*&order=updated_at.desc,customer_uid&limit=31&offset='+Math.trunc(offset);
         if(q)path+='&or='+encodeURIComponent('(recipient.ilike.*'+q+'*,phone.ilike.*'+q+'*,email.ilike.*'+q+'*)');
         const rows=await database(path);return ({customers:rows.slice(0,30),more:rows.length>30});
+      }
+      case 'admin_offer':
+      case 'admin_save_offer':{
+        if(!owner)throw new RequestError('Acceso reservado al propietario.',403);
+        const customer=String(input.customer||'');
+        if(!customer||customer.length>128)throw new RequestError('Selecciona un cliente.');
+        const rows=await database('gp_web_customers?customer_uid=eq.'+encodeURIComponent(customer)+'&select=customer_uid');
+        if(!rows.length)throw new RequestError('No se encontró el cliente.',404);
+        if(input.action==='admin_offer'){
+          const offers=await database('gp_web_customer_offers?customer_uid=eq.'+encodeURIComponent(customer)+'&select=*');
+          return {offer:offers[0]||null};
+        }
+        let offer;try{offer=validateOffer(input.offer)}catch(error){throw new RequestError(error.message)}
+        const saved=await database('gp_web_customer_offers?on_conflict=customer_uid','POST',{...offer,customer_uid:customer,updated_by:uid,updated_at:new Date().toISOString()});
+        return {offer:saved[0]};
       }
       case 'admin_status':{
         if(!owner)throw new RequestError('Acceso reservado al propietario.',403);
