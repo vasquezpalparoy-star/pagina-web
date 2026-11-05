@@ -1,0 +1,33 @@
+name: Owner settings checks
+on:
+  push:
+    branches: [main, owner-settings-20261105]
+    paths:
+      - 'assets/v1/**'
+      - 'index.html'
+      - 'tests/**'
+      - 'package*.json'
+      - '.github/workflows/owner-settings.yml'
+  pull_request:
+    paths:
+      - 'assets/v1/**'
+      - 'index.html'
+      - 'tests/**'
+      - 'package*.json'
+      - '.github/workflows/owner-settings.yml'
+permissions:
+  contents: read
+jobs:
+  settings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:settings
+      - run: node --test tests/proposal-layout.test.mjs tests/theme-text.test.mjs tests/store.test.mjs tests/checkout-history.test.mjs
+      - run: npm test
