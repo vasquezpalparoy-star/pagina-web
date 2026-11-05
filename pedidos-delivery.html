@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Pedidos y alertas de delivery | Grafiplot</title>
+<link rel="icon" href="./favicon.png"><link rel="stylesheet" href="./assets/v1/web-orders.css?v=live1">
+</head>
+<body class="web-orders-page">
+<header class="orders-header"><a href="./" class="orders-brand">GRAFIPLOT <span>VASQUEZ</span></a><nav><a href="./delivery-admin.html">Administrador de delivery</a><a href="./">Volver a la web</a><button id="orders-theme" type="button">Cambiar tema</button><button id="orders-logout" type="button" hidden>Cerrar sesión</button></nav></header>
+<main class="orders-wrap">
+<section class="orders-intro"><p class="eyebrow">Panel del dueño</p><h1>Pedidos y entregas</h1><p>Revisa los pedidos recibidos y confirma los que pasarán al delivery.</p></section>
+<p id="orders-feedback" role="status" aria-live="polite"></p>
+<section id="orders-login" class="orders-card orders-login"><h2>Ingresa con tu cuenta del dueño</h2><form id="orders-login-form"><label>Correo<input name="email" type="email" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button id="orders-login-submit" disabled>Ingresar</button></form><button id="orders-reset" class="secondary" type="button" disabled>Recuperar contraseña</button></section>
+<section id="orders-verification" class="orders-card" hidden><h2>Verifica tu correo</h2><p id="orders-verification-email"></p><button id="orders-verify-send" type="button">Enviar correo de verificación</button><button id="orders-verify-check" class="secondary" type="button">Ya confirmé mi correo</button></section>
+<section id="orders-workspace" hidden>
+<div class="orders-monitor"><div><strong id="orders-connection">Conectando pedidos…</strong><p>Los avisos funcionan mientras esta página esté abierta.</p></div><div class="web-order-controls"><button id="orders-sound" type="button" aria-pressed="false">Activar sonido</button><button id="orders-notifications" class="secondary" type="button">Activar avisos del navegador</button></div></div>
+<div id="orders-new" role="status" class="orders-banner" hidden><strong id="orders-new-text"></strong><button id="orders-read" type="button">Marcar avisos como leídos</button></div>
+<nav class="orders-view-nav" aria-label="Vista de pedidos"><button id="orders-view-pending" type="button" aria-pressed="true">Pedidos por confirmar</button><button id="orders-view-delivery" type="button" aria-pressed="false">Deliveries</button></nav>
+<section id="orders-pending" class="orders-card"></section>
+<section id="orders-deliveries" class="orders-card" hidden></section>
+</section>
+</main>
+<script type="module" src="./assets/v1/orders-monitor.js?v=live1"></script>
+</body></html>

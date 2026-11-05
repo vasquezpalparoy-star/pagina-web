@@ -1,0 +1,49 @@
+:root{--web-bg:#fff;--web-panel:#f3f6fa;--web-ink:#142239;--web-muted:#53637a;--web-border:#d4dde8;--web-red:#d8092b}
+.web-orders-page[data-appearance=dark]{--web-bg:#0c1422;--web-panel:#172438;--web-ink:#f3f6fc;--web-muted:#becbda;--web-border:#40516a;color-scheme:dark}
+.web-orders-page *,.web-delivery-host *{box-sizing:border-box}
+.web-orders-page{margin:0;background:var(--web-panel);color:var(--web-ink);font:15px Arial,sans-serif}
+.orders-header{display:flex;justify-content:space-between;align-items:center;gap:20px;background:var(--web-bg);border-bottom:1px solid var(--web-border);padding:18px 5%}
+.orders-brand{font-size:20px;font-weight:900;letter-spacing:-1px;text-decoration:none;color:var(--web-red)}
+.orders-brand span{color:var(--web-ink)}
+.orders-header nav{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.orders-header nav a{font-size:12px;color:var(--web-ink)}
+.orders-wrap{max-width:1240px;margin:30px auto;padding:0 22px}
+.orders-intro h1{font-size:clamp(30px,4vw,46px);margin:5px 0 10px;letter-spacing:-1px}
+.orders-intro p{color:var(--web-muted)}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;font-weight:700;color:var(--web-red)!important}
+.orders-card,.orders-monitor{padding:24px;background:var(--web-bg);border:1px solid var(--web-border);border-radius:16px;margin:20px 0}
+.orders-login{max-width:470px}
+.orders-login form{display:grid;gap:14px}
+.web-orders-page label{font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:6px}
+.web-orders-page input,.web-orders-page select{min-width:0;width:100%;padding:11px;font:14px Arial;border:1px solid var(--web-border);border-radius:7px;color:var(--web-ink);background:var(--web-bg)}
+.web-orders-page button{font:700 12px Arial;cursor:pointer;background:var(--web-red);color:#fff;border:1px solid var(--web-red);border-radius:7px;padding:11px 14px}
+.web-orders-page button:disabled{opacity:.55;cursor:wait}
+.web-orders-page .secondary,.orders-header button{background:var(--web-panel);color:var(--web-ink);border-color:var(--web-border)}
+.orders-login>.secondary{margin-top:14px}
+.orders-monitor{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.orders-monitor p{font-size:12px;color:var(--web-muted);margin-bottom:0}
+.orders-banner{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:20px;border:2px solid var(--web-red);border-radius:13px;background:var(--web-bg)}
+.orders-view-nav{display:flex;gap:10px;flex-wrap:wrap}
+.orders-view-nav button{background:var(--web-bg);color:var(--web-ink);border-color:var(--web-border)}
+.orders-view-nav button[aria-pressed=true]{background:var(--web-red);border-color:var(--web-red);color:#fff}
+#orders-feedback:not(:empty){padding:15px;background:var(--web-bg);border:1px solid var(--web-border);border-radius:10px}
+.web-orders-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.web-order-card{padding:18px;border:1px solid var(--web-border);background:var(--web-panel);border-radius:12px;min-width:0;overflow-wrap:anywhere}
+.web-order-card h3{font-size:18px;margin:0 0 7px}
+.web-order-card small{font-size:10px;color:var(--web-muted)}
+.web-order-card p,.web-order-card li{font-size:13px;line-height:1.5}
+.web-order-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.web-order-badge{font-size:11px;padding:5px 8px;border:1px solid var(--web-border);background:var(--web-bg);border-radius:20px}
+.web-order-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.web-order-controls select{width:auto}
+.web-order-controls a{font-size:12px;color:var(--web-ink)}
+.web-delivery-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.web-delivery-form label:last-of-type{grid-column:1/-1}
+.web-delivery-form p{grid-column:1/-1;margin:0}
+.web-delivery-form button{justify-self:start}
+.web-delivery-host{--web-bg:#fff;--web-panel:#f3f6fa;--web-ink:#142239;--web-muted:#53637a;--web-border:#d4dde8;--web-red:#d8092b;color:var(--web-ink);background:var(--web-bg);padding:22px;border:1px solid var(--web-border);border-radius:14px;margin:24px 0}
+.web-delivery-host .web-order-controls button,.web-delivery-host .web-delivery-form button{background:var(--web-red);color:#fff}
+.web-delivery-host input,.web-delivery-host select{background:var(--web-bg);color:var(--web-ink);border:1px solid var(--web-border);border-radius:7px;padding:10px}
+.web-orders-page [hidden],.web-delivery-host[hidden],.web-delivery-host [hidden]{display:none!important}
+.web-orders-page :focus-visible,.web-delivery-host :focus-visible{outline:3px solid #2379da;outline-offset:3px}
+@media(max-width:760px){.orders-header,.orders-monitor{align-items:flex-start;flex-direction:column}.web-orders-grid{grid-template-columns:1fr}.orders-card{padding:18px}.orders-wrap{padding:0 14px}.orders-banner{flex-wrap:wrap}}
