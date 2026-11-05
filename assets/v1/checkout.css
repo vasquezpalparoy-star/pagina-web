@@ -1,0 +1,16 @@
+#gp-checkout{padding:16px 0;color:var(--gp-ink)}
+#gp-checkout h3{margin:18px 0 10px}
+#delivery-account{border:1px solid var(--gp-border);border-radius:10px;padding:12px}
+#delivery-account summary{cursor:pointer;font-weight:bold}
+#delivery-details,#delivery-auth-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#gp-checkout input:not([type=checkbox]),#gp-checkout textarea,#gp-checkout select{width:100%;padding:9px;border-radius:6px;border:1px solid var(--gp-border);font:inherit}
+#gp-checkout input[type=checkbox]{width:auto}
+#gp-checkout label{display:block;color:var(--gp-ink)}
+#gp-checkout .delivery-wide,#gp-checkout .delivery-actions{grid-column:1/-1}
+#gp-checkout .delivery-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+#gp-checkout button:not(.gp-button),#gp-checkout a:not(.gp-button){color:var(--gp-ink);background:var(--gp-panel);padding:8px;border:1px solid var(--gp-border);border-radius:6px;cursor:pointer}
+#delivery-receipt img{display:block;width:min(100%,350px);height:auto;border:1px solid var(--gp-border);margin:10px auto}
+#delivery-pages figure{margin:10px 0;text-align:center}
+#delivery-feedback:not(:empty),#delivery-account-status:not(:empty){padding:9px 0;font-size:13px}
+#delivery-receipt p{padding:14px 0}
+@media(max-width:520px){#delivery-details,#delivery-auth-form{grid-template-columns:1fr}}

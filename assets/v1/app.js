@@ -55,7 +55,7 @@ const siteSettings=root.querySelector('#gp-site-settings');
 const settingsTargets=[];
 const targetTags='h1,h2,h3,p,span,small,button,a';
 root.querySelectorAll(targetTags).forEach(element=>{
- if(element.closest('#gp-cart-nav,.gp-ui-control,[data-service-key=universitarios]'))return;
+ if(element.closest('#gp-checkout,#gp-cart-send,#gp-cart-nav,.gp-ui-control,[data-service-key=universitarios]'))return;
  if(element.closest('#gp-campaign-admin,#gp-campaign-banner,#gp-settings-login,#gp-site-settings,#gp-faq')||element.id==='gp-campaign-open'||element.id==='gp-theme-toggle'||element.closest('#gp-theme-toggle'))return;
  Array.from(element.childNodes).forEach(node=>{if(node.nodeType===3&&node.textContent.trim()){settingsTargets.push({node,key:JSON.stringify([element.closest('[id]')?.id||'page',element.tagName,node.textContent.trim()]),original:node.textContent,group:element.closest('section')?.id||'Encabezado y pie'})}});
 });
@@ -288,8 +288,8 @@ function renderCatalog(){
  const notice=root.querySelector('#gp-catalog-note');notice.textContent='Consulta disponibilidad y condiciones de los precios por mayor.';
  renderCart();window.dispatchEvent(new window.Event('gp-catalog-rendered'));if(searchInput.value.trim())search();
 }
-function updateCartSummary(){root.querySelector('#gp-cart-count').textContent=cart.reduce((sum,item)=>sum+item.quantity,0);root.querySelector('#gp-cart-total').textContent=money(cart.reduce((sum,item)=>sum+item.price*item.quantity,0));}
-function renderCart(){
+function updateCartSummary(){window.dispatchEvent(new window.Event('gp-delivery-changed'));root.querySelector('#gp-cart-count').textContent=cart.reduce((sum,item)=>sum+item.quantity,0);root.querySelector('#gp-cart-total').textContent=money(cart.reduce((sum,item)=>sum+item.price*item.quantity,0));}
+function renderCart(){window.dispatchEvent(new window.Event('gp-delivery-changed'));
  const section=root.querySelector('#gp-cart');section.hidden=false;const list=root.querySelector('#gp-cart-items');list.replaceChildren();
  cart=cart.filter(item=>{const latest=inventoryItems.find(p=>p.id===item.id);if(!latest||(!latest.isService&&latest.stock<=0))return false;Object.assign(item,{stock:latest.stock,price:latest.price,isService:latest.isService,quantity:Math.min(item.quantity,latest.isService?10000:latest.stock)});return true});
  root.querySelector('#gp-cart-count').textContent=cart.reduce((total,item)=>total+item.quantity,0);
@@ -297,7 +297,10 @@ function renderCart(){
  cart.forEach(item=>{const row=document.createElement('div');row.className='gp-cart-row';const label=document.createElement('span');label.textContent=item.name+' · '+money(item.price)+' c/u';const input=document.createElement('input');input.type='number';input.min='1';input.max=String(item.isService?10000:item.stock);input.value=item.quantity;input.setAttribute('aria-label','Cantidad de '+item.name);input.addEventListener('input',()=>{const n=Number(input.value);if(!Number.isFinite(n)||n<1)return;const max=item.isService?10000:item.stock;item.quantity=Math.min(max,Math.max(1,Math.trunc(n)));if(n>max)input.value=max;updateCartSummary()});input.addEventListener('change',()=>{item.quantity=Math.min(item.isService?10000:item.stock,Math.max(1,Math.trunc(Number(input.value)||1)));renderCart()});const remove=document.createElement('button');remove.type='button';remove.className='gp-button secondary';remove.textContent='Quitar';remove.addEventListener('click',()=>{cart=cart.filter(c=>c.id!==item.id);renderCart()});row.append(label,input,remove);list.append(row)});
  root.querySelector('#gp-cart-total').textContent=money(cart.reduce((sum,item)=>sum+item.price*item.quantity,0));
 }
-root.querySelector('#gp-cart-send').addEventListener('click',()=>{if(!cart.length)return;renderCart();if(!cart.length)return;whatsapp('Hola Grafiplot, deseo realizar este pedido:\n'+cart.map(item=>item.quantity+' × '+item.name+' · '+money(item.price*item.quantity)).join('\n')+'\nTotal de referencia: '+root.querySelector('#gp-cart-total').textContent+'\nPor favor confirmar disponibilidad y entrega.');});
+root.querySelector('#gp-cart-send').addEventListener('click',()=>{
+ renderCart();
+ if(cart.length)window.dispatchEvent(new window.CustomEvent('gp-prepare-delivery',{detail:cart.map(({name,quantity,price})=>({name,quantity,price}))}));
+});
 root.querySelector('#gp-send').addEventListener('click',()=>{
  update();const result=lastQuote;if(!result)return;
  const message='Hola Grafiplot, solicito una cotización:\n'+result.pages+' páginas × '+result.copies+' ejemplares\n'+result.format.label+' · '+root.querySelector('#gp-color').selectedOptions[0].textContent+'\n'+result.sheets+' hojas en total\n'+result.lines.map(l=>l.label+': '+(l.amount===null?'Por confirmar':money(l.amount))).join('\n')+'\nTotal estimado: '+(result.ready?money(result.total):'Por confirmar');whatsapp(message);
