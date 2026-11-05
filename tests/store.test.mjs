@@ -32,3 +32,34 @@ test('owner access also requires verified email',async()=>{
  const result=await handleAction({action:'admin_orders'},{sub:OWNER_UID,email_verified:true},async()=>[]);
  assert.deepEqual(result,{orders:[],more:false});
 });
+
+test('live alerts and delivery management are restricted to the verified owner',async()=>{
+ for(const action of ['admin_live','admin_deliveries','admin_delivery_update']){
+  let called=false;
+  await assert.rejects(handleAction({action},{sub:'customer'},async()=>{called=true}),error=>error.status===403);
+  assert.equal(called,false);
+ }
+});
+test('confirming an order calls the atomic queue operation',async()=>{
+ let call;
+ const result=await handleAction({action:'admin_status',id:order.id,status:'confirmado'},{sub:OWNER_UID,email_verified:true},async(...args)=>{call=args;return {id:order.id,status:'confirmado'}});
+ assert.equal(call[0],'rpc/gp_web_set_order_status');
+ assert.deepEqual(call[2],{p_id:order.id,p_status:'confirmado'});
+ assert.equal(result.order.status,'confirmado');
+});
+test('customer delivery information is limited to the same account and returned orders',async()=>{
+ const calls=[];
+ const result=await handleAction({action:'orders',customer:'other'},{sub:'customer'},async path=>{
+  calls.push(path);return path.startsWith('gp_web_orders')?[{...order,customer_uid:'customer'}]:[{order_id:order.id,status:'en_camino'}];
+ });
+ assert.ok(calls.every(path=>path.includes('customer_uid=eq.customer')));
+ assert.equal(result.orders[0].shipping.status,'en_camino');
+});
+test('live alert cursor follows server sequence and rejects malformed cursors',async()=>{
+ const identity={sub:OWNER_UID,email_verified:true};
+ const baseline=await handleAction({action:'admin_live'},identity,async()=>[{event_seq:8}]);
+ assert.deepEqual(baseline,{events:[],cursor:'8',more:false});
+ const next=await handleAction({action:'admin_live',cursor:'8'},identity,async path=>path.includes('order=event_seq.desc')?[{event_seq:10}]:[{event_seq:9},{event_seq:10}]);
+ assert.equal(next.cursor,'10');assert.equal(next.events.length,2);
+ await assert.rejects(handleAction({action:'admin_live',cursor:'bad'},identity,async()=>[]),/Cursor/);
+});

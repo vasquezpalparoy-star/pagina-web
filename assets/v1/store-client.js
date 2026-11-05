@@ -1,15 +1,5 @@
-const ENDPOINT='https://gyvztqpvgtinxoqhyfbw.supabase.co/functions/v1/grafiplot-store';
-export async function storeRequest(user,action,data={}){
-  if(!user)throw Error('Ingresa con tu cuenta para consultar o guardar en tu historial.');
-  const token=await user.getIdToken();
-  const response=await fetch(ENDPOINT,{
-    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
-    body:JSON.stringify({...data,action}),signal:AbortSignal.timeout(20000)
-  });
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(result.error||'No se pudo conectar con el historial.');
-  return result;
-}
+import {storeRequest} from './store-api.js?v=delivery-live1';
+export {storeRequest};
 const labels={solicitado:'Solicitado · por confirmar',confirmado:'Confirmado',entregado:'Entregado',cancelado:'Cancelado'};
 const money=value=>'S/ '+Number(value).toFixed(2);
 function textElement(tag,text){const node=document.createElement(tag);node.textContent=text;return node;}
@@ -21,6 +11,12 @@ function showOrder(order,user,admin=false){
   if(Number(order.discount_amount)>0){
     card.append(textElement('p','Subtotal: '+money(order.subtotal)+' · Descuento: −'+money(order.discount_amount)+' · '+(order.offer_snapshot?.title||'Beneficio del cliente')));
   }
+  if(order.shipping){
+    const shippingLabels={recibido:'Recibido',en_proceso:'En proceso',listo:'Listo',en_camino:'En camino',entregado:'Entregado',cancelado:'Cancelado'};
+    card.append(textElement('p','Delivery: '+(shippingLabels[order.shipping.status]||order.shipping.status)));
+    if(order.shipping.estimated_at)card.append(textElement('p','Entrega estimada: '+new Date(order.shipping.estimated_at).toLocaleString('es-PE',{timeZone:'America/Lima'})));
+    if(order.shipping.delivery_fee!==null)card.append(textElement('p','Costo de delivery: '+money(order.shipping.delivery_fee)+' · Total con delivery: '+money(Number(order.total)+Number(order.shipping.delivery_fee))));
+  }
   const info=order.delivery;
   card.append(textElement('p',[info.recipient,info.phone,info.address,info.reference,'Pago: '+info.payment].filter(Boolean).join(' · ')));
   const list=document.createElement('ul');
@@ -29,13 +25,13 @@ function showOrder(order,user,admin=false){
   if(admin){
     const controls=document.createElement('div');controls.className='delivery-actions';
     const select=document.createElement('select');select.setAttribute('aria-label','Estado del pedido '+order.id);
-    Object.entries(labels).forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;select.append(option)});
+    Object.entries(labels).forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;if(value==='solicitado'&&order.shipping)option.disabled=true;select.append(option)});
     select.value=order.status;
     const button=textElement('button','Guardar estado');button.type='button';
     const status=textElement('span','');status.setAttribute('role','status');
     button.onclick=async()=>{
       button.disabled=true;
-      try{const result=await storeRequest(user,'admin_status',{id:order.id,status:select.value});order=result.order;card.querySelector('summary').textContent=date+' · '+money(order.total)+' · '+labels[order.status];status.textContent='Guardado.'}
+      try{const result=await storeRequest(user,'admin_status',{id:order.id,status:select.value});order=result.order;card.querySelector('summary').textContent=date+' · '+money(order.total)+' · '+labels[order.status];status.textContent=order.status==='confirmado'?'Confirmado y agregado al delivery.':'Guardado.'}
       catch(error){status.textContent=error.message}finally{button.disabled=false}
     };
     controls.append(select,button,status);card.append(controls);
@@ -106,6 +102,8 @@ function customerOfferEditor(customer,user){
 // Owner authentication stays in the existing Configuración form.
 const admin=document.createElement('section');admin.className='gp-store-admin';admin.hidden=true;
 admin.append(textElement('h2','Clientes y pedidos de la web'));
+const liveLink=textElement('a','Abrir pedidos, alertas y deliveries');
+liveLink.href='./pedidos-delivery.html';liveLink.className='gp-button secondary';admin.append(liveLink);
 const search=document.createElement('input');search.type='search';search.placeholder='Buscar por cliente, correo o teléfono';search.setAttribute('aria-label','Buscar clientes');
 const searchButton=textElement('button','Consultar clientes');searchButton.type='button';
 const allOrders=textElement('button','Ver todos los pedidos');allOrders.type='button';

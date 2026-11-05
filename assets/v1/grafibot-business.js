@@ -1,4 +1,4 @@
-export const whatsappNumber = '51952628844'; // Contacto usado por la página Grafiplot.
+export const whatsappNumber = '51916133647'; // Contacto usado por la página Grafiplot.
 export const whatsappLink = (message) => whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}` : undefined;
 const catalog = { A4: [.1, .12, .1, .1, .09, .1, .08, .09], TRIPTICO: [.1, .15, 0, .1, 0, .1, 0, .1], A3: [.5, .7, .5, .5, .4, .7, .3, .5], A2: [1.5, 0, 1.5, 0, 1.3, 0, 1.3, 0], A1: [2, 0, 2, 0, 1.8, 0, 1.8, 0], A0: [4, 0, 4, 0, 4, 0, 4, null], ANILLADO: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5] };
 // PRESIO.xlsx, Hoja1, B3:I9. Orden: menor color 1/2 caras, negro 1/2; mayor mismo orden.

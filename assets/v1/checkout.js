@@ -1,5 +1,5 @@
 import {USER_FIREBASE_CONFIG} from './config.js';
-import {storeRequest,createCustomerHistory} from './store-client.js?v=customer-offers1';
+import {storeRequest,createCustomerHistory} from './store-client.js?v=delivery-live1';
 
 const byId=id=>document.getElementById(id);
 const details=byId('delivery-details');

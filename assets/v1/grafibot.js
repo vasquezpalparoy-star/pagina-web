@@ -1,4 +1,4 @@
-import {createAssistant} from './grafibot-core.mjs';
+import {createAssistant} from './grafibot-core.mjs?v=delivery-live1';
 import {getBotContext} from './grafibot-context.js';
 import {generateWithGemini} from './grafibot-ai.js';
 const root=document.getElementById('gp-grafibot');
@@ -7,7 +7,7 @@ let state=null,busy=false;
 const assistant=createAssistant({generate:generateWithGemini,getContext:getBotContext});
 function setOpen(open){panel.hidden=!open;root.classList.toggle('gb-open',open);toggle.setAttribute('aria-expanded',String(open));if(open)field.focus();else toggle.focus()}
 toggle.addEventListener('click',()=>setOpen(panel.hidden));close.addEventListener('click',()=>setOpen(false));root.addEventListener('keydown',event=>{if(event.key==='Escape'&&!panel.hidden)setOpen(false)});
-function contact(text){const configured=document.getElementById('gp-settings-phone')?.value;const phone=String(configured||'51952628844').replace(/\D/g,'');return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`}
+function contact(text){return 'https://wa.me/51916133647?text='+encodeURIComponent(text)}
 function link(parent,text,label='Consultar por WhatsApp'){const a=document.createElement('a');a.className='gb-link';a.href=contact(text);a.target='_blank';a.rel='noopener noreferrer';a.textContent=label;parent.append(a)}
 function bubble(role,text){const d=document.createElement('div');d.className='gb-message gb-'+role;const p=document.createElement('p');p.textContent=text;d.append(p);messages.append(d);messages.scrollTop=messages.scrollHeight;return d}
 const money=value=>new Intl.NumberFormat('es-PE',{style:'currency',currency:'PEN'}).format(value);

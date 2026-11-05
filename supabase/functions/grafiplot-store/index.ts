@@ -16,6 +16,9 @@ async function database(path:string,method='GET',data?:unknown){
   if(!response.ok){
     const error=await response.json().catch(()=>({}));
     if(error.message?.includes('ORDER_CONFLICT'))throw new RequestError('El código ya pertenece a otro pedido.',409);
+    if(error.message?.includes('ORDER_NOT_FOUND'))throw new RequestError('No se encontró el pedido.',404);
+    if(error.message?.includes('DELIVERY_ALREADY_CREATED'))throw new RequestError('Este pedido ya tiene un delivery. Puedes confirmarlo, entregarlo o cancelarlo.',409);
+    if(error.message?.includes('INVALID_DELIVERY'))throw new RequestError('Revisa los datos del delivery.');
     if(error.message?.includes('ORDER_LIMIT'))throw new RequestError('Alcanzaste el límite de pedidos de hoy.',429);
     throw new RequestError('No se pudo guardar o consultar. Inténtalo de nuevo.',503);
   }

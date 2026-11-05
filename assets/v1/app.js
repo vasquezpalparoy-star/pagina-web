@@ -163,7 +163,7 @@ function describeSaveError(error){if(error.code==='permission-denied')return 'Fi
 const money=n=>'S/ '+Number(n).toFixed(2);
 const feedback=(text,error=false)=>{const node=root.querySelector('#gp-settings-feedback');node.textContent=text;node.setAttribute('role',error?'alert':'status')};
 const httpsLink=(value,optional=true)=>{const text=String(value||'').trim();if(!text&&optional)return '';const url=new URL(text);if(url.protocol!=='https:')throw Error('Usa enlaces que comiencen con https://.');return url.href};
-function configuredPhone(){return '51952628844'}
+function configuredPhone(){return '51916133647'}
 function whatsapp(message){window.open('https://wa.me/'+configuredPhone()+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer')}
 function applyCampaign(config){
  const active=config.campaignEnabled===true;
