@@ -2,7 +2,7 @@ import * as sdk from './firebase.js?v=email-settings-20261005';
 import {USER_FIREBASE_CONFIG} from './config.js';
 import {createSettingsAuth,isSettingsOwner,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {storeRequest} from './store-api.js?v=delivery-live1';
-import {mountDeliveryQueue,mountPendingOrders} from './web-delivery-ui.js?v=live1';
+import {mountDeliveryQueue,mountPendingOrders} from './web-delivery-ui.js?v=choice2';
 
 const $=id=>document.getElementById(id);
 const auth=sdk.getAuth(sdk.initializeApp(USER_FIREBASE_CONFIG));

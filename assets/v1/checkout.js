@@ -1,5 +1,5 @@
 import {USER_FIREBASE_CONFIG} from './config.js';
-import {storeRequest,createCustomerHistory} from './store-client.js?v=delivery-live1';
+import {storeRequest,createCustomerHistory} from './store-client.js?v=choice2';
 
 const byId=id=>document.getElementById(id);
 const details=byId('delivery-details');
@@ -11,7 +11,11 @@ const accountStatus=byId('delivery-account-status');
 const receipt=byId('delivery-receipt');
 const fields=['recipient','phone','address','reference','payment'];
 const money=n=>'S/ '+n.toFixed(2);
-let uid='', files=[], urls=[], revision=0, authReady;
+let uid='', files=[], urls=[], revision=0, authReady, preparing=false;
+const choice=document.createElement('dialog');choice.id='delivery-option-dialog';choice.setAttribute('aria-labelledby','delivery-option-title');
+choice.innerHTML='<h2 id="delivery-option-title">¿Añadimos delivery?</h2><p>Elige cómo deseas coordinar la entrega de este pedido.</p><p id="delivery-option-total"></p><div class="delivery-option-actions"><button type="button" data-option="fixed" class="gp-button">Añadir delivery · S/ 3.00</button><button type="button" data-option="consult" class="gp-button secondary">Consultar con el administrador</button><button type="button" data-cancel>Volver al carrito</button></div><p>El local confirmará la disponibilidad del pedido.</p>';
+document.getElementById('grafiplot-preview').append(choice);
+const shippingText=data=>data.deliveryOption==='fixed'?'Delivery: S/ 3.00':'Delivery: consultar costo con el administrador';
 const history=createCustomerHistory(async()=>{const {auth}=await authClient();return auth.currentUser});
 byId('gp-checkout').insertBefore(history.panel,byId('gp-checkout').querySelector('h3'));
 history.panel.hidden=true;
@@ -106,7 +110,9 @@ async function makeReceipt(data,items,code,summary){
   add('Subtotal: '+money(Number(summary.subtotal)));
   add('Descuento: −'+money(Number(summary.discount_amount))+' · '+summary.offer_snapshot.title,true);
  }
- add('Total de productos: '+money(Number(summary?.total??total)),true);add('Costo de delivery y disponibilidad por confirmar.');
+ add('Total de productos: '+money(Number(summary?.total??total)),true);add(shippingText(data));
+ if(data.deliveryOption==='fixed')add('Total con delivery: '+money(Number(summary?.total??total)+3),true);
+ add('Disponibilidad sujeta a confirmación del local.');
  const result=[],perPage=31,count=Math.ceil(lines.length/perPage);
  for(let page=0;page<count;page++){
   const rows=lines.slice(page*perPage,(page+1)*perPage);canvas.height=230+rows.length*36;
@@ -152,7 +158,8 @@ function orderText(data,items,code,summary){
   data.reference?'Referencia: '+data.reference:'','Pago: '+data.payment,'',
   ...items.map(item=>item.quantity+' × '+item.name+' · '+money(item.price)+' c/u · '+money(item.quantity*item.price)),
   '',...(Number(summary?.discount_amount)>0?['Subtotal: '+money(Number(summary.subtotal)),'Descuento: −'+money(Number(summary.discount_amount))+' · '+summary.offer_snapshot.title]:[]),
-  'Total de productos: '+money(Number(summary?.total??total)),'Costo de delivery y disponibilidad por confirmar.'
+  'Total de productos: '+money(Number(summary?.total??total)),shippingText(data),
+  ...(data.deliveryOption==='fixed'?['Total con delivery: '+money(Number(summary?.total??total)+3)]:[]),'Disponibilidad sujeta a confirmación del local.'
  ].filter(line=>line!=='').join('\n');
 }
 function copyImage(file,chatUrl){
@@ -164,9 +171,10 @@ function copyImage(file,chatUrl){
   }catch{notice.textContent='Este navegador no pudo copiar la imagen. Descárgala o envía el pedido en texto.'}
  };
 }
-window.addEventListener('gp-prepare-delivery',async e=>{
+async function prepareDelivery(items,option){
  invalidate();const data=deliveryData();if(!data)return;
- const items=e.detail;const version=revision;const currentUid=uid;
+ data.deliveryOption=option;preparing=true;
+ const version=revision;const currentUid=uid;
  notice.textContent=uid?'Registrando pedido…':'Preparando pedido…';
  let saveNote='';
  try{
@@ -183,7 +191,7 @@ window.addEventListener('gp-prepare-delivery',async e=>{
     const saved=await storeRequest(auth.currentUser,'submit_order',{order:{id,delivery:data,items}});
     summary=saved.order;
     showPersonalOffer(Number(summary.discount_amount)>0?summary.offer_snapshot:null);
-    saveNote=' Solicitud guardada en tu historial. El local confirmará la compra.';
+    saveNote=' Solicitud guardada y enviada al panel del local para confirmar.';history.refresh?.();
    }catch(error){saveNote=' No se pudo guardar en tu historial: '+error.message+' Puedes volver a pulsar Registrar pedido para reintentar.'}
   }
   if(version!==revision)return;
@@ -207,6 +215,20 @@ window.addEventListener('gp-prepare-delivery',async e=>{
   }catch{notice.textContent='Puedes enviar el pedido completo en texto. La imagen no se pudo generar.'+saveNote}
   receipt.scrollIntoView({block:'nearest'});
  }catch{if(version===revision)notice.textContent='No se pudo preparar el pedido. Inténtalo de nuevo.'}
+ finally{preparing=false}
+}
+window.addEventListener('gp-prepare-delivery',e=>{
+ if(preparing){notice.textContent='El pedido se está registrando. Espera un momento.';return}
+ invalidate();if(!deliveryData()||!Array.isArray(e.detail)||!e.detail.length)return;
+ const items=e.detail.map(item=>({...item})),version=revision,accountUid=uid;
+ const total=items.reduce((sum,item)=>sum+Math.round(item.price*100)*item.quantity,0)/100;
+ byId('delivery-option-total').textContent='Productos: '+money(total)+' · Con delivery: '+money(total+3)+' antes de descuentos personales.';
+ choice.querySelectorAll('[data-option]').forEach(button=>button.onclick=()=>{
+  choice.close();if(version!==revision||uid!==accountUid){notice.textContent='El pedido cambió. Vuelve a revisarlo antes de registrar.';return}
+  prepareDelivery(items,button.dataset.option);
+ });
+ choice.querySelector('[data-cancel]').onclick=()=>choice.close();
+ if(!choice.open)choice.showModal();
 });
 byId('delivery-share').onclick=async()=>{try{await navigator.share({files,title:'Pedido de delivery Grafiplot'})}catch(e){if(e.name!=='AbortError')notice.textContent='Descarga la imagen y adjúntala en el chat de delivery.'}};
 
