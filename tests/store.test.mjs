@@ -63,3 +63,11 @@ test('live alert cursor follows server sequence and rejects malformed cursors',a
  assert.equal(next.cursor,'10');assert.equal(next.events.length,2);
  await assert.rejects(handleAction({action:'admin_live',cursor:'bad'},identity,async()=>[]),/Cursor/);
 });
+
+test('fixed delivery is always three soles and a consultation has no invented fee',()=>{
+ const fixed=validateOrder({...order,delivery:{...delivery,deliveryOption:'fixed',deliveryFee:0}});
+ assert.equal(fixed.delivery.deliveryFee,3);
+ const consult=validateOrder({...order,delivery:{...delivery,deliveryOption:'consult',deliveryFee:999}});
+ assert.equal(consult.delivery.deliveryFee,null);
+ assert.throws(()=>validateOrder({...order,delivery:{...delivery,deliveryOption:'free'}}));
+});

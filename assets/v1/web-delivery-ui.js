@@ -14,6 +14,8 @@ function infoList(record){
   container.append(element('p',delivery.recipient+' · '+delivery.phone),element('p',delivery.address));
   if(delivery.reference)container.append(element('p','Referencia: '+delivery.reference));
   container.append(element('p','Pago: '+delivery.payment));
+  container.append(element('p',delivery.deliveryOption==='fixed'?'Delivery elegido: S/ 3.00':'Delivery: consultar costo con el administrador'));
+  if(delivery.deliveryOption==='fixed'&&record.total!==undefined)container.append(element('strong','Total con delivery: '+formatMoney(Number(record.total)+3)));
   const list=element('ul');
   record.items.forEach(item=>list.append(element('li',item.quantity+' × '+item.name+' · '+formatMoney(item.quantity*item.price))));
   container.append(list);

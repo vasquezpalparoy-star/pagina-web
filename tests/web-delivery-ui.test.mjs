@@ -72,3 +72,19 @@ test('a rejected private request clears delivery details from the panel',async()
   assert.match(document.querySelector('#queue').textContent,/Sesión vencida/);
  }finally{queue.stop();globalThis.fetch=savedFetch;delete globalThis.document}
 });
+
+test('the delivery administrator bridge lists cart requests before confirmation',async()=>{
+ const {readFile}=await import('node:fs/promises');const vm=await import('node:vm');
+ const savedFetch=globalThis.fetch;const document=documentFixture();
+ const target=document.createElement('section');target.id='web-delivery-queue';document.body.append(target);
+ const actions=[];let changed;let timer;
+ globalThis.fetch=async(_url,options)=>{const input=JSON.parse(options.body);actions.push(input.action);return Response.json(input.action==='admin_orders'?{orders:[original],more:false}:{deliveries:[],more:false})};
+ const source=(await readFile(new URL('../assets/v1/delivery-web-bridge.js',import.meta.url),'utf8')).replace(/^import .*;$/gm,'');
+ const context=vm.createContext({document,window:{addEventListener(){}},location:{reload(){}},sdk:{getAuth(){return {}},initializeApp(){}},USER_FIREBASE_CONFIG:{},onIdTokenChanged(_auth,fn){changed=fn},isSettingsOwner:account=>account?.uid==='owner',mountDeliveryQueue,mountPendingOrders,setInterval(fn){timer=fn;return 1},clearInterval(){}});
+ try{
+  vm.runInContext(source,context);changed({...user,uid:'owner'});await settle();
+  assert.ok(actions.includes('admin_orders'));assert.match(target.textContent,/Cliente de prueba/);
+  assert.match(target.textContent,/Confirmar y agregar al delivery/);assert.equal(typeof timer,'function');
+  changed(null);assert.equal(target.hidden,true);assert.equal(target.textContent,'');
+ }finally{globalThis.fetch=savedFetch;delete globalThis.document}
+});

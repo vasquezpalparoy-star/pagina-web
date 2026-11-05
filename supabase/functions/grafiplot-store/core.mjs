@@ -15,6 +15,11 @@ export function validateDelivery(input){
 export function validateOrder(input){
   if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(input?.id||''))throw Error('Pedido inválido.');
   const delivery=validateDelivery(input.delivery);
+  if(input.delivery.deliveryOption!==undefined){
+    if(!['fixed','consult'].includes(input.delivery.deliveryOption))throw Error('Selecciona la opción de delivery.');
+    delivery.deliveryOption=input.delivery.deliveryOption;
+    delivery.deliveryFee=delivery.deliveryOption==='fixed'?3:null;
+  }
   if(!Array.isArray(input.items)||!input.items.length||input.items.length>100)throw Error('Revisa los productos del pedido.');
   let totalCents=0;
   const items=input.items.map(item=>{

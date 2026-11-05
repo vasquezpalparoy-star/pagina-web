@@ -21,7 +21,7 @@ function showOrder(order,user,admin=false){
   card.append(textElement('p',[info.recipient,info.phone,info.address,info.reference,'Pago: '+info.payment].filter(Boolean).join(' · ')));
   const list=document.createElement('ul');
   order.items.forEach(item=>list.append(textElement('li',item.quantity+' × '+item.name+' · '+money(item.quantity*item.price))));
-  card.append(list,textElement('small','Importes de referencia. Costo de delivery por confirmar.'));
+  card.append(list,textElement('small',order.shipping?'Revisa el estado y el costo de envío indicados arriba.':info.deliveryOption==='fixed'?'Delivery elegido: S/ 3.00 · Total con delivery: '+money(Number(order.total)+3):'Delivery: consultar costo con el administrador.'));
   if(admin){
     const controls=document.createElement('div');controls.className='delivery-actions';
     const select=document.createElement('select');select.setAttribute('aria-label','Estado del pedido '+order.id);
@@ -57,7 +57,7 @@ export function createCustomerHistory(getUser){
   load.onclick=()=>read(true);more.onclick=()=>read(false);
   panel.addEventListener('toggle',()=>{if(panel.open)read(true)});
   panel.append(load,status,list,more);
-  return {panel,clear(){epoch++;panel.open=false;list.replaceChildren();status.textContent='';more.hidden=true;offset=0}};
+  return {panel,refresh:()=>read(true),clear(){epoch++;panel.open=false;list.replaceChildren();status.textContent='';more.hidden=true;offset=0}};
 }
 function customerOfferEditor(customer,user){
   const panel=document.createElement('details');panel.className='gp-customer-offer';
