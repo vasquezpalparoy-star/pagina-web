@@ -1,34 +1,43 @@
 import {USER_FIREBASE_CONFIG} from './config.js';
+import {storeRequest,createCustomerHistory} from './store-client.js';
 
 const byId=id=>document.getElementById(id);
 const details=byId('delivery-details');
 const account=byId('delivery-account');
 const authForm=byId('delivery-auth-form');
-const remember=details.elements.remember;
+
 const notice=byId('delivery-feedback');
 const accountStatus=byId('delivery-account-status');
 const receipt=byId('delivery-receipt');
 const fields=['recipient','phone','address','reference','payment'];
 const money=n=>'S/ '+n.toFixed(2);
 let uid='', files=[], urls=[], revision=0, authReady;
+const history=createCustomerHistory(async()=>{const {auth}=await authClient();return auth.currentUser});
+byId('gp-checkout').insertBefore(history.panel,byId('gp-checkout').querySelector('h3'));
+history.panel.hidden=true;
 const profileKey=id=>'grafiplot.delivery.profile.v1.'+id;
 function invalidate(){
  revision++;
  urls.forEach(url=>URL.revokeObjectURL(url));urls=[];files=[];
- receipt.hidden=true;byId('delivery-pages').replaceChildren();notice.textContent='';
+ receipt.hidden=true;byId('delivery-pages').replaceChildren();byId('delivery-text').textContent='';notice.textContent='';byId('delivery-copy-image').hidden=true;
 }
-function customerChanged(user){
+async function customerChanged(user){
  const next=user?.uid||'';
- if(uid!==next){if(uid)details.reset();invalidate()}
+ if(uid!==next){if(uid)details.reset();invalidate();history.clear()}
  uid=next;authForm.hidden=!!uid;byId('delivery-logout').hidden=!uid;
- byId('delivery-remember-label').hidden=!uid;byId('delivery-profile-save').hidden=!uid;
- accountStatus.textContent=user?'Sesión iniciada con '+user.email:'Puedes pedir como invitado o crear una cuenta para tus próximas compras.';
+ byId('delivery-remember-label').hidden=true;byId('delivery-profile-save').hidden=!uid;history.panel.hidden=!uid;
+ byId('gp-cart-send').textContent=uid?'Registrar pedido y preparar imagen':'Preparar imagen del pedido';
+ accountStatus.textContent=user?'Sesión iniciada con '+user.email:'Puedes pedir como invitado o ingresar para guardar tus datos y pedidos en tu cuenta.';
  if(!uid)return;
+ const currentRevision=revision;
  try{
-  const saved=JSON.parse(localStorage.getItem(profileKey(uid))||'null');
-  if(saved){fields.forEach(key=>details.elements[key].value=String(saved[key]||''));remember.checked=true}
- }catch{accountStatus.textContent+=' No se pudieron recuperar los datos guardados.'}
+  const {profile}=await storeRequest(user,'profile');
+  if(user.uid!==uid||currentRevision!==revision)return;
+  const saved=profile||JSON.parse(localStorage.getItem(profileKey(uid))||'null');
+  if(saved)fields.forEach(key=>details.elements[key].value=String(saved[key]||''));
+ }catch{if(user.uid===uid)accountStatus.textContent+=' No se pudieron cargar los datos de tu cuenta. Puedes volver a ingresar o completar la dirección para este pedido.'}
 }
+
 function authClient(){
  if(!authReady)authReady=(async()=>{
   const [app,api]=await Promise.all([import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js'),import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js')]);
@@ -52,9 +61,16 @@ byId('delivery-reset').onclick=async()=>{
  try{const {auth,api}=await authClient();await api.sendPasswordResetEmail(auth,email.value.trim());accountStatus.textContent='Si existe una cuenta, recibirás instrucciones en tu correo.'}catch(e){accountStatus.textContent=authError(e)}
 };
 byId('delivery-logout').onclick=async()=>{try{const {auth,api}=await authClient();await api.signOut(auth)}catch(e){accountStatus.textContent=authError(e)}};
-remember.onchange=()=>{if(uid&&!remember.checked){try{localStorage.removeItem(profileKey(uid))}catch{notice.textContent='No se pudieron borrar los datos guardados.'}}};
 details.oninput=invalidate;
-window.addEventListener('gp-delivery-changed',invalidate);
+let previousCart='';
+window.addEventListener('gp-delivery-changed',event=>{
+ const signature=JSON.stringify(event.detail||[]);
+ if(signature!==previousCart){
+  previousCart=signature;
+  try{sessionStorage.removeItem('gp-delivery-pending-'+(uid||'guest'))}catch{}
+ }
+ invalidate();
+});
 authClient().catch(()=>{accountStatus.textContent='La cuenta no está disponible ahora. Puedes continuar como invitado.'});
 
 function wrap(ctx,text,width){
@@ -65,10 +81,10 @@ function wrap(ctx,text,width){
  }
  if(current)lines.push(current);return lines;
 }
-async function makeReceipt(data,items){
+async function makeReceipt(data,items,code){
  const canvas=document.createElement('canvas');canvas.width=900;canvas.height=1400;
  const ctx=canvas.getContext('2d');if(!ctx)throw Error('No se pudo crear la imagen.');
- const stamp=new Date();const code=crypto.randomUUID().slice(0,8).toUpperCase();
+ const stamp=new Date();
  const lines=[];function add(text,bold=false){ctx.font=(bold?'700 ':'')+'25px Arial';wrap(ctx,text,800).forEach(line=>lines.push({line,bold}))}
  add('DATOS DE ENTREGA',true);add(data.recipient+' · '+data.phone);add(data.address);if(data.reference)add('Referencia: '+data.reference);add('Pago: '+data.payment);
  add('PRODUCTOS',true);let total=0;items.forEach(({quantity,name,price})=>{add(quantity+' × '+name,true);add(money(price)+' c/u   ·   '+money(quantity*price));total+=quantity*price});
@@ -94,22 +110,78 @@ function deliveryData(){
  }
  return data;
 }
-byId('delivery-profile-save').onclick=()=>{
+byId('delivery-profile-save').onclick=async()=>{
  const data=deliveryData();if(!uid||!data)return;
- try{localStorage.setItem(profileKey(uid),JSON.stringify(data));remember.checked=true;notice.textContent='Datos guardados para tu próxima compra en este dispositivo.'}
- catch{notice.textContent='Este navegador no pudo guardar tus datos.'}
+ const button=byId('delivery-profile-save');button.disabled=true;
+ try{
+  const {auth}=await authClient();await storeRequest(auth.currentUser,'save_profile',{profile:data});
+  notice.textContent='Datos guardados en tu cuenta. Se cargarán también al ingresar desde otro dispositivo.';
+ }catch(error){notice.textContent=error.message}finally{button.disabled=false}
 };
+async function requestId(data,items){
+ const encoded=new TextEncoder().encode(JSON.stringify([uid,data,items]));
+ const hash=await crypto.subtle.digest('SHA-256',encoded);
+ const signature=Array.from(new Uint8Array(hash),n=>n.toString(16).padStart(2,'0')).join('');
+ const key='gp-delivery-pending-'+(uid||'guest');
+ try{const previous=JSON.parse(sessionStorage.getItem(key)||'null');if(previous?.signature===signature)return previous.id}catch{}
+ const id=crypto.randomUUID();try{sessionStorage.setItem(key,JSON.stringify({signature,id}))}catch{}
+ return id;
+}
+function orderText(data,items,code){
+ const total=items.reduce((sum,item)=>sum+Math.round(item.price*100)*item.quantity,0)/100;
+ return ['GRAFIPLOT VASQUEZ · PEDIDO DE DELIVERY '+code,
+  'Cliente: '+data.recipient,'Contacto: '+data.phone,'Dirección: '+data.address,
+  data.reference?'Referencia: '+data.reference:'','Pago: '+data.payment,'',
+  ...items.map(item=>item.quantity+' × '+item.name+' · '+money(item.price)+' c/u · '+money(item.quantity*item.price)),
+  '','Total de productos: '+money(total),'Costo de delivery y disponibilidad por confirmar.'
+ ].filter(line=>line!=='').join('\n');
+}
+function copyImage(file,chatUrl){
+ return async()=>{
+  try{
+   await navigator.clipboard.write([new ClipboardItem({'image/png':file})]);
+   notice.textContent='Imagen copiada. En WhatsApp presiona Pegar o Ctrl + V y confirma el envío.';
+   window.open(chatUrl,'_blank','noopener,noreferrer');
+  }catch{notice.textContent='Este navegador no pudo copiar la imagen. Descárgala o envía el pedido en texto.'}
+ };
+}
 window.addEventListener('gp-prepare-delivery',async e=>{
  invalidate();const data=deliveryData();if(!data)return;
- let profileNote='';
- if(uid&&remember.checked){try{localStorage.setItem(profileKey(uid),JSON.stringify(data));profileNote=' Datos recordados en este dispositivo.'}catch{profileNote=' Este navegador no pudo recordar tus datos.'}}
- const version=revision;notice.textContent='Preparando imagen…';
- try{const {result,code}=await makeReceipt(data,e.detail);if(revision!==version)return;
-  files=result;files.forEach((file,i)=>{const url=URL.createObjectURL(file);urls.push(url);const figure=document.createElement('figure'),img=document.createElement('img'),a=document.createElement('a');img.src=url;img.alt='Pedido de delivery, página '+(i+1);a.href=url;a.download=file.name;a.textContent='Descargar imagen '+(i+1);figure.append(img,a);byId('delivery-pages').append(figure)});
-  byId('delivery-chat').href='https://wa.me/51916133647?text='+encodeURIComponent('Hola Grafiplot, adjunto mi pedido de delivery '+code+'.');
-  byId('delivery-share').hidden=!navigator.canShare?.({files});receipt.hidden=false;
-  notice.textContent='Pedido listo para revisar y enviar.'+profileNote;receipt.scrollIntoView({block:'nearest'});
- }catch{notice.textContent='No se pudo preparar la imagen. Inténtalo de nuevo.'}
+ const items=e.detail;const version=revision;const currentUid=uid;
+ notice.textContent=uid?'Registrando pedido…':'Preparando pedido…';
+ let saveNote='';
+ try{
+  const id=await requestId(data,items);const code=id.slice(0,8).toUpperCase();
+  if(version!==revision)return;
+  const text=orderText(data,items,code);
+  const chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
+  byId('delivery-text').textContent=text;byId('delivery-send-text').href=chatUrl;byId('delivery-chat').href=chatUrl;receipt.hidden=false;
+  if(currentUid){
+   try{
+    const {auth}=await authClient();
+    if(auth.currentUser?.uid!==currentUid)throw Error('Tu sesión cambió. Revisa el pedido.');
+    await storeRequest(auth.currentUser,'submit_order',{order:{id,delivery:data,items}});
+    saveNote=' Solicitud guardada en tu historial. El local confirmará la compra.';
+   }catch(error){saveNote=' No se pudo guardar en tu historial: '+error.message+' Puedes volver a pulsar Registrar pedido para reintentar.'}
+  }
+  if(version!==revision)return;
+  try{
+   const {result}=await makeReceipt(data,items,code);if(revision!==version)return;
+   files=result;
+   files.forEach((file,i)=>{
+    const url=URL.createObjectURL(file);urls.push(url);
+    const figure=document.createElement('figure'),img=document.createElement('img'),a=document.createElement('a');
+    img.src=url;img.alt='Pedido de delivery, página '+(i+1);a.href=url;a.download=file.name;a.textContent='Descargar imagen '+(i+1);figure.append(img,a);
+    if(i>0&&navigator.clipboard?.write&&window.ClipboardItem){const copy=document.createElement('button');copy.type='button';copy.textContent='Copiar imagen '+(i+1)+' y abrir WhatsApp';copy.onclick=copyImage(file,chatUrl);figure.append(copy)}
+    byId('delivery-pages').append(figure);
+   });
+   byId('delivery-copy-image').hidden=!(navigator.clipboard?.write&&window.ClipboardItem);
+   byId('delivery-copy-image').onclick=copyImage(files[0],chatUrl);
+   byId('delivery-share').hidden=!navigator.canShare?.({files});
+   notice.textContent='Pedido listo para revisar y enviar.'+saveNote;
+  }catch{notice.textContent='Puedes enviar el pedido completo en texto. La imagen no se pudo generar.'+saveNote}
+  receipt.scrollIntoView({block:'nearest'});
+ }catch{if(version===revision)notice.textContent='No se pudo preparar el pedido. Inténtalo de nuevo.'}
 });
 byId('delivery-share').onclick=async()=>{try{await navigator.share({files,title:'Pedido de delivery Grafiplot'})}catch(e){if(e.name!=='AbortError')notice.textContent='Descarga la imagen y adjúntala en el chat de delivery.'}};
 

@@ -14,3 +14,11 @@
 #delivery-feedback:not(:empty),#delivery-account-status:not(:empty){padding:9px 0;font-size:13px}
 #delivery-receipt p{padding:14px 0}
 @media(max-width:520px){#delivery-details,#delivery-auth-form{grid-template-columns:1fr}}
+#delivery-history{border:1px solid var(--gp-border);padding:12px;border-radius:10px;margin:12px 0}
+#delivery-history summary{cursor:pointer;font-weight:700}
+#gp-checkout .gp-history-order,#grafiplot-preview .gp-store-admin .gp-history-order{padding:12px;margin:10px 0;background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:8px;overflow-wrap:anywhere}
+#grafiplot-preview .gp-store-admin{border-top:2px solid var(--gp-border);padding-top:20px;margin-top:25px}
+#grafiplot-preview .gp-store-admin button{border:1px solid var(--gp-border);border-radius:6px;padding:10px;background:var(--gp-panel);color:var(--gp-ink);cursor:pointer;margin:5px}
+#grafiplot-preview .gp-history-customer{padding:14px;margin:12px 0;background:var(--gp-panel);border:1px solid var(--gp-border);border-radius:8px;overflow-wrap:anywhere}
+#delivery-text{white-space:pre-wrap;padding:12px;max-height:240px;overflow:auto;background:var(--gp-panel);border:1px solid var(--gp-border);font:13px Arial;border-radius:8px}
+#delivery-receipt>.delivery-actions{position:static}
