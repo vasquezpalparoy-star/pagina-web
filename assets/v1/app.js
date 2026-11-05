@@ -184,6 +184,11 @@ const defaultServiceImage='https://www.grafiplotvasquez.com/assets/v1/printing-h
 let servicesDraft=[];
 const publicAssets='https://www.grafiplotvasquez.com/assets/v1/';
 const imageSlots=[
+ ['trackingRecibido','Delivery · Recibido','tracking-recibido.png'],
+ ['trackingEnProceso','Delivery · En proceso','tracking-en-proceso.png'],
+ ['trackingListo','Delivery · Listo','tracking-listo.png'],
+ ['trackingEnCamino','Delivery · En camino','tracking-en-camino.png'],
+ ['trackingEntregado','Delivery · Entregado','tracking-entregado.png'],
  ['campaign','Foto del anuncio de promoción','service-2.webp'],
  ['bot','Imagen de Grafibot','grafibot-wolf.png'],
  ['whatsapp','Icono de WhatsApp','whatsapp.svg'],
@@ -197,6 +202,7 @@ function slotImage(key){
  return cloudConfig.pageImages?.[key]||new URL(path,publicAssets).href;
 }
 function applyPageImages(){
+ window.GrafiplotTracking?.setImages(cloudConfig.pageImages||{});
  const banner=root.querySelector('#gp-campaign-banner');
  banner.style.setProperty('--gp-promotion-photo','url('+JSON.stringify(slotImage('campaign'))+')');
  document.querySelectorAll('#gp-grafibot img').forEach(img=>img.src=slotImage('bot'));

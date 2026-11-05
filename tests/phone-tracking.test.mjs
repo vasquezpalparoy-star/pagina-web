@@ -31,10 +31,11 @@ test('only verified owner can synchronize minimal manual tracking and extra fiel
  const rows=manualTrackingRows([{id:'one',customerUid:'c',status:'listo',createdAt:new Date('2026-11-05'),details:'private'}],[{uid:'c',phone:'+51 916133647',name:'private'}]);
  assert.equal(rows[0].phone,'916133647');assert.ok(!JSON.stringify(rows).includes('private'));
 });
-async function uiFixture(reply){
+async function uiFixture(reply,illustrated=false){
  const {window,document}=parseHTML('<section id="gp-delivery-access"><form id="gp-phone-tracking"><input name="phone"><button>Consultar</button></form><p class="gp-phone-message"></p><div id="gp-phone-results"></div></section>');
  const form=document.querySelector('form'),phone=document.querySelector('input');phone.value='916133647';Object.defineProperty(form,'elements',{value:{phone}});
  const context=vm.createContext({document,window,AbortController,setTimeout,clearTimeout,Date,fetch:async()=>reply});
+ if(illustrated)vm.runInContext(await readFile(new URL('../assets/v1/tracking-visual.js',import.meta.url),'utf8'),context);
  vm.runInContext(await readFile(new URL('../assets/v1/phone-tracking.js',import.meta.url),'utf8'),context);
  return {document,window,form,phone};
 }
@@ -53,4 +54,12 @@ test('closed-only response shows no active delivery and rate-limit errors remain
  const limited=await uiFixture(Response.json({error:'Espera un minuto.'},{status:429}));
  await limited.form.onsubmit({preventDefault(){}});assert.equal(limited.document.querySelector('.gp-phone-message').textContent,'Espera un minuto.');
  assert.equal(limited.form.querySelector('button').disabled,false);
+});
+
+test('phone lookup uses the real active status in the illustrated tracker',async()=>{
+ const f=await uiFixture(Response.json({orders:[{reference:'REAL',status:'listo',created_at:'2026-11-05T10:00:00Z'}]}),true);
+ assert.equal(f.document.querySelector('[aria-current=step]'),null);
+ await f.form.onsubmit({preventDefault(){}});
+ assert.equal(f.document.querySelector('[aria-current=step]').dataset.stage,'listo');
+ assert.equal(f.document.querySelectorAll('.gv-art img').length,5);
 });

@@ -3,6 +3,7 @@
  const results=section.querySelector('#gp-phone-results'),message=section.querySelector('.gp-phone-message'),button=form.querySelector('button');
  const labels={solicitado:'Por confirmar',confirmado:'Confirmado',recibido:'Recibido',en_proceso:'En proceso',listo:'Listo',en_camino:'En camino',entregado:'Entregado',cancelado:'Cancelado'};
  const steps=['recibido','en_proceso','listo','en_camino','entregado'];let epoch=0,controller=null;
+ if(window.GrafiplotTracking)results.replaceChildren(window.GrafiplotTracking.create(null));
  const node=(tag,text)=>{const e=document.createElement(tag);e.textContent=text;return e};
  function clear(){epoch++;controller?.abort();controller=null;button.disabled=false;results.replaceChildren();message.textContent=''}
  form.elements.phone.addEventListener('input',clear);
@@ -22,8 +23,9 @@
    for(const order of orders){
     const card=node('article','');card.className='gp-phone-result';
     const date=new Date(order.created_at).toLocaleDateString('es-PE',{timeZone:'America/Lima'});
-    card.append(node('h4','Pedido '+order.reference+' · '+date),node('strong',labels[order.status]||'Por confirmar'));
-    if(steps.includes(order.status)){
+    card.append(node('h4','Pedido '+order.reference+' · '+date),...(window.GrafiplotTracking?[]:[node('strong',labels[order.status]||'Por confirmar')]));
+    if(window.GrafiplotTracking)card.append(window.GrafiplotTracking.create(order.status));
+    else if(steps.includes(order.status)){
      const list=node('ol','');list.className='gp-status-steps';const current=steps.indexOf(order.status);
      steps.forEach((step,index)=>{const item=node('li',(index<current?'✓ ':index===current?'● ':'○ ')+labels[step]);item.className=index<current?'done':index===current?'current':'';if(index===current)item.setAttribute('aria-current','step');list.append(item)});card.append(list);
     }
