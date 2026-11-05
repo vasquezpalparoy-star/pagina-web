@@ -93,7 +93,7 @@ const field=(labelText,value,kind='text')=>{const label=document.createElement('
 function renderGalleryEditor(){const list=root.querySelector('#gp-gallery-editor');list.replaceChildren();galleryDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';[['title','Título','text'],['image','Enlace directo de imagen (https://…)','url'],['description','Descripción','textarea'],['category','Categoría','text']].forEach(([key,label,kind])=>{const f=field(label,item[key],kind);f.input.addEventListener('input',()=>item[key]=f.input.value);row.append(f.label)});const remove=document.createElement('button');remove.type='button';remove.className='gp-button secondary';remove.textContent='Quitar imagen';remove.addEventListener('click',()=>{galleryDraft.splice(index,1);renderGalleryEditor()});row.append(remove);list.append(row)})}
 function renderFaqEditor(){const list=root.querySelector('#gp-faq-editor');list.replaceChildren();faqDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';[['question','Pregunta','text'],['answer','Respuesta','textarea']].forEach(([key,label,kind])=>{const f=field(label,item[key],kind);f.input.addEventListener('input',()=>item[key]=f.input.value);row.append(f.label)});const remove=document.createElement('button');remove.type='button';remove.className='gp-button secondary';remove.textContent='Quitar pregunta';remove.addEventListener('click',()=>{faqDraft.splice(index,1);renderFaqEditor()});row.append(remove);list.append(row)})}
 function renderFaqContent(){const list=root.querySelector('#gp-faq-list');list.replaceChildren();faqDraft.filter(i=>i.question.trim()).forEach(item=>{const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=item.question;const p=document.createElement('p');p.textContent=item.answer;details.append(summary,p);list.append(details)})}
-function renderGalleryContent(){const grid=root.querySelector('.gp-gallery-grid');grid.replaceChildren();(galleryDraft.length?galleryDraft:[{title:'Planos para tu proyecto',description:'Referencia visual de impresión de planos.',category:'Académicos',image:'./assets/v1/service-1.webp'},{title:'Presentación de tesis',description:'Referencia visual de anillados y acabados.',category:'Académicos',image:'./assets/v1/service-2.webp'},{title:'Publicidad para tu negocio',description:'Referencia visual de tarjetas y material publicitario.',category:'Publicidad',image:'./assets/v1/service-4.webp'}]).filter(i=>i.title.trim()).forEach((item,index)=>{const card=document.createElement('article');card.className='gp-work';card.dataset.category=item.category||'Otros';card.dataset.search=item.title+' '+item.description;card.id='gp-work-custom-'+index;const placeholder=document.createElement('div');placeholder.className='gp-image-fallback';placeholder.textContent=item.image?'No se pudo cargar esta imagen.':'Añade el enlace de la foto en Configuración.';placeholder.hidden=!!item.image;card.append(placeholder);if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.title;img.className='gp-gallery-photo';img.loading='lazy';img.addEventListener('error',()=>{img.hidden=true;placeholder.hidden=false});card.prepend(img)}const caption=document.createElement('div');caption.className='gp-work-caption';const category=document.createElement('span');category.textContent=item.category;const title=document.createElement('h3');title.textContent=item.title;const description=document.createElement('p');description.textContent=item.description;description.className='gp-subtitle';caption.append(category,title,description);const cta=document.createElement('button');cta.type='button';cta.className='gp-button';cta.textContent='Quiero uno así';cta.onclick=()=>whatsapp('Hola Grafiplot, quisiera cotizar: '+item.title);caption.append(cta);card.append(caption);grid.append(card)});searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Galería de trabajos'));root.querySelectorAll('.gp-work').forEach(e=>searchEntries.push({title:e.querySelector('h3').textContent,type:'Galería de trabajos',terms:e.dataset.search,target:e.id,image:e.querySelector('img')?.src||''}));}
+function renderGalleryContent(){const grid=root.querySelector('.gp-gallery-grid');grid.replaceChildren();(galleryDraft.length?galleryDraft:[{title:'Planos para tu proyecto',description:'Referencia visual de impresión de planos.',category:'Académicos',image:slotImage('examplePlans')},{title:'Presentación de tesis',description:'Referencia visual de anillados y acabados.',category:'Académicos',image:slotImage('exampleThesis')},{title:'Publicidad para tu negocio',description:'Referencia visual de tarjetas y material publicitario.',category:'Publicidad',image:slotImage('exampleCards')}]).filter(i=>i.title.trim()).forEach((item,index)=>{const card=document.createElement('article');card.className='gp-work';card.dataset.category=item.category||'Otros';card.dataset.search=item.title+' '+item.description;card.id='gp-work-custom-'+index;const placeholder=document.createElement('div');placeholder.className='gp-image-fallback';placeholder.textContent=item.image?'No se pudo cargar esta imagen.':'Añade el enlace de la foto en Configuración.';placeholder.hidden=!!item.image;card.append(placeholder);if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.title;img.className='gp-gallery-photo';img.loading='lazy';img.addEventListener('error',()=>{img.hidden=true;placeholder.hidden=false});card.prepend(img)}const caption=document.createElement('div');caption.className='gp-work-caption';const category=document.createElement('span');category.textContent=item.category;const title=document.createElement('h3');title.textContent=item.title;const description=document.createElement('p');description.textContent=item.description;description.className='gp-subtitle';caption.append(category,title,description);const cta=document.createElement('button');cta.type='button';cta.className='gp-button';cta.textContent='Quiero uno así';cta.onclick=()=>whatsapp('Hola Grafiplot, quisiera cotizar: '+item.title);caption.append(cta);card.append(caption);grid.append(card)});searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Galería de trabajos'));root.querySelectorAll('.gp-work').forEach(e=>searchEntries.push({title:e.querySelector('h3').textContent,type:'Galería de trabajos',terms:e.dataset.search,target:e.id,image:e.querySelector('img')?.src||''}));}
 function renderRateEditor(){const host=root.querySelector('#gp-rates-editor');host.replaceChildren();['menor','mayor'].forEach(tariff=>{const group=document.createElement('details');group.className='gp-rate-group';const summary=document.createElement('summary');summary.textContent='Tarifas por '+tariff;group.append(summary);PREVIEW_FORMATS.forEach(format=>{const row=document.createElement('div');row.className='gp-rate-row';const name=document.createElement('strong');name.textContent=format.label;row.append(name);[['color','Color (S/)'],['bn','Blanco y negro (S/)']].forEach(([color,label])=>{const key=format.id+'_'+color+'_'+tariff;const f=field(label,quotePrices[key]??'','number');f.input.min='0';f.input.step='0.01';f.input.placeholder='Por confirmar';f.input.value=quotePrices[key]??'';f.input.dataset.rateKey=key;row.append(f.label)});group.append(row)});host.append(group)});const extras=document.createElement('div');extras.className='gp-campaign-fields';Object.entries({anillado_1:'Anillado · 1–100 hojas / tomo',anillado_2:'Anillado · 101–200 hojas / tomo',anillado_3:'Anillado · 201–300 hojas / tomo',anillado_4:'Anillado · 301–350 hojas / tomo',laminate:'Plastificado · S/ por ejemplar',binding:'Empastado · S/ por ejemplar',cut:'Corte · S/ por ejemplar',design:'Diseño · S/ por pedido',urgent:'Urgencia · porcentaje'}).forEach(([key,label])=>{const f=field(label,quotePrices[key]??'','number');f.input.min='0';f.input.step='0.01';f.input.value=quotePrices[key]??'';f.input.dataset.rateKey=key;extras.append(f.label)});host.append(extras)}
 root.querySelector('#gp-gallery-add').addEventListener('click',()=>{galleryDraft.push({title:'',image:'',description:'',category:'Publicidad'});renderGalleryEditor()});
 root.querySelector('#gp-faq-add').addEventListener('click',()=>{faqDraft.push({question:'',answer:''});renderFaqEditor()});
@@ -127,19 +127,62 @@ function applyServiceImages(images={}){
 }
 const defaultServiceImage='https://www.grafiplotvasquez.com/assets/v1/printing-hero.webp';
 let servicesDraft=[];
+const publicAssets='https://www.grafiplotvasquez.com/assets/v1/';
+const imageSlots=[
+ ['campaign','Foto del anuncio de promoción','service-2.webp'],
+ ['bot','Imagen de Grafibot','grafibot-wolf.png'],
+ ['whatsapp','Icono de WhatsApp','whatsapp.svg'],
+ ['favicon','Icono de la pestaña','/favicon.png'],
+ ['examplePlans','Galería de referencia · planos','service-1.webp'],
+ ['exampleThesis','Galería de referencia · tesis','service-2.webp'],
+ ['exampleCards','Galería de referencia · publicidad','service-4.webp']
+];
+function slotImage(key){
+ const path=imageSlots.find(slot=>slot[0]===key)[2];
+ return cloudConfig.pageImages?.[key]||new URL(path,publicAssets).href;
+}
+function applyPageImages(){
+ const banner=root.querySelector('#gp-campaign-banner');
+ banner.style.setProperty('--gp-promotion-photo','url('+JSON.stringify(slotImage('campaign'))+')');
+ document.querySelectorAll('#gp-grafibot img').forEach(img=>img.src=slotImage('bot'));
+ root.querySelector('.gp-header-whatsapp img').src=slotImage('whatsapp');
+ const icon=document.querySelector('link[rel=icon]');if(icon)icon.href=slotImage('favicon');
+}
+function editPageImages(){
+ let panel=root.querySelector('#gp-page-images');
+ if(!panel){panel=document.createElement('details');panel.id='gp-page-images';panel.className='gp-settings-group';root.querySelector('#gp-settings-editor').append(panel)}
+ panel.replaceChildren();const summary=document.createElement('summary');summary.textContent='Imágenes de la página · enlaces HTTPS';panel.append(summary);
+ imageSlots.forEach(([key,label])=>{const f=field(label,slotImage(key),'url');f.input.dataset.imageSlot=key;panel.append(f.label)});
+}
+function showService(item,trigger){
+ const dialog=root.querySelector('#gp-service-dialog');
+ dialog.querySelector('h2').textContent=item.name;
+ dialog.querySelector('.gp-service-description').textContent=item.description;
+ const gallery=dialog.querySelector('.gp-service-gallery');gallery.replaceChildren();
+ const sources=new Set([item.image||defaultServiceImage,...(item.photos||[])]);
+ for(const [index,src] of [...sources].entries()){
+  const img=document.createElement('img');img.src=src;img.alt=item.name+' · foto '+(index+1);img.loading=index?'lazy':'eager';
+  img.onerror=()=>{const message=document.createElement('span');message.textContent='Foto no disponible';img.replaceWith(message)};gallery.append(img);
+ }
+ dialog.querySelector('.gp-service-contact').onclick=()=>whatsapp('Hola Grafiplot, deseo cotizar: '+item.name);
+ dialog.querySelector('.gp-service-close').onclick=()=>dialog.close();
+ dialog.onclick=event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()}};
+ dialog.onclose=()=>{if(trigger.isConnected)trigger.focus()};
+ dialog.showModal();
+}
 function renderServices(){
  const grid=root.querySelector('.gp-service-grid');grid.replaceChildren();
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Servicio'));
  servicesDraft.forEach((item,i)=>{const card=document.createElement('button');card.type='button';card.className='gp-service';card.id='gp-service-'+i;card.dataset.serviceKey=item.id;card.dataset.service=item.name;
- const title=document.createElement('h3');title.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;const action=document.createElement('span');action.className='gp-link';action.textContent='Consultar servicio ↗';card.append(title,description,action);
+ const title=document.createElement('h3');title.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;const action=document.createElement('span');action.className='gp-link';action.textContent='Ver detalles y fotos →';card.append(title,description,action);
  const image=item.image||defaultServiceImage;const photo=document.createElement('img');photo.src=image;photo.alt=item.name;photo.loading='lazy';photo.className='gp-service-photo';photo.onerror=()=>{photo.onerror=null;photo.src=defaultServiceImage};card.prepend(photo);
- card.onclick=()=>whatsapp('Hola Grafiplot, deseo cotizar: '+item.name);grid.append(card);searchEntries.push({title:item.name,type:'Servicio',terms:item.name+' '+item.description,target:card.id});});
+ card.setAttribute('aria-haspopup','dialog');card.onclick=()=>showService(item,card);grid.append(card);searchEntries.push({title:item.name,type:'Servicio',terms:item.name+' '+item.description,target:card.id});});
  publishBotContext();
 }
 function renderServiceImagesEditor(){
  const editor=root.querySelector('#gp-service-images-editor');editor.replaceChildren();
- const hero=field('Imagen de portada · enlace HTTPS',cloudConfig.heroImage||defaultServiceImage,'url');hero.input.id='gp-hero-image';editor.append(hero.label);
- servicesDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';for(const [key,label]of [['name','Nombre del servicio'],['description','Descripción'],['image','Imagen · enlace HTTPS']]){const f=field(label,item[key],key==='image'?'url':'text');f.input.oninput=()=>item[key]=f.input.value;row.append(f.label);}const remove=document.createElement('button');remove.type='button';remove.textContent='Eliminar servicio';remove.className='gp-button secondary';remove.onclick=()=>{servicesDraft.splice(index,1);renderServiceImagesEditor()};row.append(remove);editor.append(row)});
+ const previousHero=editor.dataset.heroDraft;const hero=field('Imagen de portada · enlace HTTPS',previousHero??(cloudConfig.heroImage||defaultServiceImage),'url');hero.input.oninput=()=>editor.dataset.heroDraft=hero.input.value;hero.input.id='gp-hero-image';editor.append(hero.label);
+ servicesDraft.forEach((item,index)=>{const row=document.createElement('div');row.className='gp-edit-row';for(const [key,label]of [['name','Nombre del servicio'],['description','Descripción'],['image','Foto principal · enlace HTTPS']]){const f=field(label,item[key],key==='image'?'url':key==='description'?'textarea':'text');f.input.oninput=()=>item[key]=f.input.value;row.append(f.label);}const extraLabel=document.createElement('label');extraLabel.textContent='Fotos adicionales · un enlace HTTPS por línea';const photos=document.createElement('textarea');photos.rows=3;photos.value=(item.photos||[]).join('\n');photos.oninput=()=>item.photos=photos.value.split(/\r?\n/);extraLabel.append(photos);row.append(extraLabel);const remove=document.createElement('button');remove.type='button';remove.textContent='Eliminar servicio';remove.className='gp-button secondary';remove.onclick=()=>{servicesDraft.splice(index,1);renderServiceImagesEditor()};row.append(remove);editor.append(row)});
  const add=document.createElement('button');add.type='button';add.className='gp-button';add.textContent='Añadir servicio';add.onclick=()=>{servicesDraft.push({id:'service-'+Date.now(),name:'Nuevo servicio',description:'',image:defaultServiceImage});renderServiceImagesEditor()};editor.append(add);
 }
 const originalServices=Array.from(root.querySelectorAll('.gp-service')).map(card=>({id:card.dataset.serviceKey,name:card.querySelector('h3').textContent,description:card.querySelector('p').textContent,image:'https://www.grafiplotvasquez.com/assets/v1/service-'+({'impresiones':0,'planos':1,'anillados':2,'gigantografias':3,'tarjetas':4,'diseno':5,'universitarios':2}[card.dataset.serviceKey]??0)+'.webp'}));
@@ -153,14 +196,14 @@ function loadCloudConfig(data){
  galleryDraft=Array.isArray(cloudConfig.galleryItems)?cloudConfig.galleryItems:[];
  if(Array.isArray(cloudConfig.faqContent))faqDraft=cloudConfig.faqContent.filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')}));
  if(cloudConfig.logoUrl){try{root.querySelector('.gp-logo').src=httpsLink(cloudConfig.logoUrl,false)}catch(_){}}
- root.querySelector('#gp-settings-logo').value=cloudConfig.logoUrl||'https://i.postimg.cc/hGWtyqVD/Imagen-de-Chat-GPT-1-oct-2026-23-16-58.png';
+ root.querySelector('#gp-settings-logo').value=cloudConfig.logoUrl||'https://www.grafiplotvasquez.com/logo-grafiplot.webp';
  root.querySelector('#gp-settings-phone').value=configuredPhone();
  root.querySelector('#gp-settings-email').value=cloudConfig.contactEmail||'';
  root.querySelector('#gp-settings-sublimacion').value=cloudConfig.orderPages?.sublimacion||'';root.querySelector('#gp-settings-textil').value=cloudConfig.orderPages?.textil||'';applyOrderPages(cloudConfig.orderPages);
  root.querySelector('#gp-settings-route-bg').value=cloudConfig.routeBackgroundUrl||'https://www.grafiplotvasquez.com/local.jpeg';
  const route=root.querySelector('.gp-route-card');try{const image=httpsLink(cloudConfig.routeBackgroundUrl)||'./local.jpeg';route.style.backgroundImage='url('+JSON.stringify(image)+')'}catch(_){route.style.backgroundImage='none'}
 
- loadServices();renderServiceImagesEditor();
+ delete root.querySelector('#gp-service-images-editor').dataset.heroDraft;loadServices();renderServiceImagesEditor();applyPageImages();editPageImages();
  renderCatalog();renderGalleryContent();renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();applyCampaign(cloudConfig);update();
  root.querySelector('.gp-gallery-notice').textContent=galleryDraft.length?'':'Imágenes de referencia. Consulta los materiales y acabados disponibles por WhatsApp.';
  if(cloudConfig.seoTitle)document.title=cloudConfig.seoTitle;
@@ -193,9 +236,10 @@ async function saveSiteSettings(e){
  const serviceImages={};root.querySelectorAll('[data-service-image]').forEach(input=>serviceImages[input.dataset.serviceImage]=httpsLink(input.value));
  const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim()};
  if(grafibotAI.siteKey.startsWith('AIza')||(grafibotAI.enabled&&!/^[\w-]{20,200}$/.test(grafibotAI.siteKey)))throw Error('Para activar IA, configura la clave pública de sitio reCAPTCHA Enterprise registrada en App Check. No uses una clave privada de Gemini.');
- const catalogTexts={};root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};catalogTexts[id][input.dataset.copyField]=input.value;});
- const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);
- const patch={services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const catalogTexts=JSON.parse(JSON.stringify(cloudConfig.catalogTexts||{}));root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};if(input.dataset.copyField==='image'&&!input.value.trim())delete catalogTexts[id].image;else catalogTexts[id][input.dataset.copyField]=input.dataset.copyField==='image'?httpsLink(input.value):input.value;});
+ const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image),photos:(item.photos||[]).map(v=>httpsLink(v)).filter(Boolean)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);
+ const pageImages={};root.querySelectorAll('[data-image-slot]').forEach(input=>pageImages[input.dataset.imageSlot]=httpsLink(input.value));
+ const patch={pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
  feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
@@ -203,7 +247,7 @@ async function saveSiteSettings(e){
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
  saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
- cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
+ cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();applyPageImages();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderCatalog();renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  publishBotContext();
  }catch(error){feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
@@ -223,7 +267,7 @@ async function saveCampaign(e,disable=false){
 function renderCatalog(){
  let editor=root.querySelector('#gp-product-editor');
  if(!editor){editor=document.createElement('details');editor.id='gp-product-editor';editor.className='gp-settings-group';root.querySelector('#gp-settings-editor').append(editor);}
- if(!editor.contains(document.activeElement)){editor.replaceChildren();const summary=document.createElement('summary');summary.textContent='Productos · corregir nombres y descripciones';editor.append(summary);inventoryItems.forEach(item=>{for(const key of ['name','description']){const f=field(item.name+' · '+(key==='name'?'Nombre':'Descripción'),cloudConfig.catalogTexts?.[item.id]?.[key]??item[key]);f.input.dataset.productCopy=item.id;f.input.dataset.copyField=key;editor.append(f.label);}});}
+ if(!editor.contains(document.activeElement)){editor.replaceChildren();const summary=document.createElement('summary');summary.textContent='Productos · corregir nombres y descripciones';editor.append(summary);inventoryItems.forEach(item=>{for(const key of ['name','description','image']){const f=field(item.name+' · '+({name:'Nombre',description:'Descripción',image:'Imagen · enlace HTTPS'})[key],cloudConfig.catalogTexts?.[item.id]?.[key]??item[key]??'',key==='image'?'url':'text');f.input.dataset.productCopy=item.id;f.input.dataset.copyField=key;editor.append(f.label);}});}
 
  const grid=root.querySelector('.gp-products');grid.replaceChildren();
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Producto'));
