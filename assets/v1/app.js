@@ -1,3 +1,4 @@
+import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
@@ -5,6 +6,7 @@ import {updateBotContext} from './grafibot-context.js';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=email-settings-20261005'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
+const library=initLibrary(root);library.load();
 function openCart(){renderCart();if(!cartDialog.open)cartDialog.showModal();document.body.classList.add('gp-cart-open');root.querySelector('#gp-cart-nav').setAttribute('aria-expanded','true')}
 function closeCart(){cartDialog.close()}
 root.querySelector('#gp-cart-close').addEventListener('click',closeCart);
@@ -253,6 +255,7 @@ function loadCloudConfig(data){
  cloudConfig=data||{};
  if(!siteSettings.hidden||!campaignAdmin.hidden)return;
  applyPreviewConfig(cloudConfig.designConfig||{});
+ library.load(cloudConfig.libraryLinks||'');
  quotePrices=cloudConfig.autoPrices&&typeof cloudConfig.autoPrices==='object'?cloudConfig.autoPrices:{};
  galleryDraft=Array.isArray(cloudConfig.galleryItems)?cloudConfig.galleryItems:[];
  if(Array.isArray(cloudConfig.faqContent))faqDraft=cloudConfig.faqContent.filter(f=>f&&typeof f==='object').map(f=>({question:String(f.question??f.q??''),answer:String(f.answer??f.a??'')}));
@@ -301,7 +304,7 @@ async function saveSiteSettings(e){
  const catalogTexts=JSON.parse(JSON.stringify(cloudConfig.catalogTexts||{}));root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};if(input.dataset.copyField==='image'&&!input.value.trim())delete catalogTexts[id].image;else catalogTexts[id][input.dataset.copyField]=input.dataset.copyField==='image'?httpsLink(input.value):input.value;});
  const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image),photos:(item.photos||[]).map(v=>httpsLink(v)).filter(Boolean)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);
  const pageImages={};root.querySelectorAll('[data-image-slot]').forEach(input=>pageImages[input.dataset.imageSlot]=httpsLink(input.value));
- const patch={pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const patch={libraryLinks:library.value(),pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
  window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'saving'}));feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
@@ -309,7 +312,7 @@ async function saveSiteSettings(e){
  try{await setDoc(settingsRef,patch,{mergeFields:Object.keys(patch)});}finally{clearTimeout(waitNotice)}
  window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'saved'}));saveStatus('Último guardado confirmado: '+new Date().toLocaleTimeString('es-PE')+'.');
  const image=patch.routeBackgroundUrl||'./local.jpeg';root.querySelector('.gp-route-card').style.backgroundImage='url('+JSON.stringify(image)+')';
- cloudConfig={...cloudConfig,...patch};applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();applyPageImages();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
+ cloudConfig={...cloudConfig,...patch};library.load(patch.libraryLinks);applyOrderPages(patch.orderPages);applyPreviewConfig(designConfig);loadServices();applyPageImages();quotePrices=autoPrices;galleryDraft=galleryItems;faqDraft=faqContent;
  root.querySelector('.gp-logo').src=patch.logoUrl;renderCatalog();renderGalleryContent();renderFaqContent();update();feedback('Cambios guardados en Firebase. Se recuperarán al abrir de nuevo la página.');
  publishBotContext();
  }catch(error){window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'error'}));feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}

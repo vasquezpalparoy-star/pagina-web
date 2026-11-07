@@ -35,10 +35,11 @@
       ['content','Textos y respuestas','Mensajes de la web, preguntas frecuentes y Grafibot.'],
       ['campaigns','Promociones','Activa ofertas o sorteos desde aquí.'],
       ['customers','Clientes y pedidos','Consulta los datos de tus clientes y su historial.'],
+      ['library','Biblioteca','Añade los enlaces y organiza tus libros.'],
       ['contact','Contacto y enlaces','Ubicación, correo y enlaces de pedido.'],
       ['access','Mi acceso','Estado de tu cuenta y opciones de seguridad.']
     ];
-    const configurationKeys=new Set(['images','services','products','rates','content','contact']);
+    const configurationKeys=new Set(['images','services','products','rates','content','library','contact']);
     const panes=new Map();
     const buttons=new Map();
     let selected='overview';
@@ -141,6 +142,7 @@
     function moveField(id,key){move(document.getElementById(id)?.closest('label'),key)}
     function moveDetails(id,key){move(document.getElementById(id)?.closest('details'),key)}
     function reconcile(){
+      move(document.getElementById('gp-library-settings'),'library');
       moveField('gp-settings-brand','images');
       moveField('gp-settings-logo','images');
       moveField('gp-settings-route-bg','images');

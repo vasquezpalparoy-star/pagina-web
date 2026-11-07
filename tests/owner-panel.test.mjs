@@ -34,7 +34,7 @@ test('owner workspace groups every control while preserving both form boundaries
   assert.equal(document.getElementById('gp-settings-logo').closest('[data-owner-pane]').dataset.ownerPane,'images');
   assert.equal(document.getElementById('gp-settings-map').closest('[data-owner-pane]').dataset.ownerPane,'contact');
   assert.equal(document.getElementById('gp-campaign-form').parentElement.closest('form'),null,'campaign form is never nested');
-  assert.equal(document.querySelectorAll('.owner-nav-item').length,10);
+  assert.equal(document.querySelectorAll('.owner-nav-item').length,11);
   document.querySelector('[data-owner-target=services]').click();
   assert.equal(editor.hidden,false);
   assert.equal(document.getElementById('owner-pane-services').hidden,false);
