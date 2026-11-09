@@ -1,5 +1,5 @@
-import {createAssistant} from './grafibot-core.mjs?v=delivery-live1';
-import {getBotContext} from './grafibot-context.js';
+import {createAssistant} from './grafibot-core.mjs?v=visual1';
+import {getBotContext} from './grafibot-context.js?v=visual1';
 import {generateWithGemini} from './grafibot-ai.js';
 const root=document.getElementById('gp-grafibot');
 const panel=root.querySelector('#gp-grafibot-panel'),toggle=root.querySelector('#gp-grafibot-toggle'),close=root.querySelector('#gb-close'),form=root.querySelector('#gb-form'),field=root.querySelector('#gb-input'),messages=root.querySelector('#gb-messages'),thought=root.querySelector('#gb-thought'),wolf=root.querySelector('#gb-wolf');

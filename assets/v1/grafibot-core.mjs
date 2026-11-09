@@ -1,4 +1,4 @@
-import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
+import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=visual1';
 
 export const AI_MODEL='gemini-2.5-flash-lite';
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();

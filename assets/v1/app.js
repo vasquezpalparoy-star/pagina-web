@@ -1,8 +1,8 @@
 import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
-import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js';
-import {updateBotContext} from './grafibot-context.js';
+import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=visual1';
+import {updateBotContext} from './grafibot-context.js?v=visual1';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=email-settings-20261005'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
