@@ -22,8 +22,8 @@ export function initVisualEditor(root){
  const preview=button('Vista previa',()=>{active=!active;root.dataset.visualEditing=String(active);preview.textContent=active?'Vista previa':'Volver a editar';decorate()});
  const save=button('Guardar cambios',()=>{if(busy){status.textContent='Espera a que terminen las subidas.';return}api()?.save()});save.className='ve-save';
  const panel=button('Configuración',()=>api()?.openSettings());
- const exit=button('Salir',()=>stop(false));toolbar.append(brand,status,preview,panel,save,exit);doc.body.append(toolbar);
- const entry=button('✎ Editar página',()=>{if(api()?.user)start();else{win.__gpVisualRequested=true;api()?.openLogin()}});entry.className='ve-entry gp-ui-control';entry.dataset.veUi='true';root.querySelector('.gp-header-actions').append(entry);
+ const exit=button('Salir y cerrar sesión',()=>{if(stop(false))api()?.logout?.()});toolbar.append(brand,status,preview,panel,save,exit);doc.body.append(toolbar);
+ const entry=button('✎ Editar página',()=>{if(api()?.user)start()});entry.className='ve-entry gp-ui-control';entry.dataset.veUi='true';entry.hidden=!api()?.user;(root.querySelector('#gp-site-settings .gp-section-head')||root.querySelector('#gp-site-settings')).append(entry);
  const dialog=make('dialog',null,'ve-dialog');dialog.dataset.veUi='true';dialog.setAttribute('aria-labelledby','ve-dialog-title');doc.body.append(dialog);
  const skip='#gp-site-settings,#gp-settings-login,#gp-checkout,#gp-cart-dialog,#gp-delivery-access,#gp-campaign-admin,#gp-faq,[data-ve-ui],.gp-promo-toast,#gp-search-results,.gp-quote .gp-form';
  function isPublic(node){return node&&root.contains(node)&&!node.closest(skip)}
@@ -72,10 +72,10 @@ export function initVisualEditor(root){
   active=true;root.dataset.visualSession='true';root.dataset.visualEditing='true';toolbar.hidden=false;preview.textContent='Vista previa';root.querySelector('#gp-site-settings').hidden=true;root.querySelector('#gp-home').scrollIntoView({behavior:'smooth'});decorate();
  }
  function stop(forced){
-  if(!forced&&dirty&&!win.confirm('Tienes cambios sin guardar. ¿Quieres salir y descartarlos?'))return;
+  if(!forced&&dirty&&!win.confirm('Tienes cambios sin guardar. ¿Quieres salir y descartarlos?'))return false;
   epoch++;active=false;session=false;toolbar.hidden=true;root.dataset.visualSession='false';root.dataset.visualEditing='false';dialog.close();
   root.querySelectorAll('[data-ve-tools]').forEach(node=>node.remove());
-  if(dirty){api()?.discard(baseline);load(baseline)}dirty=false;
+  if(dirty){api()?.discard(baseline);load(baseline)}dirty=false;return true;
  }
  function editor(title,fields,onSave,onRemove){
   dialog.replaceChildren();const heading=make('h2',title);heading.id='ve-dialog-title';const form=make('form');form.method='dialog';const feedback=make('p');feedback.setAttribute('role','status');
@@ -131,7 +131,7 @@ export function initVisualEditor(root){
  },true);
  function load(data={}){for(const [key,text] of originalTexts){const node=find(key);if(isPublic(node))replaceText(node,text)}for(const [key,url] of originalImages){const node=find(key);if(isPublic(node))node.src=url}model=validateVisualPage(data.visualPage||{});render()}
  win.addEventListener('gp-config-loaded',event=>{if(!session)load(event.detail)});
- win.addEventListener('gp-owner-session',event=>{if(!event.detail&&session)stop(true);if(event.detail&&win.__gpVisualRequested){win.__gpVisualRequested=false;setTimeout(start,0)}});
+ win.addEventListener('gp-owner-session',()=>{entry.hidden=!api()?.user;if(!api()?.user&&session)stop(true)});
  win.addEventListener('gp-page-ready',()=>load(api()?.config||{}));
  win.addEventListener('gp-owner-save',event=>{if(!session)return;if(event.detail==='saving'){status.textContent='Guardando…';save.disabled=true}if(event.detail==='error'){save.disabled=false;queueMicrotask(()=>status.textContent=root.querySelector('#gp-settings-feedback').textContent)}if(event.detail==='saved'){save.disabled=false;dirty=false;status.textContent='Cambios guardados.';setTimeout(()=>{baseline=structuredClone(api().config);render()},0)}});
  win.addEventListener('beforeunload',event=>{if(session&&dirty){event.preventDefault();event.returnValue=''}});
