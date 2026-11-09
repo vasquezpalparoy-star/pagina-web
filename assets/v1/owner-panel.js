@@ -152,6 +152,7 @@
       move(document.getElementById('gp-product-editor'),'products');
       groupProducts(document.getElementById('gp-product-editor'));
       moveDetails('gp-rates-editor','rates');
+      move(document.getElementById('gp-quote-services-editor'),'rates');
       moveDetails('gp-faq-editor','content');
       move(document.getElementById('gp-text-settings'),'content');
       moveDetails('gp-ai-enabled','content');
@@ -175,6 +176,7 @@
       if(key==='products')filterProducts();
     }
     show(selected);
+    window.addEventListener('gp-open-rates',()=>{if(root.dataset.ownerAccess!=='verified')return;panel.hidden=false;show('rates');panel.scrollIntoView({behavior:'smooth'});});
     const observer=new MutationObserver(records=>{
       if(records.some(record=>record.type==='childList'))reconcile();
     });

@@ -1,3 +1,4 @@
+import {rangePrice} from './quote-ranges.mjs';
 export const PREVIEW_FORMATS = [
             ...['A1','A2','A3','A4','A5','A6','A7'].flatMap(size => [
                 {id:size+'_1c', label:size+' · 1 cara', perSheet:1},
@@ -9,7 +10,7 @@ export const PREVIEW_FORMATS = [
             ...['A0','A1','A2','A3'].map(size => ({id:'Plano_'+size,label:'Plano '+size,perSheet:1}))
         ];
         const AUTO_EXTRAS = { laminate:'Plastificado / laminado', binding:'Empastado', cut:'Corte / guillotina', design:'Diseño gráfico', urgent:'Recargo urgente (%)' };
-        export function calculatePreviewQuote(q,prices) {
+        export function calculatePreviewQuote(q,prices,ranges={}) {
             const format = PREVIEW_FORMATS.find(f=>f.id===q.format) || PREVIEW_FORMATS.find(f=>f.id==='A4_1c');
             const pages = Math.max(1,Math.trunc(Number(q.pages)||1));
             const copies = Math.max(1,Math.trunc(Number(q.copies)||1));
@@ -17,7 +18,7 @@ export const PREVIEW_FORMATS = [
             const sheets = sheetsPerCopy*copies;
             const lines=[];
             const add = (key,label,quantity) => {
-                const raw=prices[key];
+                const raw=Array.isArray(ranges[key])&&ranges[key].length?rangePrice(ranges[key],quantity):prices[key];
                 const price=raw === undefined || raw === null || raw === '' ? null : Number(raw);
                 const amount=price !== null && Number.isFinite(price) && price>=0 ? price*quantity : null;
                 lines.push({key,label,quantity,price,amount});
@@ -39,6 +40,6 @@ export const PREVIEW_FORMATS = [
                 if(subtotal===null) lines[lines.length-1].amount=null;
             }
             const ready=lines.every(l=>l.amount!==null);
-            return {format,pages,copies,sheets,sheetsPerCopy,volumes,sheetsPerVolume,lines,ready,total:ready?lines.reduce((sum,l)=>sum+l.amount,0):null};
+            return {format,pages,copies,sheets,sheetsPerCopy,volumes,sheetsPerVolume,lines,ready,total:ready?Math.round(lines.reduce((sum,l)=>sum+l.amount,0)*100)/100:null};
         }
 

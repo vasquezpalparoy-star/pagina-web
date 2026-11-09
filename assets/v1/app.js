@@ -14,7 +14,7 @@ cartDialog.addEventListener('close',()=>{document.body.classList.remove('gp-cart
 cartDialog.addEventListener('click',event=>{if(event.target!==cartDialog)return;const rect=cartDialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeCart()});
 root.querySelector('#gp-cart-nav').setAttribute('aria-controls','gp-cart-dialog');root.querySelector('#gp-cart-nav').setAttribute('aria-haspopup','dialog');root.querySelector('#gp-cart-nav').setAttribute('aria-expanded','false');
 const go=id=>{if(id==='gp-cart'){openCart();return}root.querySelector('#'+id).scrollIntoView({behavior:'smooth',block:'start'})};root.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));root.querySelectorAll('[data-service]').forEach(b=>b.addEventListener('click',()=>{root.querySelector('#gp-selected').textContent='Servicio seleccionado: '+b.dataset.service;go('gp-quote')}));        const update=()=>{
- const r=calculatePreviewQuote({pages:root.querySelector('#gp-pages').value,copies:root.querySelector('#gp-copies').value,format:root.querySelector('#gp-format').value,color:root.querySelector('#gp-color').value,tariff:root.querySelector('#gp-tariff').value,binding:root.querySelector('#gp-binding').checked,extra:root.querySelector('#gp-extra').value,design:root.querySelector('#gp-design').checked,urgent:root.querySelector('#gp-urgent').checked,spiral:'Negro'},quotePrices);
+ const r=calculatePreviewQuote({pages:root.querySelector('#gp-pages').value,copies:root.querySelector('#gp-copies').value,format:root.querySelector('#gp-format').value,color:root.querySelector('#gp-color').value,tariff:root.querySelector('#gp-tariff').value,binding:root.querySelector('#gp-binding').checked,extra:root.querySelector('#gp-extra').value,design:root.querySelector('#gp-design').checked,urgent:root.querySelector('#gp-urgent').checked,spiral:'Negro'},quotePrices,cloudConfig.autoPriceRanges||{});
  root.querySelector('#gp-sheets').textContent=r.sheets+' hojas';
  lastQuote=r;root.querySelector('#gp-price').textContent=r.ready?'S/ '+r.total.toFixed(2):'Por confirmar';
  root.querySelector('#gp-price-hint').textContent=r.ready?'Según tarifas configuradas':'Completa las tarifas';
@@ -156,7 +156,9 @@ root.querySelector('#gp-gallery-add').addEventListener('click',()=>{galleryDraft
 root.querySelector('#gp-faq-add').addEventListener('click',()=>{faqDraft.push({question:'',answer:''});renderFaqEditor()});
 renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();
 
-let cloudConfig={},cloudReady=false,settingsRef=null,siteDb=null,siteAuth=null,inventoryItems=[],cart=[];
+let cloudConfig={},cloudReady=false,settingsRef=null,siteDb=null,siteAuth=null,inventoryItems=[],inventorySourceItems=[],siteProducts=[],cart=[];
+function mergeSiteProducts(){inventoryItems=[...inventorySourceItems,...siteProducts.map(p=>({...p,isService:false,bulkPrice:p.price,measureUnit:'unidades',createdAt:0}))]}
+
 let lastQuote=null;
 function cloudStatus(text,state){root.querySelector('#gp-cloud-status').textContent=text;root.querySelector('#gp-cloud-panel').dataset.state=state}
 function saveStatus(text){root.querySelector('#gp-save-status').textContent=text}
@@ -253,7 +255,8 @@ function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudC
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
- if(!siteSettings.hidden||!campaignAdmin.hidden)return;
+ if(!siteSettings.hidden||!campaignAdmin.hidden||root.dataset.visualSession==='true')return;
+ siteProducts=Array.isArray(cloudConfig.siteProducts)?structuredClone(cloudConfig.siteProducts):[];mergeSiteProducts();
  applyPreviewConfig(cloudConfig.designConfig||{});
  library.load(cloudConfig.libraryLinks||'');
  quotePrices=cloudConfig.autoPrices&&typeof cloudConfig.autoPrices==='object'?cloudConfig.autoPrices:{};
@@ -274,6 +277,7 @@ function loadCloudConfig(data){
  root.querySelector('#gp-ai-enabled').checked=cloudConfig.grafibotAI?.enabled===true;
  root.querySelector('#gp-ai-sitekey').value=cloudConfig.grafibotAI?.siteKey||'';
  publishBotContext();
+ window.dispatchEvent(new window.CustomEvent('gp-config-loaded',{detail:cloudConfig}));
 }
 function publishBotContext(){updateBotContext(cloudConfig,{faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
 root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
@@ -287,6 +291,7 @@ root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
 });
 async function saveSiteSettings(e){
  e.preventDefault();if(!settingsUnlocked)return;
+ if(window.GrafiplotPage?.busy){feedback('Espera a que termine la subida de las imágenes.',true);return}
  if(!await verifyOwnerWrite())return;
  if(!cloudReady||!settingsRef){feedback('No hay conexión con Firebase. Tus cambios no se han guardado; inténtalo de nuevo.',true);return}
  const buttons=root.querySelectorAll('#gp-settings-editor button[type="submit"]');buttons.forEach(b=>b.disabled=true);
@@ -304,7 +309,8 @@ async function saveSiteSettings(e){
  const catalogTexts=JSON.parse(JSON.stringify(cloudConfig.catalogTexts||{}));root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};if(input.dataset.copyField==='image'&&!input.value.trim())delete catalogTexts[id].image;else catalogTexts[id][input.dataset.copyField]=input.dataset.copyField==='image'?httpsLink(input.value):input.value;});
  const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image),photos:(item.photos||[]).map(v=>httpsLink(v)).filter(Boolean)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);
  const pageImages={};root.querySelectorAll('[data-image-slot]').forEach(input=>pageImages[input.dataset.imageSlot]=httpsLink(input.value));
- const patch={libraryLinks:library.value(),pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
+ const addonSettings={};for(const addon of Object.values(window.GrafiplotAddons||{}))Object.assign(addonSettings,addon.value());
+ const patch={...addonSettings,libraryLinks:library.value(),pageImages,services,heroImage,catalogTexts,orderPages:{sublimacion:httpsLink(root.querySelector("#gp-settings-sublimacion").value),textil:httpsLink(root.querySelector("#gp-settings-textil").value)},designConfig,galleryItems,faqContent,autoPrices,serviceImages,routeBackgroundUrl:httpsLink(root.querySelector('#gp-settings-route-bg').value),logoUrl:httpsLink(root.querySelector('#gp-settings-logo').value,false),contactPhone:root.querySelector('#gp-settings-phone').value.replace(/\D/g,''),contactEmail:root.querySelector('#gp-settings-email').value.trim(),mapLink:designConfig.map,defaultTheme:'dark'};
  if(!patch.contactPhone)throw Error('Escribe el número de WhatsApp con el código de país.');
  patch.grafibotAI=grafibotAI;
  window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'saving'}));feedback('Guardando cambios en Firebase…');saveStatus('Guardado pendiente de confirmación del servidor.');
@@ -339,7 +345,7 @@ function renderCatalog(){
  searchEntries.splice(0,searchEntries.length,...searchEntries.filter(e=>e.type!=='Producto'));
  const display=inventoryItems.map(item=>({...item,...(cloudConfig.catalogTexts?.[item.id]||{})})).sort((a,b)=>Number(b.isPriority)-Number(a.isPriority)||b.createdAt-a.createdAt);
  display.forEach((item,index)=>{
- const card=document.createElement('article');card.className='gp-product';card.dataset.category=item.category||'Otros';card.id='gp-product-'+index;
+ const card=document.createElement('article');card.className='gp-product';card.dataset.category=item.category||'Otros';card.id='gp-product-'+index;card.dataset.productId=item.id;
  if(item.image){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.loading='lazy';img.className='gp-catalog-image';img.addEventListener('error',()=>img.hidden=true);card.append(img)}else{const placeholder=document.createElement('div');placeholder.className='gp-catalog-placeholder';placeholder.textContent='Imagen por actualizar';card.append(placeholder)}
  const name=document.createElement('h3');name.textContent=item.name;const description=document.createElement('p');description.textContent=item.description;
  const price=document.createElement('strong');price.textContent=money(item.price);price.className='gp-product-price';
@@ -390,10 +396,29 @@ async function connectInventory(){
  const {initializeApp,getAuth,signInAnonymously,getFirestore,doc,onSnapshot,collection}=await loadFirebase();
  const app=initializeApp(INVENTORY_FIREBASE_CONFIG,'grafiplot-inventory-reader');await signInAnonymously(getAuth(app));
  onSnapshot(collection(getFirestore(app),'inventory'),{includeMetadataChanges:true},snapshot=>{
- inventoryItems=snapshot.docs.map(normalizeInventoryProduct);renderCatalog();if(snapshot.metadata.fromCache)root.querySelector('#gp-catalog-status').textContent='Inventario sin conexión confirmada. Consulta disponibilidad por WhatsApp.';
+ inventorySourceItems=snapshot.docs.map(normalizeInventoryProduct);mergeSiteProducts();renderCatalog();if(snapshot.metadata.fromCache)root.querySelector('#gp-catalog-status').textContent='Inventario sin conexión confirmada. Consulta disponibilidad por WhatsApp.';
  },error=>root.querySelector('#gp-catalog-status').textContent='No se pudo cargar el inventario. Consulta disponibilidad por WhatsApp.');
  }catch(error){root.querySelector('#gp-catalog-status').textContent='No se pudo conectar al inventario. Consulta por WhatsApp.'}
 }
+
+window.GrafiplotPage={
+ prepare(){fillSettingsForm()},get config(){return cloudConfig},get user(){return settingsUnlocked?ownerUser:null},busy:false,
+ get services(){return servicesDraft},get products(){return inventoryItems.map(item=>({...item,...cloudConfig.catalogTexts?.[item.id]}))},get gallery(){return galleryDraft},
+ openSettings(){if(!settingsUnlocked){root.querySelector('#gp-campaign-open').click();return}siteSettings.hidden=false;fillSettingsForm();go('gp-site-settings')},
+ openLogin(){root.querySelector('#gp-campaign-open').click()},
+ save(){root.querySelector('#gp-settings-editor').requestSubmit()},
+ logout:closeOwnerSession,
+ updateService(index,value){if(!settingsUnlocked)return;if(index===null)servicesDraft.push({id:'service-'+crypto.randomUUID(),...value,photos:[]});else servicesDraft[index]={...servicesDraft[index],...value};renderServices();renderServiceImagesEditor()},
+ updateProduct(id,value){if(!settingsUnlocked)return;if(id===null){siteProducts.push({id:'web-'+crypto.randomUUID(),name:value.name,description:value.description||'',image:value.image||'',price:value.price,stock:value.stock,category:'Productos'});mergeSiteProducts()}else{const product=siteProducts.find(p=>p.id===id);if(product)Object.assign(product,value);cloudConfig.catalogTexts||={};cloudConfig.catalogTexts[id]={...cloudConfig.catalogTexts[id],name:value.name,description:value.description,image:value.image};}renderCatalog()},
+ updateGallery(index,value){if(!settingsUnlocked)return;if(index===null)galleryDraft.push(value);else galleryDraft[index]={...galleryDraft[index],...value};renderGalleryContent();renderGalleryEditor()},
+ updateImage(kind,url){if(!settingsUnlocked)return;if(kind==='logo'){root.querySelector('#gp-settings-logo').value=url;root.querySelector('.gp-logo').src=url}else if(kind==='hero'){root.querySelector('#gp-hero-image').value=url;root.querySelector('#gp-service-images-editor').dataset.heroDraft=url;root.querySelector('.gp-art img').src=url}},
+ getSiteProducts(){return siteProducts},
+ remove(kind,id){if(!settingsUnlocked)return;if(kind==='service'){servicesDraft.splice(Number(id),1);renderServices();renderServiceImagesEditor()}if(kind==='gallery'){galleryDraft.splice(Number(id),1);renderGalleryContent();renderGalleryEditor()}if(kind==='product'){siteProducts=siteProducts.filter(p=>p.id!==id);mergeSiteProducts();renderCatalog()}},
+ discard(data){siteSettings.hidden=true;campaignAdmin.hidden=true;root.dataset.visualSession='false';root.dataset.visualEditing='false';loadCloudConfig(structuredClone(data||cloudConfig))}
+};
+window.GrafiplotAddons||={};window.GrafiplotAddons.products={value(){return {siteProducts:siteProducts.map(p=>{if(!p.name?.trim()||!Number.isFinite(p.price)||p.price<0||!Number.isInteger(p.stock)||p.stock<0)throw Error('Revisa el nombre, precio y stock de los productos añadidos.');return {...p}})}}};
+window.dispatchEvent(new window.Event('gp-page-ready'));
+
 loadServices();renderServiceImagesEditor();galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
 
 update();if(window.lucide)window.lucide.createIcons();else window.addEventListener('load',()=>window.lucide?.createIcons(),{once:true});})();

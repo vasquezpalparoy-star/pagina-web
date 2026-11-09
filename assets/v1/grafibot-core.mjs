@@ -9,7 +9,7 @@ export function aiConfig(value={}) {
  return {enabled:value.enabled===true&&/^[\w-]{20,200}$/.test(siteKey)&&!siteKey.startsWith('AIza'),siteKey:siteKey.startsWith('AIza')?'':siteKey,model:AI_MODEL};
 }
 export function buildContext(data={},page={}) {
- return {ai:aiConfig(data.grafibotAI),prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
+ return {ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
  faqs:(Array.isArray(data.faqContent)?data.faqContent:page.faqs||[]).slice(0,40).map(f=>({question:String(f.question||'').slice(0,250),answer:String(f.answer||'').slice(0,1500)})),
  services:(page.services||[]).slice(0,20).map(String),location:String(page.location||'Consulta la ubicación en la página.'),hours:String(page.hours||'Consulta los horarios por WhatsApp.')};
 }
@@ -61,7 +61,7 @@ export function quoteReply(input,context) {
  if(!['paginas','hojas'].includes(q.unit))return {answer:'¿La cantidad corresponde a páginas del archivo o a hojas físicas?',state:q};
  if(q.copies!==undefined&&(!Number.isSafeInteger(q.copies)||q.copies<1||q.copies>1000))return {answer:'Indica entre 1 y 1 000 ejemplares.',state:q};
  const f=PREVIEW_FORMATS.find(f=>f.id===q.format);
- const result=calculatePreviewQuote({format:q.format,color:q.color,tariff:q.tariff==='mayor'?'mayor':'menor',pages:q.quantity*(q.unit==='hojas'?f.perSheet:1),copies:q.copies||1,binding:q.binding===true,extra:['laminate','binding','cut'].includes(q.extra)?q.extra:'none',design:q.design===true,urgent:q.urgent===true,spiral:'Negro'},context.prices);
+ const result=calculatePreviewQuote({format:q.format,color:q.color,tariff:q.tariff==='mayor'?'mayor':'menor',pages:q.quantity*(q.unit==='hojas'?f.perSheet:1),copies:q.copies||1,binding:q.binding===true,extra:['laminate','binding','cut'].includes(q.extra)?q.extra:'none',design:q.design===true,urgent:q.urgent===true,spiral:'Negro'},context.prices,context.ranges);
  if(!result.ready)return handoff('Necesito confirmar una o más tarifas para esta combinación. Enviemos tu solicitud por WhatsApp: '+f.label+', '+q.quantity+' '+q.unit+', '+(q.copies||1)+' ejemplar(es)'+(q.color==='bn'?', blanco y negro':', color')+(q.binding?', con anillado':'')+(q.urgent?', urgente':'')+'.',q);
  return {answer:'Este es el importe estimado con las tarifas configuradas en la web. Confirma disponibilidad y entrega por WhatsApp.',state:q,
  quote:{items:result.lines.map(l=>({name:l.label,qty:l.quantity,unit:l.key==='urgent'?'base de recargo':'unidad(es)',price:l.price})),notes:result.sheets+' hojas físicas. Cotización de referencia; no confirma el pedido ni incluye delivery salvo indicación expresa.'}};
