@@ -162,7 +162,7 @@
       const title=services?.querySelector('summary');
       if(title&&title.textContent!=='Portada y servicios')title.textContent='Portada y servicios';
       const help=services?.querySelector('p');
-      const message='Edita cada servicio y pega los enlaces de sus fotos. Usa un enlace por línea en las fotos adicionales.';
+      const message='Edita cada servicio y sube sus fotos desde tu PC o celular. Después pulsa Guardar cambios.';
       if(help&&help.textContent!==message)help.textContent=message;
     }
     reconcile();
