@@ -1,0 +1,11 @@
+/* Prioridad a anuncios reales del panel Configuración, sin alterar la página normal. */
+.gp-quick-promo{z-index:2147483000;background:rgba(7,15,36,.53)}
+.gp-quick-promo-box{position:relative;width:min(960px,100%);max-height:calc(100dvh - 38px);overflow:auto;text-align:center;padding:0 25px 27px;border-radius:25px;border:2px solid #b4f3ff;background:linear-gradient(150deg,#061449,#145db3 68%,#276fc9);color:#fff;box-shadow:0 0 18px #1ee8ffbc,0 25px 60px #031334b3;font-family:Arial,system-ui,sans-serif}
+.gp-quick-promo-cover{height:clamp(150px,28vh,255px);margin:0 -25px 20px;background:radial-gradient(ellipse at 20% 90%,#ffd54f,#d31446 55%,#3d167f);background-position:center;background-size:cover;border-radius:22px 22px 0 0;box-shadow:inset 0 -26px 25px #061449a8}
+.gp-quick-promo-tag{display:inline-block;background:#ed1740;border:1px solid #ffd9e0;padding:9px 20px;border-radius:11px;color:#fff;font-weight:900;letter-spacing:1.2px;font-size:14px;box-shadow:0 3px 15px #ff164c67}
+.gp-quick-promo-box h2{font-size:clamp(26px,4.5vw,48px)!important;font-weight:900!important;line-height:1.13!important;margin:14px auto!important;max-width:770px;color:#fff!important;text-shadow:0 3px 8px #020b36bd}
+.gp-quick-promo-description{font-size:clamp(15px,2vw,21px);line-height:1.5;margin:9px auto 20px;max-width:740px;color:#f5f9ff}
+.gp-quick-promo-link{display:inline-block;background:linear-gradient(#fff,#dbeeff);padding:13px 26px;border-radius:12px;color:#a00024!important;text-decoration:none!important;font-size:16px;font-weight:900;box-shadow:0 4px 18px #0005}
+.gp-quick-promo-link[hidden]{display:none!important}
+.gp-quick-promo .gp-quick-close{position:absolute;z-index:4;top:10px;right:10px}
+@media(max-width:650px){.gp-quick-promo-box{padding:0 15px 20px;border-radius:18px}.gp-quick-promo-cover{height:135px;margin:0 -15px 15px;border-radius:17px 17px 0 0}.gp-quick-promo-box h2{font-size:27px!important}.gp-quick-promo-tag{font-size:12px}.gp-quick-promo-description{font-size:14px}}
