@@ -16,3 +16,14 @@
 body.gp-quick-visible{overflow:hidden!important}
 @media(max-width:740px){.gp-quick-backdrop{padding:10px}.gp-quick-modal{border-radius:18px;max-height:calc(100dvh - 20px)}.gp-quick-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 12px 15px}.gp-quick-option{min-height:175px;padding:12px 7px 10px}.gp-quick-option .gp-quick-symbol{font-size:36px}.gp-quick-option strong{font-size:15px}.gp-quick-option small{font-size:10px}.gp-quick-header{padding:15px 47px 5px}.gp-quick-header img{max-height:40px}.gp-quick-title{margin:8px 14px 13px;padding:10px;font-size:21px}.gp-quick-arrow{width:27px;height:27px;font-size:17px}.gp-quick-close{width:38px;height:38px;font-size:25px}.gp-quick-reopen{bottom:77px;right:8px;padding:9px 11px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.gp-quick-option{transition:none}}
+
+/* Publicidad prioritaria: modal independiente y sin interferir con opciones. */
+.gp-quick-promo[hidden],.gp-quick-promo .gp-quick-promo-image[hidden],.gp-quick-promo .gp-quick-promo-link[hidden]{display:none!important}
+.gp-quick-promo-card{position:relative;width:min(780px,100%);max-height:calc(100dvh - 35px);overflow:auto;box-sizing:border-box;border:3px solid #fff;border-radius:23px;background:linear-gradient(140deg,#a60022,#e11b37 55%,#8d0820);color:#fff;padding:28px 25px 25px;box-shadow:0 18px 65px #0008;text-align:center}
+.gp-quick-promo-card .gp-quick-close{top:9px;right:9px}
+.gp-quick-promo-label{display:inline-block;padding:6px 14px;border:1px solid #ffffff96;background:#ffffff28;border-radius:100px;font:bold 12px system-ui,sans-serif;letter-spacing:1.2px}
+.gp-quick-promo-image{width:100%;height:min(47vh,370px);background-position:center;background-repeat:no-repeat;background-size:contain;border-radius:15px;background-color:#ffffff12;margin:17px auto 5px}
+.gp-quick-promo-content h2{font:900 clamp(23px,3.6vw,39px)/1.15 system-ui,sans-serif;color:#fff!important;margin:18px 0 8px;overflow-wrap:anywhere}
+.gp-quick-promo-description{margin:0 auto 18px;max-width:650px;font:500 16px/1.45 system-ui,sans-serif;color:#fff;white-space:pre-line;overflow-wrap:anywhere}
+.gp-quick-promo-link{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#a70825!important;border-radius:11px;padding:13px 22px;text-decoration:none!important;font:800 15px system-ui,sans-serif}
+@media(max-width:650px){.gp-quick-promo-card{padding:22px 13px 18px}.gp-quick-promo-image{height:min(40vh,300px)}.gp-quick-promo-description{font-size:14px}}
