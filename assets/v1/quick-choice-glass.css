@@ -1,0 +1,36 @@
+/* GRAFIPLOT: efecto cristal traslúcido solo para la ventana emergente. */
+/* La página original, enlaces e iconos permanecen sin cambios. */
+.gp-quick-backdrop{
+  background:rgba(7,17,38,.42);
+  -webkit-backdrop-filter:blur(2.5px);
+  backdrop-filter:blur(2.5px);
+}
+.gp-quick-modal{
+  background:linear-gradient(145deg,rgba(4,55,149,.72),rgba(17,116,224,.51) 35%,rgba(195,231,255,.34) 67%,rgba(255,255,255,.27));
+  border:2px solid rgba(220,250,255,.90);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  backdrop-filter:blur(18px) saturate(160%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.46),inset 0 15px 38px rgba(255,255,255,.17),0 0 17px rgba(0,216,255,.62),0 26px 65px rgba(5,27,81,.44);
+}
+.gp-quick-header{
+  text-shadow:0 2px 8px rgba(0,26,91,.66);
+}
+.gp-quick-title{
+  background:linear-gradient(180deg,rgba(9,129,255,.87),rgba(4,46,170,.89));
+  border-color:rgba(221,250,255,.95);
+  box-shadow:0 4px 14px rgba(1,44,134,.35),inset 0 1px 5px rgba(255,255,255,.39);
+}
+.gp-quick-option{
+  border-color:rgba(255,255,255,.94);
+  box-shadow:0 6px 14px rgba(23,39,89,.22),inset 0 2px 5px rgba(255,255,255,.42);
+}
+.gp-quick-option:nth-child(1){background:linear-gradient(155deg,rgba(227,254,255,.94),rgba(138,217,250,.86))}
+.gp-quick-option:nth-child(2){background:linear-gradient(155deg,rgba(255,250,224,.94),rgba(255,213,122,.86))}
+.gp-quick-option:nth-child(3){background:linear-gradient(155deg,rgba(255,234,246,.94),rgba(249,168,213,.86))}
+.gp-quick-option:nth-child(4){background:linear-gradient(155deg,rgba(248,235,255,.94),rgba(204,164,255,.86))}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ .gp-quick-modal{background:linear-gradient(145deg,#075cad,#5ca8e5,#d2eafa)}
+}
+@media(prefers-reduced-transparency:reduce){
+ .gp-quick-modal{background:linear-gradient(145deg,#1266bb,#6bb6e6,#d9efff);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
