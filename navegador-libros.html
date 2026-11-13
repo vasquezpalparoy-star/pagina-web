@@ -1,28 +1,28 @@
 <!doctype html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#b90821">
 <title>Mi navegador de libros e imágenes | GRAFIPLOT</title>
-<meta name="description" content="Busca libros de tu biblioteca GRAFIPLOT e imágenes de Wikimedia Commons, selecciona imágenes originales y compártelas mediante ZIP y WhatsApp.">
+<meta name="description" content="Busca libros de tu biblioteca GRAFIPLOT y Open Library en una sola búsqueda, y envía referencias de imágenes por WhatsApp sin descargar originales.">
 <link rel="icon" href="./favicon.png"><link rel="stylesheet" href="./assets/v1/navegador-libros.css?v=1"></head>
 <body>
 <header class="mast"><a class="brand" href="./index.html">🖨️ <span>GRAFIPLOT <b>VASQUEZ</b><small>Mi navegador de libros e imágenes</small></span></a><nav><a href="./index.html">Inicio</a><a href="./pdf.html">Herramientas</a><a class="active" href="./navegador-libros.html">📚 Mi navegador de libros</a></nav></header>
 <main>
-<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Los libros de la biblioteca de tu página GRAFIPLOT y búsquedas en Internet. No accedemos a libros guardados en tu PC o Android.</p></div></section>
-<div class="tooltabs" role="tablist" aria-label="Tipo de búsqueda"><button type="button" role="tab" id="tab-library" aria-selected="true" data-kind="library">📚 Mi biblioteca</button><button type="button" role="tab" id="tab-internet" aria-selected="false" data-kind="internet">🌐 Libros de Internet</button><button type="button" role="tab" id="tab-images" aria-selected="false" data-kind="images">🖼️ Buscar imágenes</button></div>
+<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Busca libros de tu biblioteca GRAFIPLOT y de Internet en una sola lista, con tu biblioteca primero. Las imágenes seleccionadas se envían por WhatsApp mediante enlaces, sin descargar originales.</p></div></section>
+<div class="tooltabs" role="tablist" aria-label="Tipo de búsqueda"><button type="button" role="tab" id="tab-library" aria-selected="true" data-kind="library">📚 Buscar libros</button><button type="button" role="tab" id="tab-images" aria-selected="false" data-kind="images">🖼️ Buscar imágenes en Internet</button></div>
 <form id="searchForm" class="search"><span>⌕</span><input type="search" id="searchInput" placeholder="Busca un libro, autor, tema o imagen…" aria-label="Buscar libros o imágenes"><button type="submit">Buscar</button></form>
-<p class="hint" id="status" role="status">Cargando tu biblioteca GRAFIPLOT…</p>
+<p class="hint" id="status" role="status">Conectando con tu biblioteca GRAFIPLOT…</p>
 <div class="app">
 <div class="content">
-<div class="topline"><h2 id="resultsTitle">Mi biblioteca GRAFIPLOT</h2><span id="resultsCount"></span></div>
+<div class="topline"><h2 id="resultsTitle">Libros de mi biblioteca y de Internet</h2><span id="resultsCount"></span></div>
 <div class="filters"><label>Categoría <select id="category"><option value="Todos">Todas</option></select></label></div>
 <div id="results" class="results"></div>
 </div>
 <aside class="right">
 <section class="preview"><h3>Vista previa</h3><div id="previewBody" class="previewBody"><span>Selecciona un libro o una imagen para visualizarla.</span></div><p id="previewInfo" class="hint"></p></section>
-<section class="selection"><h3>Archivos seleccionados <span id="selectedCount">0</span></h3><div id="selectedList" class="selectedList"><p class="hint">Las imágenes que selecciones aparecerán aquí.</p></div>
-<div class="actionbox"><button id="downloadZip" type="button" disabled>🗜️ Descargar imágenes originales en ZIP</button><button id="shareZip" type="button" disabled>📲 Compartir ZIP por WhatsApp</button><button id="whatsappOrder" type="button" disabled>💬 Consultar impresión por WhatsApp</button><button id="clearSelection" type="button">Limpiar selección</button></div>
-<p class="smallnote">Se intenta descargar cada imagen con la resolución original que ofrece su fuente. Si el servidor impide la descarga, te avisaremos. ZIP es compatible con WinRAR. En algunos navegadores debes adjuntar el ZIP manualmente en WhatsApp.</p></section>
+<section class="selection"><h3>Imágenes seleccionadas <span id="selectedCount">0</span></h3><div id="selectedList" class="selectedList"><p class="hint">Las imágenes que selecciones aparecerán aquí.</p></div>
+<div class="actionbox"><button id="whatsappOrder" type="button" disabled>💬 Enviar imágenes seleccionadas a mi WhatsApp</button><button id="clearSelection" type="button">Limpiar selección</button></div>
+<p class="smallnote">Descarga ZIP desactivada. Se enviarán enlaces a las imágenes y su ficha de origen mediante un mensaje de WhatsApp. La web no adjunta automáticamente archivos originales; el envío se confirma dentro de WhatsApp.</p></section>
 </aside>
 </div>
-<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Libros de tu biblioteca: enlaces configurados en tu página web. Imágenes públicas: Wikimedia Commons. Respeta las licencias y derechos de autor.</span></footer>
-</main><script type="module" src="./assets/v1/navegador-libros.mjs?v=1"></script>
+<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Los libros de tu biblioteca tienen prioridad sobre Open Library. Imágenes de Wikimedia Commons: consulta licencia y procedencia. No ofrecemos descarga ZIP de originales.</span></footer>
+</main><script type="module" src="./assets/v1/navegador-libros.mjs?v=2"></script>
 </body></html>
