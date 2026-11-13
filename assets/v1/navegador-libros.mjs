@@ -19,7 +19,7 @@ function createCard(item){
  if(item.cover){const img=document.createElement("img");img.src=item.cover;img.alt="Imagen de "+item.title;img.loading="lazy";img.referrerPolicy="no-referrer";img.onerror=()=>{img.remove();cover.append(txt("span",item.kind==="book"?"📚":"🖼️"))};cover.append(img)}
  else cover.append(txt("span",item.kind==="book"?"📚":"🖼️"));
  const detail=txt("div","","details");
- detail.append(txt("strong",item.title),txt("small",item.author||item.license||item.kind==="book"?"":""));
+ detail.append(txt("strong",item.title),txt("small",item.author||item.license||item.detail||""));
  const actions=txt("div","","actions");
  const view=txt("button","👁 Ver");view.type="button";view.onclick=()=>showPreview(item);actions.append(view);
  if(item.href){const a=txt("a",item.kind==="book"?"Abrir libro ↗":"Original ↗");a.href=item.href;a.target="_blank";a.rel="noopener noreferrer";actions.append(a)}
@@ -192,7 +192,6 @@ $("downloadZip").onclick=()=>handleZip(false);
 $("shareZip").onclick=()=>handleZip(true);
 $("whatsappOrder").onclick=()=>window.open("https://wa.me/51916133647?text="+encodeURIComponent(whatsappMessage()),"_blank","noopener,noreferrer");
 $("clearSelection").onclick=()=>{state.selected.clear();cachedZip=null;cachedKey="";paintSelection();render(state.found)};
-const oldPaint=paintSelection;
 const nativeSet=state.selected.set.bind(state.selected),nativeDelete=state.selected.delete.bind(state.selected);
 state.selected.set=(...args)=>{cachedZip=null;cachedKey="";return nativeSet(...args)};
 state.selected.delete=(...args)=>{cachedZip=null;cachedKey="";return nativeDelete(...args)};
