@@ -78,7 +78,7 @@ jobs:
         run: |
           npm ci
           npm test
-          npm run build
+          npm run build -- --base ./
       - name: Conservar licencia original
         run: cp source/LICENSE source/dist/LICENSE
       - name: Aplicar solo traducción de interfaz a la copia compilada
