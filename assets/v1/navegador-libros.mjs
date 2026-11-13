@@ -2,7 +2,7 @@
 import {USER_FIREBASE_CONFIG} from "./config.js";
 import {parseBooks} from "./library.mjs";
 const $=id=>document.getElementById(id);
-const state={mode:"library",books:[],found:[],selected:new Map(),openResults:[],photos:[],files:[],searchTimer:0};
+const state={mode:"library",books:[],found:[],selected:new Map(),openResults:[],photos:[],searchTimer:0};
 const status=(s)=>{$("status").textContent=s};
 const norm=(s)=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es");
 const clean=(s)=>String(s||"").replace(/[<>]/g,"").trim();
@@ -97,20 +97,14 @@ async function searchCommons(query){
  }).filter(Boolean);
  state.photos=photos;render(photos);status(photos.length+" imágenes encontradas en Wikimedia Commons. Selecciona las que necesitas. Revisa sus licencias.");
 }
-function localImages(){
- const images=state.files.map((file,i)=>({kind:"image",id:"local:"+i+":"+file.name,title:file.name,cover:URL.createObjectURL(file),original:null,source:file,license:"Archivo seleccionado de tu equipo",mime:file.type}));
- render(images);status(images.length+" imágenes locales disponibles. Se guardarán sin cambiar sus bytes.");
-}
 function switchMode(mode){
- if(state.mode==="local"&&mode!=="local")for(const item of state.found)if(item.id?.startsWith("local:")&&item.cover?.startsWith("blob:"))URL.revokeObjectURL(item.cover);
  state.mode=mode;
  document.querySelectorAll("[data-kind]").forEach(t=>t.setAttribute("aria-selected",String(t.dataset.kind===mode)));
- $("searchInput").placeholder={library:"Buscar en mi biblioteca por título, autor o categoría…",internet:"Buscar libros en Internet (Open Library)…",images:"Buscar imágenes originales de Internet (Wikimedia Commons)…",local:"Selecciona imágenes de tu equipo…"}[mode];
- $("category").parentElement.hidden=mode!=="library";$("uploadRow").hidden=mode!=="local";
- $("resultsTitle").textContent={library:"Mi biblioteca GRAFIPLOT",internet:"Libros de Internet",images:"Imágenes de Internet",local:"Mis imágenes locales"}[mode];
+ $("searchInput").placeholder={library:"Buscar en mi biblioteca web por título, autor o categoría…",internet:"Buscar libros publicados en Internet (Open Library)…",images:"Buscar imágenes originales de Internet (Wikimedia Commons)…"}[mode];
+ $("category").parentElement.hidden=mode!=="library";
+ $("resultsTitle").textContent={library:"Biblioteca de mi página GRAFIPLOT",internet:"Libros de Internet",images:"Imágenes de Internet"}[mode];
  $("searchInput").value="";
  if(mode==="library")currentLibrary();
- else if(mode==="local")localImages();
  else{render([]);status("Escribe una búsqueda para ver resultados.")}
 }
 let searchSerial=0;
@@ -120,7 +114,6 @@ async function searchNow(){
   if(state.mode==="library")currentLibrary();
   if(state.mode==="internet")await searchOpenLibrary(q);
   if(state.mode==="images")await searchCommons(q);
-  if(state.mode==="local")localImages();
  }catch(e){if(token===searchSerial){render([]);status("No se pudo buscar en Internet: "+(e.message||"revisa conexión"))}}
 }
 function zipName(item,i){const title=item.title.replace(/[\\/:*?"<>|]/g,"_").slice(0,100),ext={"image/jpeg":".jpg","image/png":".png","image/gif":".gif","image/webp":".webp"}[item.mime]||".jpg";return String(i+1).padStart(2,"0")+"-"+title+(title.toLowerCase().endsWith(ext)?"":ext)}
@@ -184,10 +177,6 @@ $("searchForm").onsubmit=e=>{e.preventDefault();searchNow()};
 $("searchInput").oninput=()=>{if(state.mode==="library")currentLibrary()};
 $("category").onchange=currentLibrary;
 document.querySelectorAll("[data-kind]").forEach(t=>t.onclick=()=>switchMode(t.dataset.kind));
-$("localFiles").onchange=e=>{
- state.files=[...e.target.files].filter(f=>f.type.startsWith("image/"));
- switchMode("local");
-};
 $("downloadZip").onclick=()=>handleZip(false);
 $("shareZip").onclick=()=>handleZip(true);
 $("whatsappOrder").onclick=()=>window.open("https://wa.me/51916133647?text="+encodeURIComponent(whatsappMessage()),"_blank","noopener,noreferrer");
