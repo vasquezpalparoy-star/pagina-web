@@ -1,0 +1,80 @@
+name: Preparar tres aplicaciones PDF originales para traducción
+on:
+  workflow_dispatch:
+  push:
+    branches: [grafiplot-pdf-es-originales]
+    paths:
+      - '.github/workflows/preparar-pdf-originales.yml'
+permissions:
+  contents: read
+jobs:
+  compresor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Descargar código original
+        run: git clone --depth 1 https://github.com/JGM-89/pdf-compressor-web.git source
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Preparar librerías originales
+        working-directory: source
+        run: |
+          npm ci
+          npm run vendor
+      - name: Empaquetar copia sin modificar
+        run: |
+          mkdir -p output/compresor
+          cp -a source/index.html source/css source/js source/icons source/merge source/ocr source/pages source/protect source/split source/vendor output/compresor/
+          cp source/LICENSE output/compresor/LICENSE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: original-compresor
+          path: output/compresor
+  editor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código original
+        run: git clone --depth 1 https://github.com/vensas/pdf-editor.git source
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@4fe867f4dfe4c2c6248a923ad677a557c28c4ed4
+        with:
+          version: '10.34.2'
+      - name: Compilar editor sin cambiar código
+        working-directory: source
+        env:
+          PUBLIC_BASE_PATH: './'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test
+          pnpm build
+      - name: Conservar licencia original
+        run: cp source/LICENSE source/dist/LICENSE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: original-editor
+          path: source/dist
+  paperless:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código original
+        run: git clone --depth 1 https://github.com/IACBI/paperless-pdf.git source
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+      - name: Compilar Paperless sin cambiar código
+        working-directory: source
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Conservar licencia original
+        run: cp source/LICENSE source/dist/LICENSE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: original-paperless
+          path: source/dist
