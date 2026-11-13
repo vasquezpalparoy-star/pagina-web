@@ -135,12 +135,12 @@
   function translateTree(root){
     if(!root||root.nodeType!==1)return;
     const scanElement=el=>{
-      if(el.matches?.("script,style,textarea,code,pre,[contenteditable='true']"))return NodeFilter.FILTER_REJECT;
+      if(el.matches?.("script,style,textarea,code,pre,.textLayer,.text-layer,.pdf-text-layer,.pageText,.ProseMirror,[contenteditable='true']"))return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     };
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{acceptNode(node){
       if(node.nodeType===1)return scanElement(node);
-      return node.parentElement?.closest("script,style,textarea,code,pre,[contenteditable='true']")?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;
+      return node.parentElement?.closest("script,style,textarea,code,pre,.textLayer,.text-layer,.pdf-text-layer,.pageText,.ProseMirror,[contenteditable='true']")?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;
     }});
     const elements=[],nodes=[];
     if(root.nodeType===1)elements.push(root);
