@@ -180,6 +180,8 @@ function applyCampaign(config){
  root.querySelector('#gp-campaign-tag').textContent=campaignType.value==='promo'?'OFERTA ESPECIAL':'SORTEO ESPECIAL';
  const cta=root.querySelector('#gp-campaign-link');cta.textContent=values['#gp-campaign-button-text']+' ↗';if(link)cta.href=link;
  root.querySelector('#gp-campaign-state').textContent=active?'Campaña activa':'Campaña desactivada';
+ root.querySelector('#gp-campaign-extra').value=(Array.isArray(config.campaignSlides)?config.campaignSlides:[]).map(s=>[s.title||'',s.description||'',s.url||'',s.image||''].join(' | ')).join('\n');
+ window.dispatchEvent(new CustomEvent('gp-campaign-change',{detail:config}));
 }
 function applyServiceImages(images={}){
  root.querySelectorAll('.gp-service[data-service-key]').forEach(card=>{let image='';try{image=httpsLink(images[card.dataset.serviceKey])}catch(_){}card.style.backgroundImage=image?'url('+JSON.stringify(image)+')':'none';card.dataset.hasImage=String(!!image);});
@@ -332,7 +334,14 @@ async function saveCampaign(e,disable=false){
  const enabled=!disable&&campaignActive.checked;const url=httpsLink(root.querySelector('#gp-campaign-url').value,!enabled);
  const title=root.querySelector('#gp-campaign-heading').value.trim();const text=root.querySelector('#gp-campaign-button-text').value.trim();
  if(enabled&&(!title||!text))throw Error('Completa el título y el texto del botón.');
- const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url};
+ const lines=root.querySelector('#gp-campaign-extra').value.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
+ if(lines.length>9)throw Error('Máximo 9 anuncios adicionales.');
+ const campaignSlides=lines.map((line,i)=>{
+  const parts=line.split('|').map(v=>v.trim());
+  if(parts.length<3||parts.length>4||!parts[0])throw Error('Revisa la línea '+(i+1)+'. Usa: título | descripción | enlace | imagen opcional');
+  return {title:parts[0].slice(0,100),description:parts[1].slice(0,200),url:httpsLink(parts[2],false),image:httpsLink(parts[3]||'')};
+ });
+ const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides};
  await setDoc(settingsRef,patch,{merge:true});cloudConfig={...cloudConfig,...patch};applyCampaign(cloudConfig);campaignFeedback.textContent=enabled?'Campaña activada y guardada en Firebase.':'Campaña desactivada y guardada en Firebase.';if(enabled)go('gp-campaign-banner');
  }catch(error){campaignFeedback.textContent='No se pudo guardar la campaña: '+error.message}finally{button.disabled=false}
 }
