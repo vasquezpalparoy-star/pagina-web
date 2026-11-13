@@ -15,7 +15,7 @@ def main():
     translation = Path(sys.argv[2]).resolve()
     if not dist.is_dir() or not translation.is_file():
         raise SystemExit("No se encuentran los recursos de la copia original.")
-    dest = dist / "_grafiplot_es" / "traduccion-interfaz.js"
+    dest = dist / "grafiplot-es" / "traduccion-interfaz.js"
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(translation, dest)
     documents = sorted(dist.rglob("*.html"))
@@ -23,14 +23,14 @@ def main():
         raise SystemExit("No se encontraron HTML para insertar el idioma.")
     processed = 0
     for path in documents:
-        if "_grafiplot_es" in path.parts:
+        if "grafiplot-es" in path.parts:
             continue
         html = path.read_text(encoding="utf-8")
         relative = os.path.relpath(dest, path.parent).replace(os.sep, "/")
         if not relative.startswith("."):
             relative = "./" + relative
         tag = '<script defer src="' + relative + '"></script>'
-        if '_grafiplot_es/traduccion-interfaz.js' in html:
+        if 'grafiplot-es/traduccion-interfaz.js' in html:
             continue
         if "</body>" not in html.lower():
             print("HTML sin body; no alterado:", path)
