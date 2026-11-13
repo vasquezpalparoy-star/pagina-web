@@ -5,6 +5,7 @@ on:
     branches: [grafiplot-pdf-es-originales]
     paths:
       - '.github/workflows/preparar-pdf-originales.yml'
+      - 'traducciones-pdf/**'
 permissions:
   contents: read
 jobs:
@@ -27,13 +28,16 @@ jobs:
           mkdir -p output/compresor
           rsync -a --exclude='.git' --exclude='node_modules' --exclude='package-lock.json' source/ output/compresor/
           test -f output/compresor/LICENSE
+      - name: Aplicar solo traducción de interfaz a la copia compilada
+        run: python3 traducciones-pdf/inyectar-es.py output/compresor traducciones-pdf/es-visible.js
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: original-compresor
+          name: compresor-en-espanol
           path: output/compresor
   editor:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Descargar código original
         run: git clone --depth 1 https://github.com/vensas/pdf-editor.git source
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -52,13 +56,16 @@ jobs:
           pnpm build
       - name: Conservar licencia original
         run: cp source/LICENSE source/dist/LICENSE
+      - name: Aplicar solo traducción de interfaz a la copia compilada
+        run: python3 traducciones-pdf/inyectar-es.py source/dist traducciones-pdf/es-visible.js
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: original-editor
+          name: editor-en-espanol
           path: source/dist
   paperless:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Descargar código original
         run: git clone --depth 1 https://github.com/IACBI/paperless-pdf.git source
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -74,7 +81,9 @@ jobs:
           npm run build
       - name: Conservar licencia original
         run: cp source/LICENSE source/dist/LICENSE
+      - name: Aplicar solo traducción de interfaz a la copia compilada
+        run: python3 traducciones-pdf/inyectar-es.py source/dist traducciones-pdf/es-visible.js
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: original-paperless
+          name: paperless-en-espanol
           path: source/dist
