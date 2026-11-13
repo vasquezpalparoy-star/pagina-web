@@ -25,8 +25,8 @@ jobs:
       - name: Empaquetar copia sin modificar
         run: |
           mkdir -p output/compresor
-          cp -a source/index.html source/css source/js source/icons source/merge source/ocr source/pages source/protect source/split source/vendor output/compresor/
-          cp source/LICENSE output/compresor/LICENSE
+          rsync -a --exclude='.git' --exclude='node_modules' --exclude='package-lock.json' source/ output/compresor/
+          test -f output/compresor/LICENSE
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: original-compresor
