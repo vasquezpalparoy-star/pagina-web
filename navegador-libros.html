@@ -6,7 +6,7 @@
 <body>
 <header class="mast"><a class="brand" href="./index.html">🖨️ <span>GRAFIPLOT <b>VASQUEZ</b><small>Mi navegador de libros e imágenes</small></span></a><nav><a href="./index.html">Inicio</a><a href="./pdf.html">Herramientas</a><a class="active" href="./navegador-libros.html">📚 Mi navegador de libros</a></nav></header>
 <main>
-<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Busca libros de tu biblioteca GRAFIPLOT y de Internet en una sola lista, con tu biblioteca primero. Las imágenes seleccionadas se envían por WhatsApp mediante enlaces, sin descargar originales.</p></div></section>
+<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Busca libros de tu biblioteca GRAFIPLOT y de Internet en una sola lista, con tu biblioteca primero. Las imágenes seleccionadas se envían por WhatsApp mediante enlaces originales, sin descargar archivos desde la web.</p></div></section>
 <div class="tooltabs" role="tablist" aria-label="Tipo de búsqueda"><button type="button" role="tab" id="tab-library" aria-selected="true" data-kind="library">📚 Buscar libros</button><button type="button" role="tab" id="tab-images" aria-selected="false" data-kind="images">🖼️ Buscar imágenes en Internet</button></div>
 <form id="searchForm" class="search"><span>⌕</span><input type="search" id="searchInput" placeholder="Busca un libro, autor, tema o imagen…" aria-label="Buscar libros o imágenes"><button type="submit">Buscar</button></form>
 <p class="hint" id="status" role="status">Conectando con tu biblioteca GRAFIPLOT…</p>
@@ -19,10 +19,10 @@
 <aside class="right">
 <section class="preview"><h3>Vista previa</h3><div id="previewBody" class="previewBody"><span>Selecciona un libro o una imagen para visualizarla.</span></div><p id="previewInfo" class="hint"></p></section>
 <section class="selection"><h3>Imágenes seleccionadas <span id="selectedCount">0</span></h3><div id="selectedList" class="selectedList"><p class="hint">Las imágenes que selecciones aparecerán aquí.</p></div>
-<div class="actionbox"><button id="whatsappOrder" type="button" disabled>📲 Enviar ZIP por WhatsApp</button><button id="clearSelection" type="button">Limpiar selección</button></div>
-<p class="smallnote">No hay descarga directa de ZIP. Al compartir desde un dispositivo compatible, se prepara un ZIP compatible con WinRAR y se abre el menú de compartir: elige WhatsApp y el contacto de GRAFIPLOT (916 133 647). El navegador no puede seleccionar ni confirmar automáticamente el destinatario. Algunas fuentes pueden impedir obtener la imagen original.</p></section>
+<div class="actionbox"><button id="whatsappOrder" type="button" disabled>💬 Enviar enlaces por WhatsApp</button><button id="clearSelection" type="button">Limpiar selección</button></div>
+<p class="smallnote">Selecciona las imágenes y enviaremos a WhatsApp de GRAFIPLOT (916 133 647) un mensaje con el enlace original y la ficha de cada imagen. La página web no descargará imágenes ni creará archivos ZIP. En Windows podrás pegar ese mensaje en GRAFIPLOT Imágenes para descargar los originales y preparar un ZIP compatible con WinRAR.</p></section>
 </aside>
 </div>
-<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Los libros de tu biblioteca tienen prioridad sobre Open Library. Las imágenes se preparan como ZIP para compartir desde dispositivos compatibles; no se ofrece descarga directa.</span></footer>
-</main><script type="module" src="./assets/v1/navegador-libros.mjs?v=3"></script>
+<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Los libros de tu biblioteca tienen prioridad sobre Open Library. Los enlaces de las imágenes se comparten por WhatsApp. En Windows, la aplicación GRAFIPLOT Imágenes permite generar el ZIP compatible con WinRAR.</span></footer>
+</main><script type="module" src="./assets/v1/navegador-libros.mjs?v=4"></script>
 </body></html>
