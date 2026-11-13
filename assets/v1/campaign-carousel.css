@@ -1,0 +1,27 @@
+
+/* Carrusel promocional: únicamente visible con campaña activa. */
+#gp-campaign-banner.gp-ad-carousel-ready{display:block!important;position:relative;overflow:hidden;isolation:isolate;max-width:1480px;border-radius:22px;padding:0!important;border:2px solid #bdefff;background:#081d57;box-shadow:0 8px 30px #0620693e,0 0 16px #00d4ff66;margin-top:18px;margin-bottom:18px}
+#gp-campaign-banner.gp-ad-carousel-ready[hidden]{display:none!important}
+#gp-campaign-banner.gp-ad-carousel-ready > .gp-campaign-text,#gp-campaign-banner.gp-ad-carousel-ready > .gp-campaign-cta{display:none!important}
+.gp-ad-stage{position:relative;min-height:240px;overflow:hidden;color:white}
+.gp-ad-stage::after{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,13,58,.93) 0%,rgba(12,26,95,.79) 48%,rgba(2,16,67,.22) 100%);z-index:0}
+.gp-ad-slide{position:absolute;inset:0;display:flex;align-items:center;gap:24px;opacity:0;transform:translateX(22px);pointer-events:none;transition:opacity .65s ease,transform .65s ease}
+.gp-ad-slide[aria-hidden=false]{opacity:1;transform:translateX(0);pointer-events:auto;z-index:1}
+.gp-ad-slide img.gp-ad-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.gp-ad-slide .gp-ad-copy{position:relative;z-index:2;max-width:750px;padding:35px 88px;text-shadow:0 3px 8px #001846a9}
+.gp-ad-label{display:inline-block;background:#f71441;padding:7px 13px;border-radius:8px;font-size:13px;letter-spacing:1px;font-weight:900;box-shadow:0 2px 12px #f4144e99}
+.gp-ad-copy h2{font:900 clamp(27px,4vw,52px)/1.05 system-ui,sans-serif!important;color:#fff!important;margin:13px 0 11px!important;letter-spacing:-1px}
+.gp-ad-copy p{font:600 clamp(15px,2vw,20px)/1.4 system-ui,sans-serif!important;color:#fff!important;margin:0 0 17px!important;max-width:580px}
+.gp-ad-cta{display:inline-block;background:#fff;color:#b30c2a!important;font:bold 14px system-ui,sans-serif;padding:10px 17px;border-radius:10px;text-shadow:none;box-shadow:0 3px 12px #0003;text-decoration:none!important}
+.gp-ad-controls{position:absolute;z-index:5;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:space-between;padding:12px}
+.gp-ad-arrow{pointer-events:auto;width:40px;height:40px;border-radius:100%;background:#091b61ad;border:2px solid #fff;color:white;font-size:26px;display:grid;place-items:center;cursor:pointer}
+.gp-ad-arrow:hover{background:#da0c35}
+.gp-ad-dots{position:absolute;bottom:8px;left:0;right:0;z-index:6;display:flex;justify-content:center;gap:8px}
+.gp-ad-dots button{background:#d4d8e6;border:1px solid #fff;border-radius:50%;width:11px;height:11px;padding:0;cursor:pointer}
+.gp-ad-dots button[aria-current=true]{background:#f10e37;transform:scale(1.25)}
+.gp-ad-stage.gp-ad-single .gp-ad-arrow,.gp-ad-stage.gp-ad-single .gp-ad-dots{display:none}
+.gp-ad-stage.gp-ad-single .gp-ad-slide{opacity:1;transform:none}
+.gp-ad-stage.gp-ad-single .gp-ad-copy{animation:gp-ad-glow 5s ease-in-out infinite alternate}
+@keyframes gp-ad-glow{from{filter:drop-shadow(0 0 0px #fff0)}to{filter:drop-shadow(0 0 12px #a9dafa85)}}
+@media(max-width:650px){.gp-ad-stage{min-height:260px}.gp-ad-slide .gp-ad-copy{padding:24px 52px}.gp-ad-copy h2{font-size:26px!important}.gp-ad-copy p{font-size:14px!important}.gp-ad-arrow{width:32px;height:32px;font-size:21px}.gp-ad-controls{padding:7px}.gp-ad-cta{font-size:12px;padding:9px 12px}}
+@media(prefers-reduced-motion:reduce){.gp-ad-slide{transition:none}.gp-ad-stage.gp-ad-single .gp-ad-copy{animation:none}}
