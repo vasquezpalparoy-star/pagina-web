@@ -3,7 +3,7 @@
 function init(){
  if(document.getElementById('gp-quick-backdrop'))return;
  const overlay=document.createElement('div');
- overlay.id='gp-quick-backdrop';overlay.className='gp-quick-backdrop';
+ overlay.id='gp-quick-backdrop';overlay.className='gp-quick-backdrop';overlay.hidden=true;
  overlay.innerHTML='<section class="gp-quick-modal" role="dialog" aria-modal="true" aria-labelledby="gp-quick-title" aria-describedby="gp-quick-description">'+
  '<button type="button" class="gp-quick-close" aria-label="Cerrar y continuar en la página" title="Cerrar">×</button>'+
  '<div class="gp-quick-header"><img src="./logo-grafiplot.webp" alt="Logo GRAFIPLOT VASQUEZ"><strong>GRAFIPLOT VASQUEZ</strong><p id="gp-quick-description">Impresiones · Copias · Diseño · Herramientas · Biblioteca</p></div>'+
