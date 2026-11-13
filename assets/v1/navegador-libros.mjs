@@ -142,75 +142,27 @@ async function searchNow(){
   status("Mostrando "+local.length+" libro(s) de tu biblioteca. La consulta a Internet falló: "+(error.message||"conexión no disponible"));
  }
 }
-function zipName(item,i){const title=item.title.replace(/[\\/:*?"<>|]/g,"_").slice(0,100),ext={"image/jpeg":".jpg","image/png":".png","image/gif":".gif","image/webp":".webp"}[item.mime]||".jpg";return String(i+1).padStart(2,"0")+"-"+title+(title.toLowerCase().endsWith(ext)?"":ext)}
-let zipPromise=null;function zipLib(){
- if(zipPromise)return zipPromise;
- zipPromise=new Promise((resolve,reject)=>{
-  if(window.JSZip)return resolve(window.JSZip);
-  const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
-  s.onload=()=>window.JSZip?resolve(window.JSZip):reject(Error("No se pudo cargar JSZip"));s.onerror=()=>reject(Error("No se pudo cargar la biblioteca ZIP."));document.head.append(s);
- });return zipPromise;
-}
-let cachedZip=null,cachedKey="";
-async function makeZip(){
- const items=[...state.selected.values()];
- if(!items.length)throw Error("Selecciona al menos una imagen.");
- const key=items.map(x=>x.id).join("|");
- if(cachedZip&&key===cachedKey)return cachedZip;
- const JSZip=await zipLib(),zip=new JSZip(),failed=[];
- for(const [i,item] of items.entries()){
-  status("Preparando imagen original "+(i+1)+" de "+items.length+": "+item.title);
-  try{
-   let blob;
-   if(item.source)blob=item.source;
-   else{
-    const response=await fetch(item.original,{mode:"cors",credentials:"omit",redirect:"follow"});
-    if(!response.ok)throw Error("HTTP "+response.status);
-    blob=await response.blob();
-    if(!blob.type.startsWith("image/"))throw Error("La fuente no devolvió una imagen");
-   }
-   if(blob.size>45*1024*1024)throw Error("Imagen superior a 45 MB");
-   zip.file(zipName(item,i),blob,{binary:true});
-  }catch(error){failed.push(item.title+" — "+(error.message||"descarga bloqueada"))}
- }
- if(Object.keys(zip.files).length===0)throw Error("No se pudo descargar ninguna imagen original. Algunas fuentes bloquean la descarga desde otras webs.");
- if(failed.length)zip.file("IMAGENES_NO_INCLUIDAS.txt","No se pudieron incluir estas imágenes originales:\\n"+failed.join("\\n")+"\\nPrueba abriendo el enlace original.");
- const blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:3}});
- cachedZip={blob,failed,included:items.length-failed.length};cachedKey=key;
- status("ZIP listo: "+cachedZip.included+" imagen(es) originales incluidas."+(failed.length?" "+failed.length+" omitida(s); revisa el TXT dentro del ZIP.":""));
- return cachedZip;
-}
 function whatsappMessage(){
- const items=[...state.selected.values()];
- const list=items.map((x,i)=>(i+1)+". "+x.title+"\n"+(x.href||x.original||"")).join("\n\n");
- return "Hola GRAFIPLOT, tengo "+items.length+" imágenes seleccionadas para imprimir.\n"+list+"\nCompartiré el ZIP con las imágenes originales mediante WhatsApp cuando mi dispositivo lo permita.";
+ const selected=[...state.selected.values()];
+ const items=selected.map((item,i)=>{
+   const direct=item.original||item.href||"";
+   const source=item.href&&item.href!==direct?"\nFicha y licencia: "+item.href:"";
+   return (i+1)+". "+item.title+"\nImagen original: "+direct+source;
+ });
+ return "Hola GRAFIPLOT, seleccioné "+selected.length+" imágenes para consultar su impresión. Estos son los enlaces a las imágenes originales de Wikimedia Commons:\n\n"+items.join("\n\n")+"\n\nEnviado desde el navegador de imágenes GRAFIPLOT.";
 }
-async function shareViaWhatsApp(){
- const button=$("whatsappOrder");
- button.disabled=true;
- try{
-  if(!navigator.share||!navigator.canShare){
-   status("Este navegador no permite compartir ZIP directamente. No se descargó nada. Abre desde Chrome en Android y usa «Enviar ZIP por WhatsApp».");return;
-  }
-  const {blob,included,failed}=await makeZip();
-  if(failed.length){status("No se pueden incluir "+failed.length+" imágenes de la fuente. No se enviará un archivo incompleto; consulta los enlaces originales.");return}
-  const file=new File([blob],"GRAFIPLOT-imagenes-originales.zip",{type:"application/zip"});
-  if(!navigator.canShare({files:[file]})){
-   status("Este dispositivo no permite compartir archivos ZIP directamente. No se descargó nada. Abre desde Chrome en Android o usa los enlaces originales.");return;
-  }
-  await navigator.share({files:[file],title:"Imágenes para GRAFIPLOT",text:"Imágenes originales para impresión en GRAFIPLOT"});
-  status("Se abrió el menú para compartir "+included+" imágenes en ZIP. Selecciona WhatsApp, busca el contacto de GRAFIPLOT (916 133 647) y confirma el envío.");
- }catch(error){
-  if(error.name!=="AbortError")status("No fue posible compartir el ZIP: "+(error.message||"revisa tu conexión o permisos de la fuente"));
- }finally{button.disabled=!state.selected.size}
+function sendLinksToWhatsApp(){
+ const items=[...state.selected.values()];
+ if(!items.length){status("Selecciona al menos una imagen.");return}
+ if(items.length>12){status("WhatsApp admite mensajes de longitud limitada. Selecciona hasta 12 imágenes por envío.");return}
+ const url="https://wa.me/51916133647?text="+encodeURIComponent(whatsappMessage());
+ const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";document.body.append(a);a.click();a.remove();
+ status("Se abrió WhatsApp con "+items.length+" enlaces originales preparados para GRAFIPLOT. Revisa el mensaje y pulsa Enviar; no se descargaron archivos.");
 }
 $("searchForm").onsubmit=e=>{e.preventDefault();searchNow()};
 $("searchInput").oninput=()=>{if(state.mode==="library"){clearTimeout(state.searchTimer);state.searchTimer=setTimeout(searchNow,420)}};
 $("category").onchange=()=>{if(state.mode==="library")searchNow()};
 document.querySelectorAll("[data-kind]").forEach(t=>t.onclick=()=>switchMode(t.dataset.kind));
-$("whatsappOrder").onclick=shareViaWhatsApp;
-$("clearSelection").onclick=()=>{state.selected.clear();cachedZip=null;cachedKey="";paintSelection();render(state.found)};
-const nativeSet=state.selected.set.bind(state.selected),nativeDelete=state.selected.delete.bind(state.selected);
-state.selected.set=(...args)=>{cachedZip=null;cachedKey="";return nativeSet(...args)};
-state.selected.delete=(...args)=>{cachedZip=null;cachedKey="";return nativeDelete(...args)};
+$("whatsappOrder").onclick=sendLinksToWhatsApp;
+$("clearSelection").onclick=()=>{state.selected.clear();paintSelection();render(state.found)};
 paintSelection();connectLibrary();
