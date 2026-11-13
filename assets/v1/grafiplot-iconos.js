@@ -37,7 +37,8 @@ paper+'<path d="m46 91 19-19 15 14 21-24" fill="none" stroke="#fbd963" stroke-wi
 ];
 const icons = document.querySelectorAll(".tile .picture .emoji");
 icons.forEach((node,i)=>{
- if(art[i])node.innerHTML=sheet(art[i]);
+ const iconIndex=i<5?i:i+19;
+ if(art[iconIndex])node.innerHTML=sheet(art[iconIndex]);
  node.classList.add("gp-custom-icon");
 });
 })();
