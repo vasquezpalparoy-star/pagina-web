@@ -6,14 +6,14 @@
 <body>
 <header class="mast"><a class="brand" href="./index.html">🖨️ <span>GRAFIPLOT <b>VASQUEZ</b><small>Mi navegador de libros e imágenes</small></span></a><nav><a href="./index.html">Inicio</a><a href="./pdf.html">Herramientas</a><a class="active" href="./navegador-libros.html">📚 Mi navegador de libros</a></nav></header>
 <main>
-<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Tu biblioteca GRAFIPLOT, libros de Internet e imágenes originales para tus trabajos e impresiones.</p></div></section>
-<div class="tooltabs" role="tablist" aria-label="Tipo de búsqueda"><button type="button" role="tab" id="tab-library" aria-selected="true" data-kind="library">📚 Mi biblioteca</button><button type="button" role="tab" id="tab-internet" aria-selected="false" data-kind="internet">🌐 Libros de Internet</button><button type="button" role="tab" id="tab-images" aria-selected="false" data-kind="images">🖼️ Buscar imágenes</button><button type="button" role="tab" id="tab-local" aria-selected="false" data-kind="local">📁 Mis imágenes</button></div>
+<section class="banner"><div class="banner-icon">📚</div><div><h1>Mi navegador de libros e imágenes</h1><p>Los libros de la biblioteca de tu página GRAFIPLOT y búsquedas en Internet. No accedemos a libros guardados en tu PC o Android.</p></div></section>
+<div class="tooltabs" role="tablist" aria-label="Tipo de búsqueda"><button type="button" role="tab" id="tab-library" aria-selected="true" data-kind="library">📚 Mi biblioteca</button><button type="button" role="tab" id="tab-internet" aria-selected="false" data-kind="internet">🌐 Libros de Internet</button><button type="button" role="tab" id="tab-images" aria-selected="false" data-kind="images">🖼️ Buscar imágenes</button></div>
 <form id="searchForm" class="search"><span>⌕</span><input type="search" id="searchInput" placeholder="Busca un libro, autor, tema o imagen…" aria-label="Buscar libros o imágenes"><button type="submit">Buscar</button></form>
 <p class="hint" id="status" role="status">Cargando tu biblioteca GRAFIPLOT…</p>
 <div class="app">
 <div class="content">
 <div class="topline"><h2 id="resultsTitle">Mi biblioteca GRAFIPLOT</h2><span id="resultsCount"></span></div>
-<div class="filters"><label>Categoría <select id="category"><option value="Todos">Todas</option></select></label><label id="uploadRow" hidden><input id="localFiles" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple> Seleccionar imágenes de mi equipo</label></div>
+<div class="filters"><label>Categoría <select id="category"><option value="Todos">Todas</option></select></label></div>
 <div id="results" class="results"></div>
 </div>
 <aside class="right">
@@ -23,6 +23,6 @@
 <p class="smallnote">Se intenta descargar cada imagen con la resolución original que ofrece su fuente. Si el servidor impide la descarga, te avisaremos. ZIP es compatible con WinRAR. En algunos navegadores debes adjuntar el ZIP manualmente en WhatsApp.</p></section>
 </aside>
 </div>
-<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Libros de tu biblioteca: enlaces de Google Drive. Imágenes públicas: Wikimedia Commons. Respeta las licencias y derechos de autor.</span></footer>
+<footer><span>GRAFIPLOT VASQUEZ · Herramientas de consulta e impresión.</span><span>Libros de tu biblioteca: enlaces configurados en tu página web. Imágenes públicas: Wikimedia Commons. Respeta las licencias y derechos de autor.</span></footer>
 </main><script type="module" src="./assets/v1/navegador-libros.mjs?v=1"></script>
 </body></html>
