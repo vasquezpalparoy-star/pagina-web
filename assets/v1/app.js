@@ -175,10 +175,11 @@ function applyCampaign(config){
  const values={'#gp-campaign-heading':config.campaignTitle||'¡Participa y gana con Grafiplot!','#gp-campaign-copy':config.campaignDescription||'','#gp-campaign-button-text':config.campaignButton||'Inscribirme al sorteo','#gp-campaign-url':config.campaignUrl||''};
  Object.entries(values).forEach(([selector,value])=>root.querySelector(selector).value=value);
  let link='';try{link=httpsLink(config.campaignUrl)}catch(_){}
- campaignBanner.hidden=!active||!link;
+ // La publicidad activa no requiere enlace de destino para mostrarse.
+ campaignBanner.hidden=!active;
  root.querySelector('#gp-campaign-title').textContent=values['#gp-campaign-heading'];root.querySelector('#gp-campaign-description').textContent=values['#gp-campaign-copy'];
  root.querySelector('#gp-campaign-tag').textContent=campaignType.value==='promo'?'OFERTA ESPECIAL':'SORTEO ESPECIAL';
- const cta=root.querySelector('#gp-campaign-link');cta.textContent=values['#gp-campaign-button-text']+' ↗';if(link)cta.href=link;
+ const cta=root.querySelector('#gp-campaign-link');cta.textContent=values['#gp-campaign-button-text']+' ↗';cta.hidden=!link;if(link)cta.href=link;else cta.removeAttribute('href');
  root.querySelector('#gp-campaign-state').textContent=active?'Campaña activa':'Campaña desactivada';
  root.querySelector('#gp-campaign-extra').value=(Array.isArray(config.campaignSlides)?config.campaignSlides:[]).map(s=>[s.title||'',s.description||'',s.url||'',s.image||''].join(' | ')).join('\n');
  window.dispatchEvent(new CustomEvent('gp-campaign-change',{detail:config}));
@@ -331,7 +332,7 @@ async function saveCampaign(e,disable=false){
  if(!cloudReady){campaignFeedback.textContent='No hay conexión con Firebase. La campaña no se ha guardado.';return}
  const button=root.querySelector('#gp-campaign-form button[type="submit"]');button.disabled=true;
  try{
- const enabled=!disable&&campaignActive.checked;const url=httpsLink(root.querySelector('#gp-campaign-url').value,!enabled);
+ const enabled=!disable&&campaignActive.checked;const url=httpsLink(root.querySelector('#gp-campaign-url').value);
  const title=root.querySelector('#gp-campaign-heading').value.trim();const text=root.querySelector('#gp-campaign-button-text').value.trim();
  if(enabled&&(!title||!text))throw Error('Completa el título y el texto del botón.');
  const lines=root.querySelector('#gp-campaign-extra').value.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
