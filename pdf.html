@@ -20,6 +20,11 @@
 const catalog=[
 ["Unir PDF","📑","merge","Selecciona dos o más archivos PDF."],
 ["Comprimir PDF","🗜️","compress","Reduce el peso de los documentos digitalizando sus páginas; puede perderse texto seleccionable."],
+["Optimizar PDF sin perder texto","✨","lossless","Limpia metadatos y guarda de nuevo el PDF. Mantiene el texto seleccionable."],
+["PDF a PNG","🖼️","png","Convierte las páginas en imágenes PNG para compartir o imprimir."],
+["Reconocer texto OCR","🔎","ocr","Lee el texto de escaneos en español desde tu navegador y descarga TXT."],
+["Añadir texto al PDF","✏️","addtext","Escribe un texto en una página sin perder el original."],
+["Agregar firma en PDF","🖊️","signature","Coloca una firma escrita en la página indicada."],
 ["Dividir PDF","✂️","split","Corta el documento después del número de página indicado."],
 ["Girar PDF","🔄","rotate","Gira todas las páginas 90, 180 o 270 grados."],
 ["Organizar páginas","↕️","reorder","Escribe el orden deseado de las páginas, por ejemplo 3,1,2."],
@@ -37,6 +42,10 @@ const $=id=>document.getElementById(id);let current="merge";
 for(const [title,icon,mode,description] of catalog){const b=document.createElement("button");b.type="button";b.className="tool";b.dataset.name=title.toLocaleLowerCase("es");const i=document.createElement("span");i.className="ico";i.textContent=icon;const name=document.createElement("b");name.textContent=title;const caption=document.createElement("small");caption.textContent="Gratis · En tu navegador";b.append(i,name,caption);b.addEventListener("click",()=>select(title,mode,description));$("tools").append(b)}
 $("buscar").addEventListener("input",e=>{let found=0;const q=e.target.value.toLocaleLowerCase("es").trim();for(const card of $("tools").children){card.hidden=!card.dataset.name.includes(q);if(!card.hidden)found++}$("noResults").style.display=found?"none":"block"});
 const configs={
+addtext:["Texto y ubicación","1|GRAFIPLOT|40|60|18","Página|Texto|X|Y|Tamaño. X e Y en puntos desde la esquina inferior izquierda."],
+signature:["Firma y ubicación","1|Firma|40|60|26","Página|Firma|X|Y|Tamaño. Escribe el nombre a firmar."],
+png:["Resolución de imágenes","1.5","Escala de 1 a 3. Más resolución significa más tamaño."],
+ocr:["Idioma de reconocimiento","spa","Escribe spa para español o eng para inglés; se descarga un archivo TXT."],
 compress:["Nivel de compresión","media","Escribe alta, media o baja. Alta: menor tamaño y menor calidad; baja: mejor calidad. El texto deja de ser seleccionable."],
 split:["Número de página donde dividir","1","Se descargan dos PDF: antes y después de la página indicada."],
 rotate:["Grados de giro","90","Escribe 90, 180 o 270."],
@@ -60,6 +69,64 @@ btn.disabled=true;status.textContent="Procesando el archivo...";
 try{
 const {PDFDocument,degrees,rgb,StandardFonts}=await import("https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm");let out;
 const options=$("options").value.trim();
+if(current==="lossless"){
+  const doc=await PDFDocument.load(await files[0].arrayBuffer());
+  doc.setTitle("");doc.setAuthor("");doc.setSubject("");doc.setKeywords([]);doc.setProducer("");doc.setCreator("");
+  const optimized=await doc.save({useObjectStreams:true,objectsPerTick:50});
+  download(optimized,"GRAFIPLOT-optimizado.pdf");
+  const diff=Math.round((1-optimized.length/files[0].size)*100);
+  status.textContent=diff>0?"Archivo optimizado: "+diff+"% menos. Se conserva el texto seleccionable.":"El archivo no redujo su tamaño; el contenido se conservó.";
+  return;
+}
+if(current==="png"||current==="ocr"){
+  const lib=await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs");
+  lib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+  const pdf=await lib.getDocument({data:new Uint8Array(await files[0].arrayBuffer())}).promise;
+  const results=[];
+  const scale=current==="png"?Number(options):1.8;
+  if(current==="png"&&(!Number.isFinite(scale)||scale<1||scale>3))throw Error("Indica una escala entre 1 y 3.");
+  let worker;
+  try{
+    if(current==="ocr"){
+      const language=options.toLowerCase();
+      if(!["spa","eng"].includes(language))throw Error("Idioma válido: spa o eng.");
+      const t=await import("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/+esm");
+      worker=await t.createWorker(language);
+    }
+    for(let i=1;i<=pdf.numPages;i++){
+      status.textContent="Procesando página "+i+" de "+pdf.numPages+"…";
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale});
+      if(viewport.width*viewport.height>18000000)throw Error("Página demasiado grande para procesar en el navegador.");
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.floor(viewport.width);canvas.height=Math.floor(viewport.height);
+      await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+      if(current==="png"){
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+        if(!blob)throw Error("No se pudo exportar PNG.");
+        results.push({name:"pagina-"+String(i).padStart(3,"0")+".png",bytes:await blob.arrayBuffer()});
+      }else{
+        const text=await worker.recognize(canvas);
+        results.push({name:"pagina-"+i,text:text.data.text});
+      }
+      canvas.width=0;canvas.height=0;
+    }
+  }finally{if(worker)await worker.terminate();await pdf.destroy()}
+  if(current==="png"){
+    const zipLib=await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm");
+    const zip=new zipLib.default();
+    for(const item of results)zip.file(item.name,item.bytes);
+    const blob=await zip.generateAsync({type:"blob"});
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="GRAFIPLOT-imagenes.zip";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    status.textContent="Imágenes listas. Se descargó un ZIP con "+results.length+" páginas PNG.";
+  }else{
+    const textContent=results.map(x=>"=== "+x.name+" ===\n"+x.text).join("\n\n");
+    const blob=new Blob([textContent],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="GRAFIPLOT-OCR.txt";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    status.textContent="Reconocimiento terminado. Revisa el texto TXT descargado; el PDF original no se modifica.";
+  }
+  return;
+}
 if(current==="compress"){
 const level=options.toLocaleLowerCase("es");
 const settings={alta:{scale:.85,quality:.45},media:{scale:1.2,quality:.68},baja:{scale:1.7,quality:.83}}[level];
@@ -107,6 +174,17 @@ else if(current==="number"){const start=Number(options);if(!Number.isInteger(sta
 else if(current==="watermark"){if(!options||options.length>80)throw Error("Escribe un texto de hasta 80 caracteres.");const font=await doc.embedFont(StandardFonts.Helvetica);const printable=options.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g,"");if(!printable)throw Error("Utiliza un texto con letras y números.");doc.getPages().forEach(page=>{const size=Math.min(54,Math.max(12,page.getWidth()/12));page.drawText(printable,{x:page.getWidth()*.13,y:page.getHeight()*.37,size,font,rotate:degrees(35),color:rgb(.65,.12,.18),opacity:.2})})}
 else if(current==="blank"){doc.addPage([595.28,841.89])}
 else if(current==="resize"){const format=options.toUpperCase();const target={A4:[595.28,841.89],A3:[841.89,1190.55]}[format];if(!target)throw Error("Escribe A4 o A3.");out=await PDFDocument.create();for(const page of doc.getPages()){const embedded=await out.embedPage(page);const [tw,th]=target;const fit=Math.min(tw/embedded.width,th/embedded.height);const next=out.addPage(target);next.drawPage(embedded,{x:(tw-embedded.width*fit)/2,y:(th-embedded.height*fit)/2,width:embedded.width*fit,height:embedded.height*fit})}}
+else if(current==="addtext"||current==="signature"){
+ const chunks=options.split("|").map(x=>x.trim());
+ if(chunks.length!==5)throw Error("Usa el formato página|texto|X|Y|tamaño");
+ const [pageNumber,text,x,y,size]=chunks;
+ const at=Number(pageNumber)-1,px=Number(x),py=Number(y),pt=Number(size);
+ if(!text||at<0||at>=count||![px,py,pt].every(Number.isFinite)||pt<=0||pt>150)throw Error("Página, texto o ubicación no válidos.");
+ const font=await doc.embedFont(current==="signature"?StandardFonts.TimesRomanItalic:StandardFonts.Helvetica);
+ const safe=text.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g,"");
+ if(!safe)throw Error("Utiliza texto con letras.");
+ doc.getPage(at).drawText(safe,{x:px,y:py,size:pt,font,color:rgb(.1,.1,.13)});
+}
 else if(current==="meta"){if(!options)throw Error("Indica un título.");doc.setTitle(options)}
 }
 download(await out.save(),"GRAFIPLOT-"+current+".pdf");status.textContent="Archivo preparado. Visualiza el resultado antes de descargarlo."
