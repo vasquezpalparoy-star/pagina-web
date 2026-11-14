@@ -1,0 +1,14 @@
+/* Editor de tutoriales en el panel de propietario */
+#gp-video-settings{border:1px solid #d5dce8;border-radius:13px;padding:12px;margin:15px 0}
+#gp-video-settings>summary{cursor:pointer;font-weight:900;font-size:18px}
+#gp-video-editor{display:grid;gap:12px;margin:15px 0}
+.gp-instructional-video-row{border:1px solid #cbd4e1;border-radius:12px;padding:13px;background:rgba(130,146,168,.07)}
+.gp-instructional-video-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.gp-instructional-video-head strong{font-size:15px}
+.gp-instructional-video-head button{padding:6px 12px!important;font-size:12px!important}
+.gp-instructional-video-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gp-instructional-video-fields label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:700;min-width:0}
+.gp-instructional-video-fields input,.gp-instructional-video-fields select,.gp-instructional-video-fields textarea{width:100%;min-width:0;box-sizing:border-box;padding:10px;border:1px solid #a6b0c0;border-radius:8px;background:#fff;color:#191b24;font:14px system-ui,sans-serif}
+.gp-instructional-video-fields label:nth-child(3),.gp-instructional-video-fields label:nth-child(4),.gp-instructional-video-fields label:nth-child(5){grid-column:1/-1}
+#gp-video-feedback{margin:10px 0;font-weight:700}
+@media(max-width:650px){.gp-instructional-video-fields{grid-template-columns:1fr}.gp-instructional-video-fields label{grid-column:1/-1}}
