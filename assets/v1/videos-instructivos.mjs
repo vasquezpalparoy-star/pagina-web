@@ -1,6 +1,21 @@
 import {USER_FIREBASE_CONFIG} from './config.js';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
-const categories=['Todos los videos','Impresión y copias','Tipos de impresión','Encuadernado','Sublimación','Planos','Escaneos','Diseño y edición','Consejos y tutoriales'];
+const defaults=['Impresión y copias','Tipos de impresión','Encuadernado','Sublimación','Planos','Escaneos','Diseño y edición','Consejos y tutoriales'];
+let categories=['Todos los videos',...defaults];
+function updateCategories(value){
+ const raw=Array.isArray(value)?value:defaults;
+ const clean=[...new Set(raw.map(x=>String(x||'').trim().slice(0,55)).filter(Boolean))].slice(0,35);
+ categories=['Todos los videos',...(clean.length?clean:defaults)];
+ if(!categories.includes(category))category=categories[0];
+ const dropdown=$('edit-category');
+ if(dropdown){
+  const previous=dropdown.value;
+  dropdown.replaceChildren();
+  categories.slice(1).forEach(c=>dropdown.append(new Option(c,c)));
+  if(categories.includes(previous))dropdown.value=previous;
+ }
+ buildFilters();
+}
 const $=id=>document.getElementById(id);
 const defaultList=[];
 const safeImage=value=>{try{const u=new URL(value);return u.protocol==='https:'?u.href:''}catch{return ''}};
@@ -28,7 +43,7 @@ function normalized(item){
  if(!item||typeof item!=='object')return null;
  const title=String(item.title||'').trim().slice(0,100),url=String(item.url||'').trim();
  if(!title||!videoInfo(url))return null;
- return {id:String(item.id||'').slice(0,100)||String(Date.now()),title,url,category:categories.includes(item.category)?item.category:categories[1],description:String(item.description||'').slice(0,500),thumbnail:safeImage(item.thumbnail||'')};
+ return {id:String(item.id||'').slice(0,100)||String(Date.now()),title,url,category:String(item.category||categories[1]).slice(0,55),description:String(item.description||'').slice(0,500),thumbnail:safeImage(item.thumbnail||'')};
 }
 function el(tag,className,text){const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e}
 function buildFilters(){
@@ -95,7 +110,7 @@ async function persist(next){
 $('search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render()});
 $('admin-toggle').addEventListener('click',()=>{$('admin').hidden=!$('admin').hidden});
 $('admin-clear').addEventListener('click',resetForm);
-for(const name of categories.slice(1)){$('edit-category').append(new Option(name,name))}
+updateCategories(null);
 $('video-form').addEventListener('submit',async e=>{
  e.preventDefault();const url=$('edit-url').value.trim();
  if(!videoInfo(url)){$('admin-status').textContent='Usa un enlace válido de YouTube o Google Drive.';return}
@@ -126,7 +141,10 @@ async function connect(){
   });
   sdk.onSnapshot(ref,{includeMetadataChanges:true},snapshot=>{
    cloudReady=!snapshot.metadata.fromCache;
-   if(snapshot.exists())records=(Array.isArray(snapshot.data().instructionalVideos)?snapshot.data().instructionalVideos:[]).map(normalized).filter(Boolean).slice(0,100);
+   if(snapshot.exists()){
+    updateCategories(snapshot.data().instructionalVideoCategories);
+    records=(Array.isArray(snapshot.data().instructionalVideos)?snapshot.data().instructionalVideos:[]).map(normalized).filter(Boolean).slice(0,100);
+   }
    render();
   },err=>{status('No se pudieron consultar los videos publicados.');$('admin-status').textContent=String(err.code||'Error de lectura')});
  }catch(err){status('No se pudo conectar con Firebase.');$('admin-status').textContent=err.message}
