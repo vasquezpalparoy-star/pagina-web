@@ -23,3 +23,11 @@
 .gp-video-settings-shortcut #gp-video-settings-link:hover{filter:brightness(1.12)}
 #gp-video-settings{margin-top:6px;margin-bottom:18px}
 #gp-video-settings[open] #gp-video-editor{display:grid}
+
+.gp-video-categories-panel{border:1px solid #d7dfea;border-radius:12px;padding:14px;margin:14px 0;background:rgba(152,161,183,.08)}
+.gp-video-categories-panel h3{font-size:17px;margin:0 0 7px}
+#gp-video-categories-editor{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.gp-video-category-row{display:flex;align-items:center;gap:7px;min-width:0}
+.gp-video-category-row input{flex:1;min-width:0;padding:9px 10px;border:1px solid #b0bacb;border-radius:8px;background:#fff;color:#171d29;font:14px system-ui,sans-serif}
+.gp-video-category-row button{padding:8px 10px!important;font-size:12px!important}
+@media(max-width:730px){#gp-video-categories-editor{grid-template-columns:1fr}}
