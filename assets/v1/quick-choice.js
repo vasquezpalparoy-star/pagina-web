@@ -90,9 +90,13 @@ function init(){
    cover.hidden=!safeImage;
   }
  }
+ function announceAdModal(open){
+  window.dispatchEvent(new CustomEvent('gp-ad-modal-state',{detail:{open}}));
+ }
  function closeAd(){
   dismissed=true;
   adBackdrop.hidden=true;stopAdVideo();document.body.classList.remove('gp-quick-visible');
+  announceAdModal(false);
   adClose.blur();
  }
  adClose.addEventListener('click',closeAd);
@@ -115,6 +119,7 @@ function init(){
   if(safeLink){link.href=safeLink;link.textContent=String(config.campaignButton||'Ver promoción').slice(0,80)+' ↗'}
   else link.removeAttribute('href');
   adBackdrop.hidden=false;document.body.classList.add('gp-quick-visible');
+  announceAdModal(true);
   adClose.focus({preventScroll:true});
  }
  function campaignChange(event){
@@ -126,7 +131,7 @@ function init(){
    showAd(config);
   }else{
    // Si Firebase confirma que la campaña fue desactivada, retirar su popup.
-   if(!adBackdrop.hidden){adBackdrop.hidden=true;document.body.classList.remove('gp-quick-visible')}
+   if(!adBackdrop.hidden){adBackdrop.hidden=true;stopAdVideo();document.body.classList.remove('gp-quick-visible');announceAdModal(false)}
    adAlreadyDisplayed=false;
    if(!dismissed&&overlay.hidden)show();
   }
