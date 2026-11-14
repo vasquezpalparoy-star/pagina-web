@@ -14,20 +14,18 @@ function init(){
  '<a class="gp-quick-option" href="./pdf.html" data-action="tools"><span class="gp-quick-symbol" aria-hidden="true">🛠️</span><strong>Herramientas gratis</strong><small>FUT, PDF, carátulas y más</small><span class="gp-quick-arrow" aria-hidden="true">➜</span></a>'+
  '<a class="gp-quick-option" href="./navegador-libros.html" data-action="books"><span class="gp-quick-symbol" aria-hidden="true">📚</span><strong>Buscar libros e imágenes</strong><small>Biblioteca GRAFIPLOT e Internet</small><span class="gp-quick-arrow" aria-hidden="true">➜</span></a>'+
  '</div></section>';
- const reopen=document.createElement('button');reopen.id='gp-quick-reopen';reopen.type='button';reopen.className='gp-quick-reopen';reopen.textContent='✨ ¿Qué quieres hacer hoy?';reopen.setAttribute('aria-label','Volver a abrir las opciones rápidas');reopen.hidden=true;
- document.body.append(overlay,reopen);
+ document.body.append(overlay);
  const close=overlay.querySelector('.gp-quick-close');
  let lastFocus=null,decisionReceived=false,initialTimer=null,adAlreadyDisplayed=false;
  function show(){
   if(!lastFocus)lastFocus=document.activeElement;
-  overlay.hidden=false;reopen.hidden=true;document.body.classList.add('gp-quick-visible');close.focus({preventScroll:true});
+  overlay.hidden=false;document.body.classList.add('gp-quick-visible');close.focus({preventScroll:true});
  }
  function hide(){
-  overlay.hidden=true;reopen.hidden=false;document.body.classList.remove('gp-quick-visible');
-  if(lastFocus?.isConnected&&lastFocus!==document.body)lastFocus.focus({preventScroll:true});else reopen.focus({preventScroll:true});
+  overlay.hidden=true;document.body.classList.remove('gp-quick-visible');
+  if(lastFocus?.isConnected&&lastFocus!==document.body)lastFocus.focus({preventScroll:true});else close.blur();
  }
  close.addEventListener('click',hide);
- reopen.addEventListener('click',show);
  overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});
  overlay.addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();hide();return}
@@ -58,8 +56,8 @@ function init(){
  document.body.append(adBackdrop);
  const adClose=adBackdrop.querySelector('.gp-quick-close');
  function closeAd(){
-  adBackdrop.hidden=true;reopen.hidden=false;document.body.classList.remove('gp-quick-visible');
-  reopen.focus({preventScroll:true});
+  adBackdrop.hidden=true;document.body.classList.remove('gp-quick-visible');
+  adClose.blur();
  }
  adClose.addEventListener('click',closeAd);
  adBackdrop.addEventListener('click',e=>{if(e.target===adBackdrop)closeAd()});
@@ -85,7 +83,7 @@ function init(){
   link.hidden=!safeLink;
   if(safeLink){link.href=safeLink;link.textContent=String(config.campaignButton||'Ver promoción').slice(0,80)+' ↗'}
   else link.removeAttribute('href');
-  reopen.hidden=true;adBackdrop.hidden=false;document.body.classList.add('gp-quick-visible');
+  adBackdrop.hidden=false;document.body.classList.add('gp-quick-visible');
   adClose.focus({preventScroll:true});
  }
  function campaignChange(event){
