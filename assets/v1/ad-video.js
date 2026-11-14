@@ -12,7 +12,8 @@ function parse(value){
   else if(parts[0]==='open'||parts[0]==='uc')id=url.searchParams.get('id')||'';
   if(!/^[a-zA-Z0-9_-]{10,200}$/.test(id))return null;
   provider='drive';
-  return {provider,embed:'https://drive.google.com/file/d/'+id+'/preview',url:url.href};
+  // Drive puede ignorar los parámetros: solicitamos inicio silenciado como mejor esfuerzo.
+  return {provider,embed:'https://drive.google.com/file/d/'+id+'/preview?autoplay=1&mute=1',url:url.href};
  }
  if(host==='youtube.com'||host==='m.youtube.com'||host==='youtube-nocookie.com'){
   if(parts[0]==='watch')id=url.searchParams.get('v')||'';
