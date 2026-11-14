@@ -60,26 +60,51 @@ function init(){
  videoWrap.className='gp-quick-promo-video';
  videoWrap.hidden=true;
  adBackdrop.querySelector('.gp-quick-promo-image').insertAdjacentElement('afterend',videoWrap);
- let stopCover=()=>{};
- function stopAdVideo(){stopCover();stopCover=()=>{};videoWrap.replaceChildren()}
+ let stopCover=()=>{},mediaLoadTimer=null;
+ function stopAdVideo(){if(mediaLoadTimer!==null)clearTimeout(mediaLoadTimer);mediaLoadTimer=null;stopCover();stopCover=()=>{};videoWrap.replaceChildren()}
  function setAdMedia(config){
   stopAdVideo();
   const source=config.campaignMediaType==='video'?window.GrafiplotAdVideo?.parse(config.campaignVideoUrl):null;
   const cover=adBackdrop.querySelector('.gp-quick-promo-image');
   if(source){
    cover.hidden=true;videoWrap.hidden=false;
+   // Mantener una portada clara y visible mientras carga el reproductor externo.
+   const notice=document.createElement('div');
+   notice.className='gp-ad-loading';
+   notice.textContent=source.provider==='drive'?'Cargando video de Google Drive…':'Cargando publicidad de GRAFIPLOT…';
+   videoWrap.append(notice);
    const frame=window.GrafiplotAdVideo.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
    if(frame){
+    frame.style.visibility='hidden';
+    frame.addEventListener('load',()=>{
+     if(!frame.isConnected)return;
+     frame.style.visibility='visible';notice.remove();
+    },{once:true});
+    frame.addEventListener('error',()=>{
+     if(!frame.isConnected)return;
+     notice.textContent='No se pudo cargar el video. Puedes abrirlo en su plataforma.';
+    },{once:true});
     videoWrap.append(frame);
     stopCover=window.GrafiplotAdVideo.cover(frame,videoWrap);
+    mediaLoadTimer=setTimeout(()=>{
+     if(!frame.isConnected)return;
+     // Evitar una pantalla negra permanente si falla el reproductor de terceros.
+     if(frame.style.visibility==='hidden'){
+      frame.remove();
+      notice.textContent='No se pudo cargar el video. Ábrelo en '+(source.provider==='drive'?'Drive.':'YouTube.');
+     }
+    },9000);
    }
-   // Drive puede ignorar autoplay: mostrar un acceso manual al video.
    if(source.provider==='drive'){
     const note=document.createElement('a');
     note.className='gp-drive-video-fallback';
     note.href=source.url;note.target='_blank';note.rel='noopener noreferrer';
-    note.textContent='Si Drive no inicia, abrir video ↗';
+    note.textContent='Si Drive no reproduce, abrir video ↗';
     videoWrap.append(note);
+   }else{
+    const note=document.createElement('a');
+    note.className='gp-drive-video-fallback';note.href=source.url;note.target='_blank';note.rel='noopener noreferrer';
+    note.textContent='Abrir en YouTube ↗';videoWrap.append(note);
    }
   }else{
    videoWrap.hidden=true;
@@ -111,7 +136,6 @@ function init(){
   adBackdrop.querySelector('.gp-quick-promo-label').textContent=config.campaignType==='sorteo'?'SORTEO GRAFIPLOT':'PROMOCIÓN GRAFIPLOT';
   adBackdrop.querySelector('#gp-quick-promo-title').textContent=title;
   adBackdrop.querySelector('.gp-quick-promo-description').textContent=desc;
-  setAdMedia(config);
   const link=adBackdrop.querySelector('.gp-quick-promo-link');
   let safeLink='';
   try{const url=new URL(String(config.campaignUrl||''));if(url.protocol==='https:')safeLink=url.href}catch{}
@@ -120,6 +144,7 @@ function init(){
   else link.removeAttribute('href');
   adBackdrop.hidden=false;document.body.classList.add('gp-quick-visible');
   announceAdModal(true);
+  setAdMedia(config);
   adClose.focus({preventScroll:true});
  }
  function campaignChange(event){
