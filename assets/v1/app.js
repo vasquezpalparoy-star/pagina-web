@@ -3,7 +3,7 @@ import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=visual1';
 import {updateBotContext} from './grafibot-context.js?v=visual1';
-let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=email-settings-20261005'));
+let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
 const library=initLibrary(root);library.load();
@@ -222,11 +222,26 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
  try{
   if(!await verifyOwnerWrite())throw Error('Tu sesión no está autorizada.');
   if(!cloudReady)throw Error('Sin conexión confirmada con Firebase.');
-  await setDoc(settingsRef,{instructionalVideos:videos,instructionalVideoCategories:videoCategories},{merge:true});
-  cloudConfig={...cloudConfig,instructionalVideos:videos,instructionalVideoCategories:videoCategories.slice()};
-  instructionalVideoDraft=videos.map(v=>({...v}));renderInstructionalVideos();
-  status.textContent=videos.length+' video(s) y '+videoCategories.length+' categoría(s) guardados en Firebase.';
- }catch(error){status.textContent='No se guardaron los videos: '+(error.message||'revisa tu conexión')}
+  await setDoc(settingsRef,{instructionalVideos:videos,instructionalVideoCategories:videoCategories.slice()},{merge:true});
+  // Verificar contra el servidor, no solamente contra la caché del navegador.
+  status.textContent='Guardado enviado. Comprobando datos en Firebase…';
+  const {getDocFromServer}=await loadFirebase();
+  const verified=await getDocFromServer(settingsRef);
+  const saved=verified.data()||{};
+  const actualVideos=Array.isArray(saved.instructionalVideos)?saved.instructionalVideos:[];
+  const actualCategories=Array.isArray(saved.instructionalVideoCategories)?saved.instructionalVideoCategories:[];
+  if(!verified.exists()||JSON.stringify(actualVideos)!==JSON.stringify(videos)||JSON.stringify(actualCategories)!==JSON.stringify(videoCategories))
+   throw Object.assign(new Error('Firebase no devolvió los mismos datos. Actualiza y vuelve a comprobar antes de editar de nuevo.'),{code:'verification-failed'});
+  cloudConfig={...cloudConfig,instructionalVideos:actualVideos,instructionalVideoCategories:actualCategories};
+  instructionalVideoDraft=actualVideos.map(v=>({...v}));renderVideoCategories();renderInstructionalVideos();
+  status.textContent='✅ Confirmado en Firebase: '+actualVideos.length+' video(s) y '+actualCategories.length+' categoría(s).';
+ }catch(error){
+  const explanation=error?.code==='permission-denied'?'Firebase rechazó el permiso de lectura o escritura. Comprueba las reglas de Firestore para la cuenta propietaria.'
+   :error?.code==='unavailable'?'No fue posible confirmar la conexión con Firebase.'
+   :error?.code==='resource-exhausted'?'Firebase alcanzó un límite o cuota.'
+   :error?.message||'Revisa tu conexión.';
+  status.textContent='⚠ Guardado sin confirmar ('+(error?.code||'error')+'): '+explanation;
+ }
  finally{videoSaveBusy=false;button.disabled=false}
 });
 
