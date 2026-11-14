@@ -172,6 +172,9 @@ function whatsapp(message){window.open('https://wa.me/'+configuredPhone()+'?text
 function applyCampaign(config){
  const active=config.campaignEnabled===true;
  campaignActive.checked=active;campaignType.value=config.campaignType||'sorteo';
+ const mediaType=root.querySelector('#gp-campaign-media-type'),videoUrl=root.querySelector('#gp-campaign-video-url');
+ if(mediaType)mediaType.value=config.campaignMediaType==='video'?'video':'image';
+ if(videoUrl)videoUrl.value=String(config.campaignVideoUrl||'');
  const values={'#gp-campaign-heading':config.campaignTitle||'¡Participa y gana con Grafiplot!','#gp-campaign-copy':config.campaignDescription||'','#gp-campaign-button-text':config.campaignButton||'Inscribirme al sorteo','#gp-campaign-url':config.campaignUrl||''};
  Object.entries(values).forEach(([selector,value])=>root.querySelector(selector).value=value);
  let link='';try{link=httpsLink(config.campaignUrl)}catch(_){}
@@ -181,7 +184,7 @@ function applyCampaign(config){
  root.querySelector('#gp-campaign-tag').textContent=campaignType.value==='promo'?'OFERTA ESPECIAL':'SORTEO ESPECIAL';
  const cta=root.querySelector('#gp-campaign-link');cta.textContent=values['#gp-campaign-button-text']+' ↗';cta.hidden=!link;if(link)cta.href=link;else cta.removeAttribute('href');
  root.querySelector('#gp-campaign-state').textContent=active?'Campaña activa':'Campaña desactivada';
- root.querySelector('#gp-campaign-extra').value=(Array.isArray(config.campaignSlides)?config.campaignSlides:[]).map(s=>[s.title||'',s.description||'',s.url||'',s.image||''].join(' | ')).join('\n');
+ root.querySelector('#gp-campaign-extra').value=(Array.isArray(config.campaignSlides)?config.campaignSlides:[]).map(s=>[s.title||'',s.description||'',s.url||'',s.image||'',s.video||''].join(' | ')).join('\n');
  window.dispatchEvent(new CustomEvent('gp-campaign-change',{detail:config}));
 }
 function applyServiceImages(images={}){
@@ -339,10 +342,15 @@ async function saveCampaign(e,disable=false){
  if(lines.length>9)throw Error('Máximo 9 anuncios adicionales.');
  const campaignSlides=lines.map((line,i)=>{
   const parts=line.split('|').map(v=>v.trim());
-  if(parts.length<3||parts.length>4||!parts[0])throw Error('Revisa la línea '+(i+1)+'. Usa: título | descripción | enlace | imagen opcional');
-  return {title:parts[0].slice(0,100),description:parts[1].slice(0,200),url:httpsLink(parts[2],false),image:httpsLink(parts[3]||'')};
+  if(parts.length<3||parts.length>5||!parts[0])throw Error('Revisa la línea '+(i+1)+'. Usa: título | descripción | enlace | imagen | video opcional');
+  const video=parts[4]||'';
+  if(video&&!window.GrafiplotAdVideo?.parse(video))throw Error('Enlace de video no válido en el anuncio '+(i+1)+'. Usa Google Drive o YouTube.');
+  return {title:parts[0].slice(0,100),description:parts[1].slice(0,200),url:httpsLink(parts[2],false),image:httpsLink(parts[3]||''),video};
  });
- const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides};
+ const mediaType=root.querySelector('#gp-campaign-media-type').value;
+ const videoUrl=root.querySelector('#gp-campaign-video-url').value.trim();
+ if(mediaType==='video'&&enabled&&!window.GrafiplotAdVideo?.parse(videoUrl))throw Error('Para usar un video debes pegar un enlace válido de Google Drive o YouTube.');
+ const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides,campaignMediaType:mediaType,campaignVideoUrl:videoUrl};
  await setDoc(settingsRef,patch,{merge:true});cloudConfig={...cloudConfig,...patch};applyCampaign(cloudConfig);campaignFeedback.textContent=enabled?'Campaña activada y guardada en Firebase.':'Campaña desactivada y guardada en Firebase.';if(enabled)go('gp-campaign-banner');
  }catch(error){campaignFeedback.textContent='No se pudo guardar la campaña: '+error.message}finally{button.disabled=false}
 }
