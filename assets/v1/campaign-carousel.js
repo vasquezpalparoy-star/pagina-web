@@ -16,9 +16,10 @@ const safeSlides=config=>{
  const additional=Array.isArray(config.campaignSlides)?config.campaignSlides.slice(0,9).map(s=>({title:String(s?.title||'').slice(0,100),description:String(s?.description||'').slice(0,200),button:'Ver promoción',url:cleanUrl(s?.url),image:cleanUrl(s?.image),video:window.GrafiplotAdVideo?.parse(s?.video)?s.video:'',type:'promo'})).filter(s=>s.title):[];
  return [primary,...additional].filter(s=>s.title);
 };
-let stopCover=()=>{};
+let stopCover=()=>{},loadTimer=null;
 function stop(){if(timer!==null)clearInterval(timer);timer=null}
 function stopVideo(){
+ if(loadTimer!==null)clearTimeout(loadTimer);loadTimer=null;
  stopCover();stopCover=()=>{};videoPlaying=false;
  for(const media of stage.querySelectorAll('.gp-ad-video'))media.replaceChildren();
 }
@@ -31,12 +32,18 @@ function loadVideo(index){
  const frame=window.GrafiplotAdVideo?.frame(slide.video,'Promoción: '+slide.title);
  if(!frame)return;
  stopVideo();videoPlaying=true;stop();
+ const wait=document.createElement('div');wait.className='gp-ad-loading';wait.textContent='Cargando video de GRAFIPLOT…';
+ media.append(wait);
+ frame.style.visibility='hidden';
+ frame.addEventListener('load',()=>{if(!frame.isConnected)return;frame.style.visibility='visible';wait.remove()},{once:true});
+ frame.addEventListener('error',()=>{if(frame.isConnected)wait.textContent='No se pudo cargar este video.'},{once:true});
  media.append(frame);
  stopCover=window.GrafiplotAdVideo.cover(frame,media);
- if(source?.provider==='drive'){
+ loadTimer=setTimeout(()=>{if(frame.isConnected&&frame.style.visibility==='hidden'){frame.remove();wait.textContent='No se pudo cargar el video. Ábrelo en su plataforma.'}},9000);
+ if(source){
   const fallback=document.createElement('a');fallback.className='gp-drive-video-fallback';
   fallback.href=source.url;fallback.target='_blank';fallback.rel='noopener noreferrer';
-  fallback.textContent='¿No se reproduce? Abrir en Drive ↗';media.append(fallback);
+  fallback.textContent='Abrir en '+(source.provider==='drive'?'Drive':'YouTube')+' ↗';media.append(fallback);
  }
 }
 function show(i){
