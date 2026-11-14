@@ -101,6 +101,82 @@ async function verifyOwnerWrite(){
   return false;
  }
 }
+// Editor independiente de videos instructivos en las Configuraciones principales.
+const videoCategories=['Impresión y copias','Tipos de impresión','Encuadernado','Sublimación','Planos','Escaneos','Diseño y edición','Consejos y tutoriales'];
+let instructionalVideoDraft=[],videoIdCounter=0,videoSaveBusy=false;
+function loadInstructionalVideos(){
+ instructionalVideoDraft=(Array.isArray(cloudConfig.instructionalVideos)?cloudConfig.instructionalVideos:[]).filter(item=>item&&typeof item==='object').slice(0,100).map(item=>({
+  id:String(item.id||'').slice(0,100),title:String(item.title||'').slice(0,100),description:String(item.description||'').slice(0,500),
+  category:videoCategories.includes(item.category)?item.category:videoCategories[0],
+  url:String(item.url||'').slice(0,1500),thumbnail:String(item.thumbnail||'').slice(0,1500)
+ }));
+ renderInstructionalVideos();
+}
+function renderInstructionalVideos(){
+ const container=root.querySelector('#gp-video-editor');if(!container)return;
+ container.replaceChildren();
+ if(!instructionalVideoDraft.length){
+  const empty=document.createElement('p');empty.textContent='Aún no has agregado videos. Pulsa «+ Añadir video» para empezar.';container.append(empty);
+ }
+ instructionalVideoDraft.forEach((video,index)=>{
+  const row=document.createElement('div');row.className='gp-instructional-video-row';
+  const head=document.createElement('div');head.className='gp-instructional-video-head';
+  const title=document.createElement('strong');title.textContent='Video '+(index+1);
+  const remove=document.createElement('button');remove.type='button';remove.className='gp-button secondary';remove.textContent='Eliminar';
+  remove.addEventListener('click',()=>{instructionalVideoDraft.splice(index,1);renderInstructionalVideos()});head.append(title,remove);row.append(head);
+  const fields=document.createElement('div');fields.className='gp-instructional-video-fields';
+  function inputField(labelText,key,placeholder,maxLength,kind='input'){
+   const label=document.createElement('label');label.textContent=labelText;
+   const field=document.createElement(kind);field.value=video[key]||'';field.placeholder=placeholder;
+   field.maxLength=maxLength;if(kind==='input')field.type=key==='url'||key==='thumbnail'?'url':'text';
+   if(kind==='textarea')field.rows=2;
+   field.addEventListener('input',()=>{video[key]=field.value});label.append(field);fields.append(label);
+  }
+  inputField('Nombre del video','title','Ej.: Impresión A4 a doble cara',100);
+  const categoryLabel=document.createElement('label');categoryLabel.textContent='Categoría';
+  const categorySelect=document.createElement('select');
+  for(const c of videoCategories){const option=document.createElement('option');option.value=c;option.textContent=c;categorySelect.append(option)}
+  categorySelect.value=video.category;categorySelect.addEventListener('change',()=>video.category=categorySelect.value);
+  categoryLabel.append(categorySelect);fields.append(categoryLabel);
+  inputField('Enlace de YouTube o Google Drive','url','https://youtu.be/... o https://drive.google.com/file/d/.../view',1500);
+  inputField('Descripción del video','description','Describe qué aprenderá el cliente',500,'textarea');
+  inputField('Imagen de portada (opcional)','thumbnail','https://.../imagen.jpg',1500);
+  row.append(fields);container.append(row);
+ });
+}
+root.querySelector('#gp-video-add').addEventListener('click',()=>{
+ if(instructionalVideoDraft.length>=100){root.querySelector('#gp-video-feedback').textContent='Máximo 100 videos.';return}
+ instructionalVideoDraft.push({id:'video-'+Date.now()+'-'+(++videoIdCounter),title:'',description:'',category:videoCategories[0],url:'',thumbnail:''});
+ renderInstructionalVideos();
+ const settings=root.querySelector('#gp-video-settings');settings.open=true;
+ const fields=root.querySelectorAll('.gp-instructional-video-fields input');fields[fields.length-3]?.focus();
+});
+root.querySelector('#gp-video-save').addEventListener('click',async()=>{
+ const status=root.querySelector('#gp-video-feedback');
+ if(videoSaveBusy)return;
+ if(!settingsUnlocked){status.textContent='Ingresa con tu cuenta de administrador para guardar.';return}
+ if(!cloudReady||!settingsRef){status.textContent='No hay conexión confirmada con Firebase. Intenta de nuevo.';return}
+ const videos=[];
+ for(let i=0;i<instructionalVideoDraft.length;i++){
+  const v=instructionalVideoDraft[i],title=v.title.trim(),url=v.url.trim(),description=v.description.trim(),thumbnail=v.thumbnail.trim();
+  if(!title||!url){status.textContent='Video '+(i+1)+': escribe nombre y enlace.';return}
+  if(!window.GrafiplotAdVideo?.parse(url)){status.textContent='Video '+(i+1)+': usa un enlace válido de YouTube o Google Drive.';return}
+  let image='';
+  try{image=httpsLink(thumbnail,false)}catch{status.textContent='Video '+(i+1)+': revisa la imagen de portada.';return}
+  videos.push({id:v.id||'video-'+Date.now()+'-'+i,title:title.slice(0,100),description:description.slice(0,500),category:v.category,url,thumbnail:image});
+ }
+ const button=root.querySelector('#gp-video-save');button.disabled=true;videoSaveBusy=true;status.textContent='Guardando videos en Firebase…';
+ try{
+  if(!await verifyOwnerWrite())throw Error('Tu sesión no está autorizada.');
+  if(!cloudReady)throw Error('Sin conexión confirmada con Firebase.');
+  await setDoc(settingsRef,{instructionalVideos:videos},{merge:true});
+  cloudConfig={...cloudConfig,instructionalVideos:videos};
+  instructionalVideoDraft=videos.map(v=>({...v}));renderInstructionalVideos();
+  status.textContent=videos.length+' video(s) guardado(s) correctamente. Aparecerán en la página de videos instructivos.';
+ }catch(error){status.textContent='No se guardaron los videos: '+(error.message||'revisa tu conexión')}
+ finally{videoSaveBusy=false;button.disabled=false}
+});
+
 async function enterOwnerSettings(event){
  event.preventDefault();
  if(!ownerAuth){ownerFeedback('La conexión aún no está lista.');return;}
@@ -262,6 +338,7 @@ function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudC
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
+ loadInstructionalVideos();
  if(!siteSettings.hidden||!campaignAdmin.hidden||root.dataset.visualSession==='true')return;
  siteProducts=Array.isArray(cloudConfig.siteProducts)?structuredClone(cloudConfig.siteProducts):[];mergeSiteProducts();
  applyPreviewConfig(cloudConfig.designConfig||{});
