@@ -206,7 +206,7 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
  const status=root.querySelector('#gp-video-feedback');
  if(videoSaveBusy)return;
  if(!settingsUnlocked){status.textContent='Ingresa con tu cuenta de administrador para guardar.';return}
- if(!cloudReady||!settingsRef){status.textContent='No hay conexión confirmada con Firebase. Intenta de nuevo.';return}
+ if(!settingsRef){status.textContent='Firebase todavía no está conectado. Comprueba que diga «Conectado» e intenta nuevamente.';return}
  const videos=[];
  for(let i=0;i<instructionalVideoDraft.length;i++){
   const v=instructionalVideoDraft[i],title=v.title.trim(),url=v.url.trim(),description=v.description.trim(),thumbnail=v.thumbnail.trim();
@@ -215,7 +215,7 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
   if(!videoCategories.includes(v.category)){status.textContent='Video '+(i+1)+': elige una categoría válida.';return}
   if(!window.GrafiplotAdVideo?.parse(url)){status.textContent='Video '+(i+1)+': usa un enlace válido de YouTube o Google Drive.';return}
   let image='';
-  try{image=httpsLink(thumbnail,false)}catch{status.textContent='Video '+(i+1)+': revisa la imagen de portada.';return}
+  try{image=thumbnail?httpsLink(thumbnail,false):''}catch{status.textContent='Video '+(i+1)+': revisa la imagen de portada. Usa un enlace https:// válido, o déjala vacía.';return}
   videos.push({id:v.id||'video-'+Date.now()+'-'+i,title:title.slice(0,100),description:description.slice(0,500),category:v.category,url,thumbnail:image});
  }
  const button=root.querySelector('#gp-video-save');button.disabled=true;videoSaveBusy=true;status.textContent='Guardando videos en Firebase…';
