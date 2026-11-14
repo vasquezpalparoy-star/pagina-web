@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const section=document.querySelector('#gp-campaign-banner');if(!section)return;
-let timer=null,current=0,slides=[],visible=true;
+let timer=null,current=0,slides=[],videoPlaying=false;
 const stage=document.createElement('div');stage.className='gp-ad-stage';
 const navigation=document.createElement('div');navigation.className='gp-ad-controls';
 const prev=document.createElement('button'),next=document.createElement('button');
@@ -12,17 +12,30 @@ stage.append(navigation,dots);section.append(stage);section.classList.add('gp-ad
 const cleanUrl=value=>{try{const u=new URL(value,location.href);return u.protocol==='https:'||u.protocol==='http:'&&u.hostname==='localhost'?u.href:''}catch{return ''}};
 const safeSlides=config=>{
  if(config?.campaignEnabled!==true)return [];
- const primary={title:String(config.campaignTitle||'Promoción GRAFIPLOT').slice(0,100),description:String(config.campaignDescription||'').slice(0,200),button:String(config.campaignButton||'Ver promoción').slice(0,45),url:cleanUrl(config.campaignUrl),image:cleanUrl(config.pageImages?.campaign||''),type:config.campaignType};
- const additional=Array.isArray(config.campaignSlides)?config.campaignSlides.slice(0,9).map(s=>({title:String(s?.title||'').slice(0,100),description:String(s?.description||'').slice(0,200),button:'Ver promoción',url:cleanUrl(s?.url),image:cleanUrl(s?.image),type:'promo'})).filter(s=>s.title):[];
+ const primary={title:String(config.campaignTitle||'Promoción GRAFIPLOT').slice(0,100),description:String(config.campaignDescription||'').slice(0,200),button:String(config.campaignButton||'Ver promoción').slice(0,45),url:cleanUrl(config.campaignUrl),image:cleanUrl(config.pageImages?.campaign||''),video:config.campaignMediaType==='video'&&window.GrafiplotAdVideo?.parse(config.campaignVideoUrl)?config.campaignVideoUrl:'',type:config.campaignType};
+ const additional=Array.isArray(config.campaignSlides)?config.campaignSlides.slice(0,9).map(s=>({title:String(s?.title||'').slice(0,100),description:String(s?.description||'').slice(0,200),button:'Ver promoción',url:cleanUrl(s?.url),image:cleanUrl(s?.image),video:window.GrafiplotAdVideo?.parse(s?.video)?s.video:'',type:'promo'})).filter(s=>s.title):[];
  return [primary,...additional].filter(s=>s.title);
 };
 function stop(){if(timer!==null)clearInterval(timer);timer=null}
 function show(i){
- if(!slides.length)return;current=(i+slides.length)%slides.length;
- for(const [n,el] of [...stage.querySelectorAll('.gp-ad-slide')].entries()){el.setAttribute('aria-hidden',String(n!==current));const link=el.querySelector('a');if(link)link.tabIndex=n===current?0:-1}
+ if(!slides.length)return;
+ const next=(i+slides.length)%slides.length;
+ if(next!==current){
+  videoPlaying=false;
+  stage.querySelectorAll('.gp-ad-video').forEach(el=>{
+   const frame=el.querySelector('iframe');if(frame)frame.remove();
+   const play=el.querySelector('button');if(play)play.hidden=false;
+  });
+ }
+ current=next;
+ for(const [n,el] of [...stage.querySelectorAll('.gp-ad-slide')].entries()){
+  el.setAttribute('aria-hidden',String(n!==current));
+  el.inert=n!==current;
+  const link=el.querySelector('a');if(link)link.tabIndex=n===current?0:-1;
+ }
  for(const [n,b] of [...dots.children].entries())b.setAttribute('aria-current',String(n===current));
 }
-function start(){stop();if(slides.length>1&&!document.hidden&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>show(current+1),5500)}
+function start(){stop();if(slides.length>1&&!videoPlaying&&!document.hidden&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>show(current+1),5500)}
 function render(config){
  stop();slides=safeSlides(config);section.hidden=!slides.length;
  stage.querySelectorAll('.gp-ad-slide').forEach(el=>el.remove());dots.replaceChildren();
@@ -31,6 +44,18 @@ function render(config){
  for(const [i,slide] of slides.entries()){
   const art=document.createElement('article');art.className='gp-ad-slide';art.setAttribute('aria-hidden','true');
   if(slide.image){const img=document.createElement('img');img.className='gp-ad-bg';img.src=slide.image;img.alt='';img.loading='lazy';art.append(img)}
+  if(slide.video){
+   const media=document.createElement('div');media.className='gp-ad-video';
+   const play=document.createElement('button');play.type='button';play.className='gp-ad-play';play.textContent='▶ Ver video publicitario';
+   play.onclick=()=>{
+    if(current!==i)show(i);
+    const frame=window.GrafiplotAdVideo?.frame(slide.video,'Publicidad '+slide.title);
+    if(!frame)return;
+    media.querySelector('iframe')?.remove();media.append(frame);
+    play.hidden=true;videoPlaying=true;stop();
+   };
+   media.append(play);art.append(media);
+  }
   const copy=document.createElement('div');copy.className='gp-ad-copy';
   const label=document.createElement('span');label.className='gp-ad-label';label.textContent=slide.type==='sorteo'?'SORTEO ESPECIAL':'PROMOCIÓN';copy.append(label);
   const h=document.createElement('h2');h.textContent=slide.title;copy.append(h);
