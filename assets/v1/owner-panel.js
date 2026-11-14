@@ -36,10 +36,11 @@
       ['campaigns','Promociones','Activa ofertas o sorteos desde aquí.'],
       ['customers','Clientes y pedidos','Consulta los datos de tus clientes y su historial.'],
       ['library','Biblioteca','Añade los enlaces y organiza tus libros.'],
+      ['videos','Videos instructivos','Agrega enlaces, nombres y descripciones de tus videos.'],
       ['contact','Contacto y enlaces','Ubicación, correo y enlaces de pedido.'],
       ['access','Mi acceso','Estado de tu cuenta y opciones de seguridad.']
     ];
-    const configurationKeys=new Set(['images','services','products','rates','content','library','contact']);
+    const configurationKeys=new Set(['images','services','products','rates','content','library','videos','contact']);
     const panes=new Map();
     const buttons=new Map();
     let selected='overview';
@@ -76,7 +77,8 @@
       ['campaigns','Publicar una promoción','Define la oferta y activa el anuncio.'],
       ['customers','Consultar pedidos','Busca un cliente y revisa sus compras.'],
       ['rates','Ajustar mis precios','Actualiza las tarifas del cotizador.'],
-      ['images','Renovar las imágenes','Cambia el logo, los colores y la galería.']
+      ['images','Renovar las imágenes','Cambia el logo, los colores y la galería.'],
+      ['videos','Agregar videos instructivos','Coloca enlaces de YouTube o Google Drive, nombre y descripción.']
     ];
     for(const [key,label,description] of shortcuts){
       const button=make('button','owner-shortcut');button.type='button';
@@ -143,6 +145,7 @@
     function moveDetails(id,key){move(document.getElementById(id)?.closest('details'),key)}
     function reconcile(){
       move(document.getElementById('gp-library-settings'),'library');
+      move(document.getElementById('gp-video-settings'),'videos');
       moveField('gp-settings-brand','images');
       moveField('gp-settings-logo','images');
       moveField('gp-settings-route-bg','images');
@@ -176,6 +179,18 @@
       if(key==='products')filterProducts();
     }
     show(selected);
+    function openVideos(){
+      if(root.dataset.ownerAccess!=='verified')return;
+      panel.hidden=false;
+      show('videos');
+      const videos=document.getElementById('gp-video-settings');
+      if(videos)videos.open=true;
+      const field=videos?.querySelector('.gp-instructional-video-fields input');
+      (field||videos)?.scrollIntoView({behavior:'smooth',block:'center'});
+      field?.focus({preventScroll:true});
+    }
+    window.addEventListener('gp-owner-open-videos',openVideos);
+    document.getElementById('gp-video-settings-link')?.addEventListener('click',openVideos);
     window.addEventListener('gp-open-rates',()=>{if(root.dataset.ownerAccess!=='verified')return;panel.hidden=false;show('rates');panel.scrollIntoView({behavior:'smooth'});});
     const observer=new MutationObserver(records=>{
       if(records.some(record=>record.type==='childList'))reconcile();
