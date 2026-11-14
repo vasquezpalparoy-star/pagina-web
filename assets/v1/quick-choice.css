@@ -44,3 +44,9 @@ body.gp-quick-visible{overflow:hidden!important}
 .gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-close{z-index:8}
 .gp-quick-promo-card .gp-drive-video-fallback{position:absolute;right:12px;bottom:10px;z-index:4;background:#0e1c35e8;color:white!important;padding:7px 12px;border-radius:7px;text-decoration:none!important;font:700 12px system-ui}
 @media(max-width:650px){.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-video{height:min(57dvh,380px)}}
+
+/* Pantalla de carga identificable en vez de un panel negro vacío. */
+.gp-quick-promo-video,.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-video{background:linear-gradient(135deg,#bd0d33,#172c5f 55%,#0d6f8a)}
+.gp-ad-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:34px 50px;background:linear-gradient(135deg,#d70d3a,#162b5e 60%,#0b657d);color:#fff;font:800 clamp(18px,3vw,28px)/1.3 system-ui,sans-serif;z-index:1}
+.gp-quick-promo-video iframe{z-index:2}
+.gp-quick-promo-card .gp-drive-video-fallback{z-index:7}
