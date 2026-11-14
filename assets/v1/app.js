@@ -102,12 +102,48 @@ async function verifyOwnerWrite(){
  }
 }
 // Editor independiente de videos instructivos en las Configuraciones principales.
-const videoCategories=['Impresión y copias','Tipos de impresión','Encuadernado','Sublimación','Planos','Escaneos','Diseño y edición','Consejos y tutoriales'];
-let instructionalVideoDraft=[],videoIdCounter=0,videoSaveBusy=false;
+const defaultVideoCategories=['Impresión y copias','Tipos de impresión','Encuadernado','Sublimación','Planos','Escaneos','Diseño y edición','Consejos y tutoriales'];
+let videoCategories=defaultVideoCategories.slice(),instructionalVideoDraft=[],videoIdCounter=0,videoSaveBusy=false;
+function cleanVideoCategories(list){
+ const raw=Array.isArray(list)?list:defaultVideoCategories;
+ return [...new Set(raw.map(c=>String(c||'').trim().slice(0,55)).filter(Boolean))].slice(0,35);
+}
+function renderVideoCategories(){
+ const box=root.querySelector('#gp-video-categories-editor');if(!box)return;
+ box.replaceChildren();
+ videoCategories.forEach((name,index)=>{
+  const row=document.createElement('div');row.className='gp-video-category-row';
+  const input=document.createElement('input');input.type='text';input.maxLength=55;input.value=name;input.setAttribute('aria-label','Nombre de categoría '+(index+1));
+  input.addEventListener('change',()=>{
+   const next=input.value.trim().slice(0,55);
+   if(!next||videoCategories.some((c,i)=>i!==index&&c.toLowerCase()===next.toLowerCase())){input.value=videoCategories[index];root.querySelector('#gp-video-feedback').textContent='La categoría debe tener un nombre único.';return}
+   const previous=videoCategories[index];videoCategories[index]=next;
+   instructionalVideoDraft.forEach(video=>{if(video.category===previous)video.category=next});
+   renderInstructionalVideos();
+  });
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Eliminar';remove.className='gp-button secondary';
+  remove.disabled=videoCategories.length===1;
+  remove.onclick=()=>{
+   const removed=videoCategories.splice(index,1)[0];
+   instructionalVideoDraft.forEach(video=>{if(video.category===removed)video.category=videoCategories[0]});
+   renderVideoCategories();renderInstructionalVideos();
+   root.querySelector('#gp-video-feedback').textContent='Categoría eliminada. Sus videos se asignaron a '+videoCategories[0]+'. Pulsa Guardar para confirmar.';
+  };
+  row.append(input,remove);box.append(row);
+ });
+}
+root.querySelector('#gp-video-category-add').addEventListener('click',()=>{
+ if(videoCategories.length>=35){root.querySelector('#gp-video-feedback').textContent='Máximo 35 categorías.';return}
+ let name='Nueva categoría',n=2;while(videoCategories.includes(name))name='Nueva categoría '+n++;
+ videoCategories.push(name);renderVideoCategories();renderInstructionalVideos();
+ const last=root.querySelector('.gp-video-category-row:last-child input');last?.focus();last?.select();
+});
 function loadInstructionalVideos(){
+ videoCategories=cleanVideoCategories(cloudConfig.instructionalVideoCategories);
+ renderVideoCategories();
  instructionalVideoDraft=(Array.isArray(cloudConfig.instructionalVideos)?cloudConfig.instructionalVideos:[]).filter(item=>item&&typeof item==='object').slice(0,100).map(item=>({
   id:String(item.id||'').slice(0,100),title:String(item.title||'').slice(0,100),description:String(item.description||'').slice(0,500),
-  category:videoCategories.includes(item.category)?item.category:videoCategories[0],
+  category:String(item.category||videoCategories[0]).slice(0,55),
   url:String(item.url||'').slice(0,1500),thumbnail:String(item.thumbnail||'').slice(0,1500)
  }));
  // Cuando no hay videos, mostrar directamente el primer formulario para pegar el enlace.
@@ -174,7 +210,9 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
  const videos=[];
  for(let i=0;i<instructionalVideoDraft.length;i++){
   const v=instructionalVideoDraft[i],title=v.title.trim(),url=v.url.trim(),description=v.description.trim(),thumbnail=v.thumbnail.trim();
+  if(!title&&!url&&!description&&!thumbnail)continue;
   if(!title||!url){status.textContent='Video '+(i+1)+': escribe nombre y enlace.';return}
+  if(!videoCategories.includes(v.category)){status.textContent='Video '+(i+1)+': elige una categoría válida.';return}
   if(!window.GrafiplotAdVideo?.parse(url)){status.textContent='Video '+(i+1)+': usa un enlace válido de YouTube o Google Drive.';return}
   let image='';
   try{image=httpsLink(thumbnail,false)}catch{status.textContent='Video '+(i+1)+': revisa la imagen de portada.';return}
@@ -184,10 +222,10 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
  try{
   if(!await verifyOwnerWrite())throw Error('Tu sesión no está autorizada.');
   if(!cloudReady)throw Error('Sin conexión confirmada con Firebase.');
-  await setDoc(settingsRef,{instructionalVideos:videos},{merge:true});
-  cloudConfig={...cloudConfig,instructionalVideos:videos};
+  await setDoc(settingsRef,{instructionalVideos:videos,instructionalVideoCategories:videoCategories},{merge:true});
+  cloudConfig={...cloudConfig,instructionalVideos:videos,instructionalVideoCategories:videoCategories.slice()};
   instructionalVideoDraft=videos.map(v=>({...v}));renderInstructionalVideos();
-  status.textContent=videos.length+' video(s) guardado(s) correctamente. Aparecerán en la página de videos instructivos.';
+  status.textContent=videos.length+' video(s) y '+videoCategories.length+' categoría(s) guardados en Firebase.';
  }catch(error){status.textContent='No se guardaron los videos: '+(error.message||'revisa tu conexión')}
  finally{videoSaveBusy=false;button.disabled=false}
 });
