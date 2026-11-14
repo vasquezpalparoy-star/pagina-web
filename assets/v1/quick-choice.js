@@ -60,20 +60,27 @@ function init(){
  videoWrap.className='gp-quick-promo-video';
  videoWrap.hidden=true;
  adBackdrop.querySelector('.gp-quick-promo-image').insertAdjacentElement('afterend',videoWrap);
- function stopAdVideo(){videoWrap.replaceChildren();}
+ let stopCover=()=>{};
+ function stopAdVideo(){stopCover();stopCover=()=>{};videoWrap.replaceChildren()}
  function setAdMedia(config){
   stopAdVideo();
   const source=config.campaignMediaType==='video'?window.GrafiplotAdVideo?.parse(config.campaignVideoUrl):null;
   const cover=adBackdrop.querySelector('.gp-quick-promo-image');
   if(source){
    cover.hidden=true;videoWrap.hidden=false;
-   const play=document.createElement('button');play.type='button';play.className='gp-ad-play';
-   play.textContent='▶ Reproducir video publicitario';
-   play.onclick=()=>{
-    const iframe=window.GrafiplotAdVideo?.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
-    if(iframe)videoWrap.replaceChildren(iframe);
-   };
-   videoWrap.append(play);
+   const frame=window.GrafiplotAdVideo.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
+   if(frame){
+    videoWrap.append(frame);
+    stopCover=window.GrafiplotAdVideo.cover(frame,videoWrap);
+   }
+   // Drive puede ignorar autoplay: mostrar un acceso manual al video.
+   if(source.provider==='drive'){
+    const note=document.createElement('a');
+    note.className='gp-drive-video-fallback';
+    note.href=source.url;note.target='_blank';note.rel='noopener noreferrer';
+    note.textContent='Si Drive no inicia, abrir video ↗';
+    videoWrap.append(note);
+   }
   }else{
    videoWrap.hidden=true;
    const image=String(config.pageImages?.campaign||'');
