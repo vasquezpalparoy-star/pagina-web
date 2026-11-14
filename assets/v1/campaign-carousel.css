@@ -50,3 +50,10 @@
 .gp-ad-slide.gp-ad-video-slide .gp-ad-video iframe{z-index:2}
 .gp-ad-slide.gp-ad-video-slide .gp-ad-video .gp-ad-loading{z-index:1}
 .gp-ad-slide.gp-ad-video-slide .gp-ad-video .gp-drive-video-fallback{z-index:5}
+
+/* Portada visible de anuncios de Drive: evita el iframe negro inicial. */
+.gp-drive-poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:45px;background:radial-gradient(circle at 68% 18%,#eb3958 0%,#b0082c 33%,#17294f 77%,#070c25 100%);color:#fff;z-index:3}
+.gp-drive-poster strong{font:900 clamp(21px,4vw,42px)/1.15 system-ui,sans-serif;text-shadow:0 3px 10px #0007;letter-spacing:-.6px}
+.gp-drive-poster p{margin:0;color:#fff;font:700 clamp(15px,2.2vw,20px)/1.35 system-ui,sans-serif}
+.gp-drive-poster-play{background:#fff;color:#b0002b;border:0;border-radius:999px;padding:14px 25px;font:900 17px system-ui,sans-serif;box-shadow:0 8px 22px #0006;cursor:pointer}
+.gp-drive-poster-play:hover{background:#ffe5eb}
