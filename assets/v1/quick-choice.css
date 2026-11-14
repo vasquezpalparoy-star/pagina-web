@@ -32,3 +32,15 @@ body.gp-quick-visible{overflow:hidden!important}
 .gp-quick-promo-video[hidden]{display:none!important}
 .gp-quick-promo-video iframe{width:100%;height:100%;border:0;display:block;background:#051329}
 @media(max-width:650px){.gp-quick-promo-video{height:min(40vh,300px)}}
+
+/* Video publicitario como superficie principal del popup. */
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])){width:min(1000px,96vw);padding:0;overflow:hidden;background:#071027;text-align:left}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-label{position:absolute;z-index:4;left:14px;top:14px;background:#b20b33dc}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-video{position:relative;display:block;width:100%;height:min(73dvh,560px);margin:0;border:0;border-radius:0;overflow:hidden;background:#06112d}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-video iframe{position:absolute;inset:0;width:100%;height:100%;max-width:none;display:block}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-content{padding:12px 18px}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-content h2{font-size:clamp(20px,3vw,29px);margin:0 0 5px}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-description{font-size:13px;margin:0 0 7px}
+.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-close{z-index:8}
+.gp-quick-promo-card .gp-drive-video-fallback{position:absolute;right:12px;bottom:10px;z-index:4;background:#0e1c35e8;color:white!important;padding:7px 12px;border-radius:7px;text-decoration:none!important;font:700 12px system-ui}
+@media(max-width:650px){.gp-quick-promo-card:has(.gp-quick-promo-video:not([hidden])) .gp-quick-promo-video{height:min(57dvh,380px)}}
