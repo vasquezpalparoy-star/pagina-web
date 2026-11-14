@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const section=document.querySelector('#gp-campaign-banner');if(!section)return;
-let timer=null,current=0,slides=[],videoPlaying=false;
+let timer=null,current=0,slides=[],videoPlaying=false,modalOpen=false;
 const stage=document.createElement('div');stage.className='gp-ad-stage';
 const navigation=document.createElement('div');navigation.className='gp-ad-controls';
 const prev=document.createElement('button'),next=document.createElement('button');
@@ -23,6 +23,7 @@ function stopVideo(){
  for(const media of stage.querySelectorAll('.gp-ad-video'))media.replaceChildren();
 }
 function loadVideo(index){
+ if(modalOpen||document.hidden||!document.getElementById('gp-quick-promo')?.hidden)return;
  const slide=slides[index];if(!slide?.video)return;
  const art=stage.querySelectorAll('.gp-ad-slide')[index];
  const media=art?.querySelector('.gp-ad-video');if(!media)return;
@@ -52,7 +53,7 @@ function show(i){
 }
 function start(){
  stop();
- if(slides.length>1&&!videoPlaying&&!document.hidden&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+ if(slides.length>1&&!modalOpen&&!videoPlaying&&!document.hidden&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
  timer=setInterval(()=>show(current+1),5500);
 }
 function render(config){
@@ -80,7 +81,15 @@ function render(config){
 prev.onclick=()=>{show(current-1);start()};next.onclick=()=>{show(current+1);start()};
 stage.addEventListener('mouseenter',stop);stage.addEventListener('mouseleave',start);
 stage.addEventListener('focusin',stop);stage.addEventListener('focusout',e=>{if(!stage.contains(e.relatedTarget))start()});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){stopVideo();stop()}else{if(slides[current]?.video)loadVideo(current);else start()}});
+window.addEventListener('gp-ad-modal-state',event=>{
+ modalOpen=event.detail?.open===true;
+ if(modalOpen){stop();stopVideo();}
+ else if(slides.length&&!section.hidden){if(slides[current]?.video)loadVideo(current);else start();}
+});
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden){stopVideo();stop()}
+ else if(!modalOpen){if(slides[current]?.video)loadVideo(current);else start()}
+});
 
 window.addEventListener('gp-campaign-change',e=>render(e.detail||{}));
 })();
