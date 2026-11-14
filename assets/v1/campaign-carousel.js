@@ -12,8 +12,8 @@ stage.append(navigation,dots);section.append(stage);section.classList.add('gp-ad
 const cleanUrl=value=>{try{const u=new URL(value,location.href);return u.protocol==='https:'||u.protocol==='http:'&&u.hostname==='localhost'?u.href:''}catch{return ''}};
 const safeSlides=config=>{
  if(config?.campaignEnabled!==true)return [];
- const primary={title:String(config.campaignTitle||'Promoción GRAFIPLOT').slice(0,100),description:String(config.campaignDescription||'').slice(0,200),button:String(config.campaignButton||'Ver promoción').slice(0,45),url:cleanUrl(config.campaignUrl),image:cleanUrl(config.pageImages?.campaign||''),video:config.campaignMediaType==='video'&&window.GrafiplotAdVideo?.parse(config.campaignVideoUrl)?config.campaignVideoUrl:'',type:config.campaignType};
- const additional=Array.isArray(config.campaignSlides)?config.campaignSlides.slice(0,9).map(s=>({title:String(s?.title||'').slice(0,100),description:String(s?.description||'').slice(0,200),button:'Ver promoción',url:cleanUrl(s?.url),image:cleanUrl(s?.image),video:window.GrafiplotAdVideo?.parse(s?.video)?s.video:'',type:'promo'})).filter(s=>s.title):[];
+ const primary={title:String(config.campaignTitle||'Promoción GRAFIPLOT').slice(0,100),description:String(config.campaignDescription||'').slice(0,200),button:String(config.campaignButton||'Ver promoción').slice(0,45),url:cleanUrl(config.campaignUrl),image:cleanUrl(config.pageImages?.campaign||''),cover:cleanUrl(config.campaignVideoCover||config.pageImages?.campaign||''),video:config.campaignMediaType==='video'&&window.GrafiplotAdVideo?.parse(config.campaignVideoUrl)?config.campaignVideoUrl:'',type:config.campaignType};
+ const additional=Array.isArray(config.campaignSlides)?config.campaignSlides.slice(0,9).map(s=>({title:String(s?.title||'').slice(0,100),description:String(s?.description||'').slice(0,200),button:'Ver promoción',url:cleanUrl(s?.url),image:cleanUrl(s?.image),cover:cleanUrl(s?.image),video:window.GrafiplotAdVideo?.parse(s?.video)?s.video:'',type:'promo'})).filter(s=>s.title):[];
  return [primary,...additional].filter(s=>s.title);
 };
 let stopCover=()=>{},loadTimer=null;
@@ -32,6 +32,8 @@ function loadVideo(index){
  if(source?.provider==='drive'){
   stopVideo();videoPlaying=true;stop();
   const poster=document.createElement('div');poster.className='gp-drive-poster';
+  if(slide.cover)poster.style.backgroundImage='linear-gradient(#07112c33,#07112c88),url('+JSON.stringify(slide.cover)+')';
+  if(slide.cover)poster.classList.add('gp-drive-custom-cover');
   const heading=document.createElement('strong');heading.textContent='🎬 VIDEO PUBLICITARIO GRAFIPLOT';
   const label=document.createElement('p');label.textContent=slide.title;
   const play=document.createElement('button');play.type='button';play.className='gp-drive-poster-play';play.textContent='▶ Ver video';
