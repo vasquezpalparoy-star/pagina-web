@@ -29,6 +29,20 @@ function loadVideo(index){
  const art=stage.querySelectorAll('.gp-ad-slide')[index];
  const media=art?.querySelector('.gp-ad-video');if(!media)return;
  const source=window.GrafiplotAdVideo?.parse(slide.video);
+ if(source?.provider==='drive'){
+  stopVideo();videoPlaying=true;stop();
+  const poster=document.createElement('div');poster.className='gp-drive-poster';
+  const heading=document.createElement('strong');heading.textContent='🎬 VIDEO PUBLICITARIO GRAFIPLOT';
+  const label=document.createElement('p');label.textContent=slide.title;
+  const play=document.createElement('button');play.type='button';play.className='gp-drive-poster-play';play.textContent='▶ Ver video';
+  play.addEventListener('click',()=>{
+   const frame=window.GrafiplotAdVideo?.frame(slide.video,'Promoción: '+slide.title);
+   if(frame){poster.remove();media.append(frame)}
+  });
+  const link=document.createElement('a');link.className='gp-drive-video-fallback';link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Abrir en Drive ↗';
+  poster.append(heading,label,play,link);media.append(poster);
+  return;
+ }
  const frame=window.GrafiplotAdVideo?.frame(slide.video,'Promoción: '+slide.title);
  if(!frame)return;
  stopVideo();videoPlaying=true;stop();
