@@ -230,7 +230,9 @@ root.querySelector('#gp-video-save').addEventListener('click',async()=>{
   const saved=verified.data()||{};
   const actualVideos=Array.isArray(saved.instructionalVideos)?saved.instructionalVideos:[];
   const actualCategories=Array.isArray(saved.instructionalVideoCategories)?saved.instructionalVideoCategories:[];
-  if(!verified.exists()||JSON.stringify(actualVideos)!==JSON.stringify(videos)||JSON.stringify(actualCategories)!==JSON.stringify(videoCategories))
+  const fields=v=>[v.id,v.title,v.description,v.category,v.url,v.thumbnail].map(x=>String(x??''));
+  const sameVideos=actualVideos.length===videos.length&&actualVideos.every((v,i)=>JSON.stringify(fields(v))===JSON.stringify(fields(videos[i])));
+  if(!verified.exists()||!sameVideos||JSON.stringify(actualCategories)!==JSON.stringify(videoCategories))
    throw Object.assign(new Error('Firebase no devolvió los mismos datos. Actualiza y vuelve a comprobar antes de editar de nuevo.'),{code:'verification-failed'});
   cloudConfig={...cloudConfig,instructionalVideos:actualVideos,instructionalVideoCategories:actualCategories};
   instructionalVideoDraft=actualVideos.map(v=>({...v}));renderVideoCategories();renderInstructionalVideos();
