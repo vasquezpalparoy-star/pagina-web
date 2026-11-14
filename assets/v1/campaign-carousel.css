@@ -61,3 +61,21 @@
 /* Portada personalizada Drive: no se aplica a YouTube. */
 .gp-drive-poster.gp-drive-custom-cover{background-size:cover;background-position:center;background-repeat:no-repeat}
 .gp-drive-poster.gp-drive-custom-cover strong,.gp-drive-poster.gp-drive-custom-cover p{filter:drop-shadow(0 2px 5px #000)}
+
+/* Botón táctil de audio, visible sobre video publicitario YouTube en Android. */
+#gp-quick-promo .gp-ad-volume-toggle,
+#gp-campaign-banner .gp-ad-volume-toggle{
+ position:absolute;left:14px;top:58px;z-index:12;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:52px;padding:12px 20px;border:2px solid #fff;
+ border-radius:999px;background:#e51c45;color:#fff;
+ font:900 15px/1.15 system-ui,sans-serif;letter-spacing:.2px;
+ box-shadow:0 5px 19px #000a;cursor:pointer;touch-action:manipulation;
+}
+#gp-quick-promo .gp-ad-volume-toggle[aria-pressed="true"],
+#gp-campaign-banner .gp-ad-volume-toggle[aria-pressed="true"]{background:#103c59}
+@media(max-width:680px){
+ #gp-quick-promo .gp-ad-volume-toggle,#gp-campaign-banner .gp-ad-volume-toggle{
+  top:52px;left:12px;min-height:54px;padding:13px 17px;font-size:15px;
+ }
+}
