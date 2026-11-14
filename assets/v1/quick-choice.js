@@ -77,6 +77,14 @@ function init(){
     // Drive puede completar la carga del iframe y aun así mostrar un reproductor negro.
     // Usar portada visible: no insertar iframe hasta una acción explícita.
     notice.className='gp-drive-poster';
+    const coverUrl=String(config.campaignVideoCover||config.pageImages?.campaign||'');
+    try{
+     const imageUrl=new URL(coverUrl,location.href);
+     if(imageUrl.protocol==='https:'||imageUrl.origin===location.origin){
+      notice.style.backgroundImage='linear-gradient(#07112c33,#07112c88),url('+JSON.stringify(imageUrl.href)+')';
+      notice.classList.add('gp-drive-custom-cover');
+     }
+    }catch{}
     notice.replaceChildren();
     const title=document.createElement('strong');title.textContent='🎁 PROMOCIÓN GRAFIPLOT';
     const subtitle=document.createElement('p');subtitle.textContent='Mira nuestro video del sorteo';
