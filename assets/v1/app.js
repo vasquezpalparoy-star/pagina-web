@@ -408,6 +408,7 @@ function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudC
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
+ if(campaignDisablePending)cloudConfig.campaignEnabled=false;
  if(siteSettings.hidden)loadInstructionalVideos();
  if(!siteSettings.hidden||!campaignAdmin.hidden||root.dataset.visualSession==='true')return;
  siteProducts=Array.isArray(cloudConfig.siteProducts)?structuredClone(cloudConfig.siteProducts):[];mergeSiteProducts();
@@ -477,8 +478,38 @@ async function saveSiteSettings(e){
  publishBotContext();
  }catch(error){window.dispatchEvent(new window.CustomEvent('gp-owner-save',{detail:'error'}));feedback('No se pudo guardar: '+describeSaveError(error),true);saveStatus('Error de guardado: '+(error.code||'revisa los campos')+'.')}finally{buttons.forEach(b=>b.disabled=false)}
 }
+// El apagado de publicidad no debe depender de campos opcionales del formulario.
+let campaignDisablePending=false;
+async function deactivateCampaign(){
+ if(!settingsUnlocked){campaignFeedback.textContent='Debes iniciar sesión como propietario.';return}
+ if(!await verifyOwnerWrite())return;
+ if(!settingsRef||!cloudReady){campaignFeedback.textContent='Sin conexión confirmada con Firebase. No se pudo desactivar la campaña.';return}
+ const button=root.querySelector('#gp-campaign-disable');
+ const previous={...cloudConfig};
+ button.disabled=true;campaignDisablePending=true;
+ campaignFeedback.textContent='Desactivando campaña en Firebase…';
+ campaignActive.checked=false;
+ campaignBanner.hidden=true;
+ window.dispatchEvent(new CustomEvent('gp-campaign-change',{detail:{campaignEnabled:false}}));
+ try{
+  await setDoc(settingsRef,{campaignEnabled:false},{merge:true});
+  const {getDocFromServer}=await loadFirebase();
+  const snapshot=await getDocFromServer(settingsRef);
+  if(!snapshot.exists()||snapshot.data().campaignEnabled!==false)throw Error('Firebase no confirmó que la campaña esté desactivada.');
+  cloudConfig={...cloudConfig,...snapshot.data(),campaignEnabled:false};
+  campaignDisablePending=false;
+  applyCampaign(cloudConfig);
+  campaignFeedback.textContent='✅ Campaña desactivada y confirmada en Firebase. Ninguna publicidad debe reproducirse.';
+ }catch(error){
+  campaignDisablePending=false;
+  cloudConfig=previous;
+  applyCampaign(previous);
+  campaignFeedback.textContent='No se confirmó la desactivación ('+(error.code||'error')+'): '+(error.message||'Revisa los permisos de Firebase.');
+ }finally{button.disabled=false}
+}
 async function saveCampaign(e,disable=false){
- if(e)e.preventDefault();if(!settingsUnlocked)return;
+ if(e)e.preventDefault();
+ if(disable){await deactivateCampaign();return}if(!settingsUnlocked)return;
  if(!await verifyOwnerWrite())return;
  if(!cloudReady){campaignFeedback.textContent='No hay conexión con Firebase. La campaña no se ha guardado.';return}
  const button=root.querySelector('#gp-campaign-form button[type="submit"]');button.disabled=true;
@@ -493,12 +524,13 @@ async function saveCampaign(e,disable=false){
   if(parts.length<3||parts.length>5||!parts[0])throw Error('Revisa la línea '+(i+1)+'. Usa: título | descripción | enlace | imagen | video opcional');
   const video=parts[4]||'';
   if(video&&!window.GrafiplotAdVideo?.parse(video))throw Error('Enlace de video no válido en el anuncio '+(i+1)+'. Usa Google Drive o YouTube.');
-  return {title:parts[0].slice(0,100),description:parts[1].slice(0,200),url:httpsLink(parts[2],false),image:httpsLink(parts[3]||''),video};
+  return {title:parts[0].slice(0,100),description:parts[1].slice(0,200),url:parts[2]?httpsLink(parts[2],false):'',image:httpsLink(parts[3]||''),video};
  });
  const mediaType=root.querySelector('#gp-campaign-media-type').value;
  const videoUrl=root.querySelector('#gp-campaign-video-url').value.trim();
  if(mediaType==='video'&&enabled&&!window.GrafiplotAdVideo?.parse(videoUrl))throw Error('Para usar un video debes pegar un enlace válido de Google Drive o YouTube.');
- const campaignVideoCover=httpsLink(root.querySelector('#gp-campaign-video-cover').value.trim(),false);
+ const coverValue=root.querySelector('#gp-campaign-video-cover').value.trim();
+ const campaignVideoCover=coverValue?httpsLink(coverValue,false):'';
  const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides,campaignMediaType:mediaType,campaignVideoUrl:videoUrl,campaignVideoCover};
  await setDoc(settingsRef,patch,{merge:true});cloudConfig={...cloudConfig,...patch};applyCampaign(cloudConfig);campaignFeedback.textContent=enabled?'Campaña activada y guardada en Firebase.':'Campaña desactivada y guardada en Firebase.';if(enabled)go('gp-campaign-banner');
  }catch(error){campaignFeedback.textContent='No se pudo guardar la campaña: '+error.message}finally{button.disabled=false}
