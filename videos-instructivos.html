@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#c9002c">
+<title>Videos instructivos | GRAFIPLOT VASQUEZ</title>
+<meta name="description" content="Conoce los tipos de impresión, encuadernado, sublimación y escaneo con videos instructivos de Grafiplot Vasquez.">
+<link rel="icon" href="./favicon.png">
+<style>
+:root{font-family:Inter,Arial,system-ui,sans-serif;color:#17202b;background:#f3f5fb}*{box-sizing:border-box}
+body{margin:0}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.top{background:linear-gradient(108deg,#d70030,#111824 33%,#0a1526);color:#fff;padding:16px clamp(16px,4vw,55px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-size:clamp(24px,3vw,37px);font-weight:950;letter-spacing:-1.3px;font-style:italic;line-height:.9}.brand b{color:#ff2448}.brand small{font-size:12px;font-weight:500;letter-spacing:0;font-style:normal;display:block;margin-top:9px}
+.top .tagline{font-size:14px;color:#e5e9f0;margin-left:auto}.top .back{border:1px solid #ffffff7c;border-radius:10px;padding:11px 17px;font-weight:800}
+.nav{background:#fff;box-shadow:0 4px 15px #25375322;padding:10px clamp(16px,4vw,55px);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.nav a{padding:11px 17px;border:1px solid #dae0eb;border-radius:10px;font-weight:800;font-size:13px}.nav a.active{color:white;background:linear-gradient(120deg,#f0123c,#b30021);border-color:#c00022}
+main{max-width:1550px;margin:auto;padding:18px clamp(12px,2vw,28px) 32px}
+.intro{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-radius:16px;background:#fff;border:1px solid #e1e5ee;margin-bottom:14px}.intro h1{margin:0;font-size:clamp(23px,3vw,37px);font-weight:950}.intro span{font-size:14px;color:#475064}.intro:before{content:"🎬";font-size:35px}
+.layout{display:grid;grid-template-columns:220px minmax(310px,1fr) minmax(320px,1.08fr);gap:14px;align-items:start}
+.filters,.player-card{background:#fff;border:1px solid #dde2ed;border-radius:17px;padding:12px;box-shadow:0 4px 13px #1b2d4c13}
+.filters h2{background:linear-gradient(115deg,#ec163d,#b00027);color:white;padding:12px;margin:0 0 10px;border-radius:10px;font-size:18px}
+.filter{display:flex;width:100%;background:transparent;color:#142031;border:0;border-bottom:1px solid #e4e8f0;padding:14px 8px;gap:8px;align-items:center;text-align:left;font-weight:750;font-size:14px}
+.filter:hover,.filter[aria-pressed=true]{background:#ffe3e9;border-radius:9px;color:#b50029}
+.search{display:flex;gap:8px;margin-bottom:10px}.search input{width:100%;padding:11px 12px;border:1px solid #ced6e5;background:white;border-radius:9px}
+.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.item{min-width:0;padding:0;border:1px solid #d9e0eb;background:#fff;border-radius:13px;overflow:hidden;text-align:left;box-shadow:0 4px 10px #24335317}
+.item:hover,.item[aria-pressed=true]{border:2px solid #d31036}
+.poster{aspect-ratio:16/9;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#1b243c,#b0092d 55%,#e94139);color:#fff;text-align:center}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.poster .play{position:relative;z-index:1;background:#080b15bd;color:white;font-size:25px;border:2px solid #fff;border-radius:50%;height:53px;width:53px;display:grid;place-items:center}
+.poster .mark{font-size:48px;opacity:.9}.item .info{padding:10px}.item strong{display:block;font-size:14px}.item small{display:block;margin-top:5px;color:#697385}
+.player-card{padding:12px;position:sticky;top:12px}
+.screen{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#071227;position:relative;display:grid;place-items:center;color:white}
+.screen iframe{border:0;width:100%;height:100%;position:absolute;inset:0}
+.screen .hint{padding:20px;text-align:center;line-height:1.6}
+.player-card h2{font-size:22px;margin:13px 4px 5px}.player-card p{font-size:14px;color:#596274;margin:0 4px 12px;line-height:1.5}
+.whats{background:#16a05e;color:white!important;border-radius:11px;padding:12px;display:block;text-align:center;font-weight:850}
+.promotion{margin-top:18px;border-radius:14px;overflow:hidden;background:linear-gradient(105deg,#d5002e,#8c001e 40%,#151724);color:#fff;padding:19px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between}
+.promotion strong{font-size:25px;font-weight:950}.promotion span{display:block;margin-top:5px}.promotion a{background:white;color:#ad0028;border-radius:9px;padding:12px 17px;font-weight:900}
+.note{font-size:13px;color:#6a7280;margin:13px 2px}
+.empty{padding:24px;background:white;border-radius:12px;text-align:center;color:#6d7482;grid-column:1/-1}
+.admin-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;justify-content:end;margin:18px 0}
+.admin-bar button,.admin-panel button{background:#172339;color:white;border:0;border-radius:9px;padding:10px 13px;font-size:13px;font-weight:800}
+.admin-panel{background:white;border:1px solid #d5deeb;border-radius:16px;padding:18px;max-width:880px;margin:10px auto 20px}.admin-panel[hidden],.empty[hidden]{display:none!important}
+.admin-panel h2{margin-top:0}.admin-panel form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.admin-panel label{display:grid;gap:5px;font-size:13px;font-weight:800}.admin-panel input,.admin-panel select,.admin-panel textarea{border:1px solid #bac7d8;border-radius:9px;padding:11px;width:100%}.admin-panel .wide{grid-column:1/-1}.admin-list{display:grid;gap:7px;margin-top:14px}.admin-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px;border:1px solid #e4e8f1;border-radius:9px}
+footer{padding:25px;text-align:center;color:#666f7c;font-size:13px}
+@media(max-width:1150px){.layout{grid-template-columns:180px minmax(240px,1fr)}.player-card{grid-column:2;position:static;grid-row:1/3}.gallery{grid-column:1/-1;grid-row:3}}
+@media(max-width:670px){.layout{display:flex;flex-direction:column}.filters,.gallery,.player-card{width:100%}.filters .filter-list{display:flex;overflow:auto;gap:5px}.filter{white-space:nowrap;border:1px solid #dae1e9;border-radius:9px;width:auto}.list{grid-template-columns:repeat(2,minmax(0,1fr))}.top .tagline{display:none}.admin-panel form{grid-template-columns:1fr}.admin-panel .wide{grid-column:auto}}
+</style></head>
+<body>
+<header class="top"><a class="brand" href="./index.html">GRAFI<b>PLOT</b> VASQUEZ<small>Centro de impresión y servicios</small></a><div class="tagline">Aprende a imprimir, encuadernar y diseñar</div><a class="back" href="./index.html">← Volver a GRAFIPLOT</a></header>
+<nav class="nav" aria-label="Secciones"><a href="./index.html">Inicio</a><a href="./pdf.html">Herramientas</a><a class="active" href="./videos-instructivos.html" aria-current="page">🎬 Videos instructivos</a><a href="./index.html#gp-quote">Cotizar impresión</a><a href="./delivery.html">Seguimiento</a></nav>
+<main>
+<section class="intro"><h1>Videos instructivos</h1><span>Descubre cómo trabajamos cada tipo de impresión y servicio de GRAFIPLOT.</span></section>
+<div class="layout">
+<aside class="filters"><h2>☰ Categorías</h2><div class="filter-list" id="categories"></div></aside>
+<section class="gallery" aria-label="Catálogo de videos"><div class="search"><input id="search" type="search" placeholder="Buscar: A4, anillado, planos, sublimación…" aria-label="Buscar videos"></div><div class="list" id="video-list"></div><p class="note" id="video-status" role="status">Cargando videos instructivos…</p></section>
+<section class="player-card"><div class="screen" id="video-player"><div class="hint">▶ Elige un video de la lista para verlo aquí.</div></div><h2 id="video-title">Aprende con GRAFIPLOT</h2><p id="video-desc">Tutoriales de impresión, anillado, engrampado, sublimación y más.</p><a id="video-cta" class="whats" href="https://wa.me/51916133647?text=Hola%2C%20quiero%20consultar%20una%20impresi%C3%B3n" target="_blank" rel="noopener noreferrer">Consultar este servicio por WhatsApp</a></section>
+</div>
+<section class="promotion"><div><strong>GRAFIPLOT VASQUEZ</strong><span>Impresiones · Copias · Ploteos · Anillados · Sublimación</span><span>Huánuco, Cayhuayna · Frente a UNHEVAL</span></div><a href="./index.html#gp-quote">Cotiza tu trabajo →</a></section>
+<div class="admin-bar"><button id="admin-toggle" type="button">⚙ Administrar videos</button><span id="admin-status" role="status"></span></div>
+<section class="admin-panel" id="admin" hidden><h2>Administrar videos de GRAFIPLOT</h2><p>Solo el propietario autorizado puede guardar cambios en Firebase.</p>
+<form id="admin-login"><label>Correo del propietario<input type="email" id="admin-email" required autocomplete="username"></label><label>Contraseña<input type="password" id="admin-password" required autocomplete="current-password"></label><div class="wide"><button type="submit">Ingresar</button></div></form>
+<div id="admin-editor" hidden><form id="video-form"><input type="hidden" id="video-id"><label>Título del video<input id="edit-title" maxlength="100" required></label><label>Categoría<select id="edit-category"></select></label><label class="wide">Enlace de YouTube o Google Drive<input id="edit-url" type="url" placeholder="https://youtu.be/... o https://drive.google.com/file/d/.../view" required></label><label class="wide">Descripción<textarea id="edit-description" rows="2" maxlength="500"></textarea></label><label class="wide">Miniatura opcional (URL de imagen)<input id="edit-thumbnail" type="url" placeholder="https://..."></label><div class="wide"><button type="submit">Guardar video</button><button id="admin-clear" type="button">Nuevo</button><button id="admin-logout" type="button">Salir</button></div></form><div class="admin-list" id="admin-items"></div></div></section>
+</main><footer>© GRAFIPLOT VASQUEZ · Videos instructivos · Los videos pertenecen a sus respectivos autores.</footer>
+<script type="module" src="./assets/v1/videos-instructivos.mjs?v=1"></script>
+</body></html>
