@@ -73,6 +73,21 @@ function init(){
    notice.className='gp-ad-loading';
    notice.textContent=source.provider==='drive'?'Cargando video de Google Drive…':'Cargando publicidad de GRAFIPLOT…';
    videoWrap.append(notice);
+   if(source.provider==='drive'){
+    // Drive puede completar la carga del iframe y aun así mostrar un reproductor negro.
+    // Usar portada visible: no insertar iframe hasta una acción explícita.
+    notice.className='gp-drive-poster';
+    notice.replaceChildren();
+    const title=document.createElement('strong');title.textContent='🎁 PROMOCIÓN GRAFIPLOT';
+    const subtitle=document.createElement('p');subtitle.textContent='Mira nuestro video del sorteo';
+    const play=document.createElement('button');play.type='button';play.className='gp-drive-poster-play';play.textContent='▶ Ver video';
+    play.addEventListener('click',()=>{
+     const iframe=window.GrafiplotAdVideo.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
+     if(iframe){iframe.style.visibility='visible';notice.remove();videoWrap.append(iframe)}
+    });
+    notice.append(title,subtitle,play);
+    return;
+   }
    const frame=window.GrafiplotAdVideo.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
    if(frame){
     frame.style.visibility='hidden';
