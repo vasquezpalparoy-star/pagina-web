@@ -108,6 +108,7 @@ function init(){
      notice.textContent='No se pudo cargar el video. Puedes abrirlo en su plataforma.';
     },{once:true});
     videoWrap.append(frame);
+    window.GrafiplotAdVideo.volumeButton?.(frame,videoWrap);
     stopCover=window.GrafiplotAdVideo.cover(frame,videoWrap);
     mediaLoadTimer=setTimeout(()=>{
      if(!frame.isConnected)return;
