@@ -26,7 +26,13 @@ function parse(value){
 function frame(source,label){
  const info=parse(source);if(!info)return null;
  const el=document.createElement('iframe');
- el.src=info.embed;
+ // Permitir activar el volumen desde un botón propio con un gesto del usuario.
+ const src=new URL(info.embed);
+ if(info.provider==='youtube'){
+  src.searchParams.set('enablejsapi','1');
+  src.searchParams.set('origin',location.origin);
+ }
+ el.src=src.href;
  el.title=label||'Video de promoción GRAFIPLOT';
  el.loading='eager';el.referrerPolicy='strict-origin-when-cross-origin';
  el.dataset.provider=info.provider;
@@ -49,5 +55,26 @@ function cover(frame,box){
  update();
  return ()=>observer?.disconnect();
 }
-window.GrafiplotAdVideo={parse,frame,cover};
+// El video de YouTube empieza silenciado; el usuario puede activar el sonido.
+function volumeButton(frame,container){
+ if(!frame||frame.dataset.provider!=='youtube'||!container)return null;
+ const btn=document.createElement('button');
+ btn.type='button';btn.className='gp-ad-volume-toggle';btn.setAttribute('aria-label','Activar sonido del anuncio');
+ btn.setAttribute('aria-pressed','false');btn.textContent='🔊 ACTIVAR SONIDO';
+ let audible=false;
+ btn.addEventListener('click',()=>{
+  const win=frame.contentWindow;if(!win)return;
+  const action=audible?'mute':'unMute';
+  try{
+   win.postMessage(JSON.stringify({event:'command',func:action,args:[]}), 'https://www.youtube-nocookie.com');
+   if(!audible)win.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[100]}),'https://www.youtube-nocookie.com');
+   audible=!audible;
+   btn.textContent=audible?'🔇 SILENCIAR':'🔊 ACTIVAR SONIDO';
+   btn.setAttribute('aria-pressed',String(audible));
+   btn.setAttribute('aria-label',audible?'Silenciar anuncio':'Activar sonido del anuncio');
+  }catch{btn.textContent='Usa el control de sonido del video'}
+ });
+ container.append(btn);return btn;
+}
+window.GrafiplotAdVideo={parse,frame,cover,volumeButton};
 })();
