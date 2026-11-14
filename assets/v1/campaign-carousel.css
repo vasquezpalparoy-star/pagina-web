@@ -44,3 +44,9 @@
 .gp-ad-slide.gp-ad-video-slide .gp-ad-copy .gp-ad-cta{pointer-events:auto}
 .gp-drive-video-fallback{position:absolute;bottom:12px;right:12px;z-index:5;color:white!important;background:#15233bde;padding:7px 10px;border:1px solid #fff9;border-radius:8px;text-decoration:none!important;font:700 12px system-ui,sans-serif}
 @media(max-width:700px){.gp-ad-stage:has(.gp-ad-video-slide){min-height:260px}.gp-ad-slide.gp-ad-video-slide .gp-ad-video{top:0;bottom:0;left:0;right:0;width:100%;height:100%}.gp-ad-slide.gp-ad-video-slide .gp-ad-copy{padding:10px 44px 12px}.gp-ad-slide.gp-ad-video-slide .gp-ad-copy h2{font-size:15px!important}}
+
+/* Evita que un video sin cargar muestre una pantalla negra. */
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video{background:linear-gradient(120deg,#d30a38,#183a76 62%,#087a8c)}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video iframe{z-index:2}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video .gp-ad-loading{z-index:1}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video .gp-drive-video-fallback{z-index:5}
