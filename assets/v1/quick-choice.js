@@ -179,8 +179,11 @@ function init(){
   if(config.campaignEnabled===true){
    showAd(config);
   }else{
-   // Si Firebase confirma que la campaña fue desactivada, retirar su popup.
-   if(!adBackdrop.hidden){adBackdrop.hidden=true;stopAdVideo();document.body.classList.remove('gp-quick-visible');announceAdModal(false)}
+   // Apagar siempre el iframe y su audio aunque el popup ya esté oculto.
+   stopAdVideo();
+   adBackdrop.hidden=true;
+   document.body.classList.remove('gp-quick-visible');
+   announceAdModal(false);
    adAlreadyDisplayed=false;
    if(!dismissed&&overlay.hidden)show();
   }
