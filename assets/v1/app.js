@@ -175,6 +175,7 @@ function applyCampaign(config){
  const mediaType=root.querySelector('#gp-campaign-media-type'),videoUrl=root.querySelector('#gp-campaign-video-url');
  if(mediaType)mediaType.value=config.campaignMediaType==='video'?'video':'image';
  if(videoUrl)videoUrl.value=String(config.campaignVideoUrl||'');
+ const coverUrl=root.querySelector('#gp-campaign-video-cover');if(coverUrl)coverUrl.value=String(config.campaignVideoCover||'');
  const values={'#gp-campaign-heading':config.campaignTitle||'¡Participa y gana con Grafiplot!','#gp-campaign-copy':config.campaignDescription||'','#gp-campaign-button-text':config.campaignButton||'Inscribirme al sorteo','#gp-campaign-url':config.campaignUrl||''};
  Object.entries(values).forEach(([selector,value])=>root.querySelector(selector).value=value);
  let link='';try{link=httpsLink(config.campaignUrl)}catch(_){}
@@ -350,7 +351,8 @@ async function saveCampaign(e,disable=false){
  const mediaType=root.querySelector('#gp-campaign-media-type').value;
  const videoUrl=root.querySelector('#gp-campaign-video-url').value.trim();
  if(mediaType==='video'&&enabled&&!window.GrafiplotAdVideo?.parse(videoUrl))throw Error('Para usar un video debes pegar un enlace válido de Google Drive o YouTube.');
- const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides,campaignMediaType:mediaType,campaignVideoUrl:videoUrl};
+ const campaignVideoCover=httpsLink(root.querySelector('#gp-campaign-video-cover').value.trim(),false);
+ const patch={campaignEnabled:enabled,campaignType:campaignType.value,campaignTitle:title,campaignDescription:root.querySelector('#gp-campaign-copy').value,campaignButton:text,campaignUrl:url,campaignSlides,campaignMediaType:mediaType,campaignVideoUrl:videoUrl,campaignVideoCover};
  await setDoc(settingsRef,patch,{merge:true});cloudConfig={...cloudConfig,...patch};applyCampaign(cloudConfig);campaignFeedback.textContent=enabled?'Campaña activada y guardada en Firebase.':'Campaña desactivada y guardada en Firebase.';if(enabled)go('gp-campaign-banner');
  }catch(error){campaignFeedback.textContent='No se pudo guardar la campaña: '+error.message}finally{button.disabled=false}
 }
