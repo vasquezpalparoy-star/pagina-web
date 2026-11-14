@@ -20,17 +20,33 @@ function parse(value){
  }else if(host==='youtu.be'){id=parts[0]||''}
  if(!/^[a-zA-Z0-9_-]{11}$/.test(id))return null;
  provider='youtube';
- return {provider,embed:'https://www.youtube-nocookie.com/embed/'+id+'?rel=0&playsinline=1',url:url.href};
+ return {provider,embed:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&playsinline=1&rel=0&controls=1',url:url.href};
 }
 function frame(source,label){
  const info=parse(source);if(!info)return null;
  const el=document.createElement('iframe');
  el.src=info.embed;
  el.title=label||'Video de promoción GRAFIPLOT';
- el.loading='lazy';el.referrerPolicy='strict-origin-when-cross-origin';
- el.allow='accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+ el.loading='eager';el.referrerPolicy='strict-origin-when-cross-origin';
+ el.dataset.provider=info.provider;
+ el.allow='autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen';
  el.allowFullscreen=true;el.setAttribute('sandbox','allow-scripts allow-same-origin allow-presentation allow-popups');
  return el;
 }
-window.GrafiplotAdVideo={parse,frame};
+// Los iframe de terceros no admiten object-fit: cover.
+// Ajustar relación 16:9 de YouTube para cubrir el recuadro sin bandas negras.
+function cover(frame,box){
+ if(!frame||!box||frame.dataset.provider!=='youtube')return ()=>{};
+ const update=()=>{
+  const w=box.clientWidth,h=box.clientHeight;
+  if(!w||!h)return;
+  const width=Math.max(w,h*16/9),height=Math.max(h,w*9/16);
+  Object.assign(frame.style,{position:'absolute',left:'50%',top:'50%',width:width+'px',height:height+'px',transform:'translate(-50%,-50%)',maxWidth:'none',maxHeight:'none'});
+ };
+ const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(update):null;
+ if(observer)observer.observe(box);
+ update();
+ return ()=>observer?.disconnect();
+}
+window.GrafiplotAdVideo={parse,frame,cover};
 })();
