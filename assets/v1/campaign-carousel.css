@@ -57,3 +57,7 @@
 .gp-drive-poster p{margin:0;color:#fff;font:700 clamp(15px,2.2vw,20px)/1.35 system-ui,sans-serif}
 .gp-drive-poster-play{background:#fff;color:#b0002b;border:0;border-radius:999px;padding:14px 25px;font:900 17px system-ui,sans-serif;box-shadow:0 8px 22px #0006;cursor:pointer}
 .gp-drive-poster-play:hover{background:#ffe5eb}
+
+/* Portada personalizada Drive: no se aplica a YouTube. */
+.gp-drive-poster.gp-drive-custom-cover{background-size:cover;background-position:center;background-repeat:no-repeat}
+.gp-drive-poster.gp-drive-custom-cover strong,.gp-drive-poster.gp-drive-custom-cover p{filter:drop-shadow(0 2px 5px #000)}
