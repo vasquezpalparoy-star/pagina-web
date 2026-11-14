@@ -146,6 +146,19 @@ function renderInstructionalVideos(){
   row.append(fields);container.append(row);
  });
 }
+// El botón abre el editor realmente: no depende de navegar a un enlace # oculto.
+root.querySelector('#gp-video-settings-link').addEventListener('click',()=>{
+ siteSettings.hidden=false;
+ const panel=root.querySelector('#gp-video-settings');
+ panel.open=true;
+ if(!instructionalVideoDraft.length){
+  instructionalVideoDraft.push({id:'video-'+Date.now()+'-'+(++videoIdCounter),title:'',description:'',category:videoCategories[0],url:'',thumbnail:''});
+  renderInstructionalVideos();
+ }
+ panel.scrollIntoView({behavior:'smooth',block:'start'});
+ const first=panel.querySelector('.gp-instructional-video-fields input');
+ if(first)setTimeout(()=>first.focus({preventScroll:true}),350);
+});
 root.querySelector('#gp-video-add').addEventListener('click',()=>{
  if(instructionalVideoDraft.length>=100){root.querySelector('#gp-video-feedback').textContent='Máximo 100 videos.';return}
  instructionalVideoDraft.push({id:'video-'+Date.now()+'-'+(++videoIdCounter),title:'',description:'',category:videoCategories[0],url:'',thumbnail:''});
@@ -518,6 +531,6 @@ window.GrafiplotPage={
 window.GrafiplotAddons||={};window.GrafiplotAddons.products={value(){return {siteProducts:siteProducts.map(p=>{if(!p.name?.trim()||!Number.isFinite(p.price)||p.price<0||!Number.isInteger(p.stock)||p.stock<0)throw Error('Revisa el nombre, precio y stock de los productos añadidos.');return {...p}})}}};
 window.dispatchEvent(new window.Event('gp-page-ready'));
 
-loadServices();renderServiceImagesEditor();galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
+loadInstructionalVideos();loadServices();renderServiceImagesEditor();galleryDraft=[];renderGalleryContent();renderCatalog();publishBotContext();connectSite();connectInventory();
 
 update();if(window.lucide)window.lucide.createIcons();else window.addEventListener('load',()=>window.lucide?.createIcons(),{once:true});})();
