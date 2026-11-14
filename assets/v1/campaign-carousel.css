@@ -34,3 +34,13 @@
 .gp-ad-play[hidden]{display:none!important}
 .gp-ad-slide:has(.gp-ad-video) .gp-ad-copy{max-width:58%;padding-right:25px}
 @media(max-width:700px){.gp-ad-stage:has(.gp-ad-video){min-height:400px}.gp-ad-slide:has(.gp-ad-video){align-items:flex-start}.gp-ad-slide:has(.gp-ad-video) .gp-ad-copy{max-width:100%;padding:15px 40px}.gp-ad-slide:has(.gp-ad-video) .gp-ad-copy h2{font-size:21px!important;margin:6px 0!important}.gp-ad-slide:has(.gp-ad-video) .gp-ad-copy p{font-size:12px!important}.gp-ad-video{top:auto;bottom:17px;left:12%;right:12%;width:76%;height:49%}.gp-ad-video .gp-ad-play{font-size:13px}}
+
+/* Videos ocupan el anuncio completo, no un recuadro lateral. */
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video{position:absolute;inset:0;width:100%;height:100%;top:0;right:0;bottom:0;left:0;max-width:none;border:0;border-radius:0;box-shadow:none;background:#020813;z-index:2;overflow:hidden;display:block}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-video iframe{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;border:0}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-copy{position:absolute;z-index:3;left:0;right:0;bottom:0;max-width:100%;padding:12px 64px 15px;pointer-events:none;background:linear-gradient(0deg,#050b23e8,transparent)}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-copy .gp-ad-label,.gp-ad-slide.gp-ad-video-slide .gp-ad-copy p{display:none}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-copy h2{font-size:clamp(15px,2vw,23px)!important;margin:0!important;text-shadow:0 2px 5px #000}
+.gp-ad-slide.gp-ad-video-slide .gp-ad-copy .gp-ad-cta{pointer-events:auto}
+.gp-drive-video-fallback{position:absolute;bottom:12px;right:12px;z-index:5;color:white!important;background:#15233bde;padding:7px 10px;border:1px solid #fff9;border-radius:8px;text-decoration:none!important;font:700 12px system-ui,sans-serif}
+@media(max-width:700px){.gp-ad-stage:has(.gp-ad-video-slide){min-height:260px}.gp-ad-slide.gp-ad-video-slide .gp-ad-video{top:0;bottom:0;left:0;right:0;width:100%;height:100%}.gp-ad-slide.gp-ad-video-slide .gp-ad-copy{padding:10px 44px 12px}.gp-ad-slide.gp-ad-video-slide .gp-ad-copy h2{font-size:15px!important}}
