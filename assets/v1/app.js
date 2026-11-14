@@ -128,7 +128,7 @@ function renderInstructionalVideos(){
   function inputField(labelText,key,placeholder,maxLength,kind='input'){
    const label=document.createElement('label');label.textContent=labelText;
    const field=document.createElement(kind);field.value=video[key]||'';field.placeholder=placeholder;
-   field.maxLength=maxLength;if(kind==='input')field.type=key==='url'||key==='thumbnail'?'url':'text';
+   field.maxLength=maxLength;if(kind==='input')field.type='text';
    if(kind==='textarea')field.rows=2;
    field.addEventListener('input',()=>{video[key]=field.value});label.append(field);fields.append(label);
   }
@@ -149,7 +149,7 @@ root.querySelector('#gp-video-add').addEventListener('click',()=>{
  instructionalVideoDraft.push({id:'video-'+Date.now()+'-'+(++videoIdCounter),title:'',description:'',category:videoCategories[0],url:'',thumbnail:''});
  renderInstructionalVideos();
  const settings=root.querySelector('#gp-video-settings');settings.open=true;
- const fields=root.querySelectorAll('.gp-instructional-video-fields input');fields[fields.length-3]?.focus();
+ const latest=root.querySelector('.gp-instructional-video-row:last-child input');latest?.focus();
 });
 root.querySelector('#gp-video-save').addEventListener('click',async()=>{
  const status=root.querySelector('#gp-video-feedback');
@@ -338,7 +338,7 @@ function loadServices(){servicesDraft=Array.isArray(cloudConfig.services)?cloudC
 function applyOrderPages(links={}){root.querySelectorAll('[data-order-page]').forEach(button=>{let url='';try{url=httpsLink(links[button.dataset.orderPage])}catch(_){}button.disabled=!url;button.title=url?'Abrir página':'Página próximamente disponible';button.onclick=url?()=>{window.location.assign(url)}:null;});}
 function loadCloudConfig(data){
  cloudConfig=data||{};
- loadInstructionalVideos();
+ if(siteSettings.hidden)loadInstructionalVideos();
  if(!siteSettings.hidden||!campaignAdmin.hidden||root.dataset.visualSession==='true')return;
  siteProducts=Array.isArray(cloudConfig.siteProducts)?structuredClone(cloudConfig.siteProducts):[];mergeSiteProducts();
  applyPreviewConfig(cloudConfig.designConfig||{});
