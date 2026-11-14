@@ -54,6 +54,7 @@ function loadVideo(index){
  frame.addEventListener('load',()=>{if(!frame.isConnected)return;frame.style.visibility='visible';wait.remove()},{once:true});
  frame.addEventListener('error',()=>{if(frame.isConnected)wait.textContent='No se pudo cargar este video.'},{once:true});
  media.append(frame);
+ window.GrafiplotAdVideo.volumeButton?.(frame,media);
  stopCover=window.GrafiplotAdVideo.cover(frame,media);
  loadTimer=setTimeout(()=>{if(frame.isConnected&&frame.style.visibility==='hidden'){frame.remove();wait.textContent='No se pudo cargar el video. Ábrelo en su plataforma.'}},9000);
  if(source){
