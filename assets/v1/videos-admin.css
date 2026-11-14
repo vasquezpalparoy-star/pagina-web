@@ -18,3 +18,8 @@
 .gp-video-settings-shortcut a:hover{filter:brightness(1.09)}
 #gp-video-settings{scroll-margin-top:20px;border:2px solid #ed3158}
 #gp-video-settings>summary{color:#d71039}
+
+.gp-video-settings-shortcut #gp-video-settings-link{display:block;width:100%;border:2px solid #ffe2e8;background:linear-gradient(110deg,#ec1644,#a8002c);color:#fff!important;border-radius:13px;text-align:center;padding:14px 18px;font:900 16px/1.4 system-ui,sans-serif;cursor:pointer}
+.gp-video-settings-shortcut #gp-video-settings-link:hover{filter:brightness(1.12)}
+#gp-video-settings{margin-top:6px;margin-bottom:18px}
+#gp-video-settings[open] #gp-video-editor{display:grid}
