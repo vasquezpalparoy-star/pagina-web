@@ -55,8 +55,35 @@ function init(){
   '</section>';
  document.body.append(adBackdrop);
  const adClose=adBackdrop.querySelector('.gp-quick-close');
+ const videoWrap=document.createElement('div');
+ videoWrap.className='gp-quick-promo-video';
+ videoWrap.hidden=true;
+ adBackdrop.querySelector('.gp-quick-promo-image').insertAdjacentElement('afterend',videoWrap);
+ function stopAdVideo(){videoWrap.replaceChildren();}
+ function setAdMedia(config){
+  stopAdVideo();
+  const source=config.campaignMediaType==='video'?window.GrafiplotAdVideo?.parse(config.campaignVideoUrl):null;
+  const cover=adBackdrop.querySelector('.gp-quick-promo-image');
+  if(source){
+   cover.hidden=true;videoWrap.hidden=false;
+   const play=document.createElement('button');play.type='button';play.className='gp-ad-play';
+   play.textContent='▶ Reproducir video publicitario';
+   play.onclick=()=>{
+    const iframe=window.GrafiplotAdVideo?.frame(config.campaignVideoUrl,'Publicidad de GRAFIPLOT');
+    if(iframe)videoWrap.replaceChildren(iframe);
+   };
+   videoWrap.append(play);
+  }else{
+   videoWrap.hidden=true;
+   const image=String(config.pageImages?.campaign||'');
+   let safeImage='';
+   try{const url=new URL(image,location.href);if(url.protocol==='https:'||url.origin===location.origin)safeImage=url.href}catch{}
+   cover.style.backgroundImage=safeImage?'url('+JSON.stringify(safeImage)+')':'none';
+   cover.hidden=!safeImage;
+  }
+ }
  function closeAd(){
-  adBackdrop.hidden=true;document.body.classList.remove('gp-quick-visible');
+  adBackdrop.hidden=true;stopAdVideo();document.body.classList.remove('gp-quick-visible');
   adClose.blur();
  }
  adClose.addEventListener('click',closeAd);
@@ -71,12 +98,7 @@ function init(){
   adBackdrop.querySelector('.gp-quick-promo-label').textContent=config.campaignType==='sorteo'?'SORTEO GRAFIPLOT':'PROMOCIÓN GRAFIPLOT';
   adBackdrop.querySelector('#gp-quick-promo-title').textContent=title;
   adBackdrop.querySelector('.gp-quick-promo-description').textContent=desc;
-  const image=String(config.pageImages?.campaign||'');
-  let safeImage='';
-  try{const url=new URL(image,location.href);if(url.protocol==='https:'||url.origin===location.origin)safeImage=url.href}catch{}
-  const cover=adBackdrop.querySelector('.gp-quick-promo-image');
-  cover.style.backgroundImage=safeImage?'url('+JSON.stringify(safeImage)+')':'none';
-  cover.hidden=!safeImage;
+  setAdMedia(config);
   const link=adBackdrop.querySelector('.gp-quick-promo-link');
   let safeLink='';
   try{const url=new URL(String(config.campaignUrl||''));if(url.protocol==='https:')safeLink=url.href}catch{}
