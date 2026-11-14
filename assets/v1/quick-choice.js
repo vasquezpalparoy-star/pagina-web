@@ -16,12 +16,13 @@ function init(){
  '</div></section>';
  document.body.append(overlay);
  const close=overlay.querySelector('.gp-quick-close');
- let lastFocus=null,decisionReceived=false,initialTimer=null,adAlreadyDisplayed=false;
+ let lastFocus=null,decisionReceived=false,initialTimer=null,adAlreadyDisplayed=false,dismissed=false;
  function show(){
   if(!lastFocus)lastFocus=document.activeElement;
   overlay.hidden=false;document.body.classList.add('gp-quick-visible');close.focus({preventScroll:true});
  }
  function hide(){
+  dismissed=true;
   overlay.hidden=true;document.body.classList.remove('gp-quick-visible');
   if(lastFocus?.isConnected&&lastFocus!==document.body)lastFocus.focus({preventScroll:true});else close.blur();
  }
@@ -83,6 +84,7 @@ function init(){
   }
  }
  function closeAd(){
+  dismissed=true;
   adBackdrop.hidden=true;stopAdVideo();document.body.classList.remove('gp-quick-visible');
   adClose.blur();
  }
@@ -111,13 +113,15 @@ function init(){
  function campaignChange(event){
   const config=event.detail;
   if(!config||typeof config.campaignEnabled!=='boolean')return;
-  if(decisionReceived&&config.campaignEnabled!==true)return;
   decisionReceived=true;
   clearTimeout(initialTimer);
   if(config.campaignEnabled===true){
    showAd(config);
-  }else if(!adAlreadyDisplayed&&adBackdrop.hidden&&overlay.hidden){
-   show();
+  }else{
+   // Si Firebase confirma que la campaña fue desactivada, retirar su popup.
+   if(!adBackdrop.hidden){adBackdrop.hidden=true;document.body.classList.remove('gp-quick-visible')}
+   adAlreadyDisplayed=false;
+   if(!dismissed&&overlay.hidden)show();
   }
  }
  window.addEventListener('gp-campaign-change',campaignChange);
