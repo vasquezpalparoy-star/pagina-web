@@ -110,6 +110,8 @@ function loadInstructionalVideos(){
   category:videoCategories.includes(item.category)?item.category:videoCategories[0],
   url:String(item.url||'').slice(0,1500),thumbnail:String(item.thumbnail||'').slice(0,1500)
  }));
+ // Cuando no hay videos, mostrar directamente el primer formulario para pegar el enlace.
+ if(!instructionalVideoDraft.length)instructionalVideoDraft.push({id:'video-'+Date.now()+'-'+(++videoIdCounter),title:'',description:'',category:videoCategories[0],url:'',thumbnail:''});
  renderInstructionalVideos();
 }
 function renderInstructionalVideos(){
