@@ -2,15 +2,15 @@
 #grafiplot-preview{
  --gp-scene:url('./background-light.webp');
  --gp-scene-wash:rgba(249,250,252,.64);
- --gp-scene-surface:rgba(255,255,255,.91);
- --gp-scene-section:rgba(255,255,255,.74);
+ --gp-scene-surface:transparent;
+ --gp-scene-section:transparent;
  position:relative;isolation:isolate;background:transparent!important;
 }
 #grafiplot-preview[data-appearance=dark]{
  --gp-scene:url('./background-dark.webp');
  --gp-scene-wash:rgba(8,12,18,.57);
- --gp-scene-surface:rgba(19,25,35,.94);
- --gp-scene-section:rgba(13,20,30,.77);
+ --gp-scene-surface:transparent;
+ --gp-scene-section:transparent;
 }
 #grafiplot-preview::before{
  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
@@ -43,4 +43,29 @@
 }
 @media(max-width:760px){
  #grafiplot-preview::before{background-position:58% center;}
+}
+
+/* Content sits directly on the muted photograph; controls retain contrast. */
+#grafiplot-preview[data-appearance] .gp-service,
+#grafiplot-preview[data-appearance] .gp-product,
+#grafiplot-preview[data-appearance] .gp-work,
+#grafiplot-preview[data-appearance] #gp-faq details,
+#grafiplot-preview[data-appearance] .gp-form,
+#grafiplot-preview[data-appearance] .gp-phone-panel,
+#grafiplot-preview[data-appearance] .gp-delivery-info,
+#grafiplot-preview[data-appearance] .gp-delivery-grid form,
+#grafiplot-preview[data-appearance] .gp-cart-summary{
+ background:transparent!important;box-shadow:none!important;
+ border-color:transparent;border-radius:0;
+}
+#grafiplot-preview[data-appearance] .gp-service::before,
+#grafiplot-preview[data-appearance] .gp-service::after{
+ background:transparent!important;box-shadow:none!important;
+}
+#grafiplot-preview[data-appearance] #gp-faq details{
+ border-bottom:1px solid var(--gp-border);
+}
+#grafiplot-preview[data-appearance] .gp-service-photo,
+#grafiplot-preview[data-appearance] .gp-catalog-image{
+ border-radius:10px;
 }
