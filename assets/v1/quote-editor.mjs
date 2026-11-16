@@ -70,7 +70,7 @@ export function initQuoteEditor(root){
  serviceSelect.onchange=refreshChoices;formatSelect.onchange=update;quantity.oninput=update;
  root.querySelector('#gp-send').addEventListener('click',event=>{
   if(serviceSelect.value==='printing')return;event.preventDefault();event.stopImmediatePropagation();
-  try{const q=currentQuote();const total=q.total===null?'Por confirmar':'S/ '+q.total.toFixed(2);const text='Hola Grafiplot, solicito cotización de '+q.service+'\nFormato: '+q.format+'\nCantidad: '+q.quantity+' '+q.unit+'(s)\nPrecio unitario: '+(q.price===null?'Por confirmar':'S/ '+q.price.toFixed(2))+'\nTotal estimado: '+total;win.open('https://wa.me/51916133647?text='+encodeURIComponent(text),'_blank','noopener,noreferrer')}
+  try{const q=currentQuote();const total=q.total===null?'Por confirmar':'S/ '+q.total.toFixed(2);const text='Hola Grafiplot, solicito cotización de '+q.service+'\nFormato: '+q.format+'\nCantidad: '+q.quantity+' '+q.unit+'(s)\nPrecio unitario: '+(q.price===null?'Por confirmar':'S/ '+q.price.toFixed(2))+'\nTotal estimado: '+total;win.open('https://wa.me/51952628844?text='+encodeURIComponent(text),'_blank','noopener,noreferrer')}
   catch(error){result.textContent=error.message}
  },true);
  function load(data={}){config=data;wholesaleThresholds=structuredClone(data.wholesaleThresholds||{});services=structuredClone(Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices());printingRanges=structuredClone(data.autoPriceRanges||{});rates.querySelectorAll('.gp-printing-ranges').forEach(e=>e.remove());rates.querySelectorAll('[data-ranges-ready]').forEach(e=>delete e.dataset.rangesReady);renderAdmin();refreshChoices()}

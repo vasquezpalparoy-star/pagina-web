@@ -111,7 +111,7 @@ export function initVisualEditor(root){
   dialog.replaceChildren(make('h2','¿Qué deseas añadir aquí?'));dialog.firstChild.id='ve-dialog-title';
   for(const [type,title] of [['text','Texto'],['image','Imagen'],['service','Servicio'],['product','Producto'],['button','Botón'],['section','Nueva sección']]){
    const b=button(title,()=>{dialog.close();if(type==='service'){if(anchor==='gp-quote')win.dispatchEvent(new win.CustomEvent('gp-open-rates'));else editService();return}if(type==='product'){editProduct();return}
-    const fields=type==='image'?{title:'',image:''}:type==='button'?{button:'Consultar',url:'https://wa.me/51916133647'}:type==='text'?{title:'Nuevo título',text:'Escribe aquí el texto.'}:{title:'Nueva sección',text:'',image:'',button:'',url:''};
+    const fields=type==='image'?{title:'',image:''}:type==='button'?{button:'Consultar',url:'https://wa.me/51952628844'}:type==='text'?{title:'Nuevo título',text:'Escribe aquí el texto.'}:{title:'Nueva sección',text:'',image:'',button:'',url:''};
     editor('Añadir '+title.toLowerCase(),fields,data=>{model.sections.push({id:crypto.randomUUID(),anchor,type,...data});model=validateVisualPage(model);render()});
    });b.className='ve-add-option';dialog.append(b);
   }

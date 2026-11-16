@@ -66,7 +66,7 @@ function showVideo(item){
   Object.assign(fallback.style,{position:'absolute',bottom:'8px',right:'8px',zIndex:'2',color:'white',background:'#14213add',padding:'5px 8px',fontSize:'12px',borderRadius:'7px'});$('video-player').append(fallback);
  }
  $('video-title').textContent=item.title;$('video-desc').textContent=item.description||'Video instructivo de GRAFIPLOT.';
- $('video-cta').href='https://wa.me/51916133647?text='+encodeURIComponent('Hola GRAFIPLOT, quiero consultar el servicio: '+item.title);
+ $('video-cta').href='https://wa.me/51952628844?text='+encodeURIComponent('Hola GRAFIPLOT, quiero consultar el servicio: '+item.title);
  render();
 }
 function render(){

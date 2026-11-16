@@ -120,7 +120,7 @@ async function makeReceipt(data,items,code,summary){
   ctx.fillStyle='#fff';ctx.font='bold 38px Arial';ctx.fillText('GRAFIPLOT VASQUEZ',48,55);ctx.font='24px Arial';ctx.fillText('Pedido de delivery · '+code,48,93);
   ctx.fillStyle='#cf1232';ctx.fillRect(0,118,900,6);
   rows.forEach(({line,bold},i)=>{ctx.fillStyle=bold?'#12223a':'#37455b';ctx.font=(bold?'700 ':'')+'25px Arial';ctx.fillText(line,48,172+i*36)});
-  ctx.font='20px Arial';ctx.fillStyle='#46546b';ctx.fillText(stamp.toLocaleDateString('es-PE')+'   ·   Delivery 916 133 647',48,canvas.height-26);ctx.fillText((page+1)+' / '+count,780,canvas.height-26);
+  ctx.font='20px Arial';ctx.fillStyle='#46546b';ctx.fillText(stamp.toLocaleDateString('es-PE')+'   ·   Delivery 952 628 844',48,canvas.height-26);ctx.fillText((page+1)+' / '+count,780,canvas.height-26);
   const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error()),'image/png'));
   result.push(new File([blob],'Grafiplot-'+code+'-'+(page+1)+'.png',{type:'image/png'}));
  }
@@ -182,7 +182,7 @@ async function prepareDelivery(items,option){
   if(version!==revision)return;
   let summary=null;
   let text=orderText(data,items,code,summary);
-  let chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
+  let chatUrl='https://wa.me/51952628844?text='+encodeURIComponent(text);
   byId('delivery-text').textContent=text;byId('delivery-send-text').href=chatUrl;byId('delivery-chat').href=chatUrl;receipt.hidden=false;
   if(currentUid){
    try{
@@ -197,7 +197,7 @@ async function prepareDelivery(items,option){
   if(version!==revision)return;
   try{
    text=orderText(data,items,code,summary);
-   chatUrl='https://wa.me/51916133647?text='+encodeURIComponent(text);
+   chatUrl='https://wa.me/51952628844?text='+encodeURIComponent(text);
    byId('delivery-text').textContent=text;byId('delivery-send-text').href=chatUrl;byId('delivery-chat').href=chatUrl;
    const {result}=await makeReceipt(data,items,code,summary);if(revision!==version)return;
    files=result;

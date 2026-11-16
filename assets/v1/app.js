@@ -1,9 +1,9 @@
-import {aiConfig} from './grafibot-core.mjs?v=catalog7';
+import {aiConfig} from './grafibot-core.mjs?v=contact8';
 import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
-import {updateBotContext} from './grafibot-context.js?v=catalog7';
+import {updateBotContext} from './grafibot-context.js?v=contact8';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -315,7 +315,7 @@ function describeSaveError(error){if(error.code==='permission-denied')return 'Fi
 const money=n=>'S/ '+Number(n).toFixed(2);
 const feedback=(text,error=false)=>{const node=root.querySelector('#gp-settings-feedback');node.textContent=text;node.setAttribute('role',error?'alert':'status')};
 const httpsLink=(value,optional=true)=>{const text=String(value||'').trim();if(!text&&optional)return '';const url=new URL(text);if(url.protocol!=='https:')throw Error('Usa enlaces que comiencen con https://.');return url.href};
-function configuredPhone(){return '51916133647'}
+function configuredPhone(){return '51952628844'}
 function whatsapp(message){window.open('https://wa.me/'+configuredPhone()+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer')}
 function applyCampaign(config){
  const active=config.campaignEnabled===true;
@@ -443,7 +443,7 @@ root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
  const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();
  if(!/^[\w-]{20,200}$/.test(siteKey)||siteKey.startsWith('AIza')){status.textContent='Primero registra App Check e ingresa la clave pública de sitio reCAPTCHA Enterprise.';return;}
  button.disabled=true;status.textContent='Comprobando App Check y Gemini…';
- try{const {generateWithGemini}=await import('./grafibot-ai.js?v=catalog7');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:root.querySelector('#gp-ai-model').value,onStatus:text=>status.textContent=text}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
+ try{const {generateWithGemini}=await import('./grafibot-ai.js?v=contact8');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:root.querySelector('#gp-ai-model').value,onStatus:text=>status.textContent=text}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
  catch(error){const code=String(error.code||error.message||'');const hint=/429|quota|resource-exhausted/i.test(code)?'Se alcanzó el cupo de Gemini. Revisa las cuotas del proyecto.':/403|permission|app-check/i.test(code)?'Revisa App Check, la clave pública, los dominios y la habilitación de AI Logic.':/404|not-found/i.test(code)?'El modelo no está disponible en este proyecto. Revisa el acceso a Gemini 3.8 Flash.':'Revisa la conexión, AI Logic y App Check.';const detail=String(error?.message||error?.error?.message||error||'Sin detalle').replace(/https?:\/\/\S+/g,'[servicio de Google]').replace(/AIza[\w-]+/g,'[clave pública]').slice(0,400);status.textContent='No se confirmó la conexión con Gemini. '+hint+' Grafibot puede seguir en modo local. Detalle: '+detail;}
  finally{button.disabled=false;}
 });

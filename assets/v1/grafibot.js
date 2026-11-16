@@ -1,6 +1,6 @@
-import {createAssistant} from './grafibot-core.mjs?v=catalog7';
-import {getBotContext} from './grafibot-context.js?v=catalog7';
-import {generateWithGemini} from './grafibot-ai.js?v=catalog7';
+import {createAssistant} from './grafibot-core.mjs?v=contact8';
+import {getBotContext} from './grafibot-context.js?v=contact8';
+import {generateWithGemini} from './grafibot-ai.js?v=contact8';
 const root=document.getElementById('gp-grafibot');
 const panel=root.querySelector('#gp-grafibot-panel'),toggle=root.querySelector('#gp-grafibot-toggle'),close=root.querySelector('#gb-close'),form=root.querySelector('#gb-form'),field=root.querySelector('#gb-input'),messages=root.querySelector('#gb-messages'),thought=root.querySelector('#gb-thought'),wolf=root.querySelector('#gb-wolf');
 let state=null,busy=false;

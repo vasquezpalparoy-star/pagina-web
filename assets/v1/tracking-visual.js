@@ -32,7 +32,7 @@
   });viewport.append(list);tracker.append(viewport);
   tracker.append(node('p','Desliza para ver todas las etapas →','gv-swipe'));
   const footer=node('div',null,'gv-footer');footer.append(node('p',captions[status]||'Aquí verás el estado real de tu último delivery activo.','gv-message'));
-  const contact=node('a','Consultar mi entrega ↗','gv-contact');contact.href='https://wa.me/51916133647?text=Hola%2C%20quiero%20consultar%20mi%20delivery.';contact.target='_blank';contact.rel='noopener noreferrer';footer.append(contact);tracker.append(footer);
+  const contact=node('a','Consultar mi entrega ↗','gv-contact');contact.href='https://wa.me/51952628844?text=Hola%2C%20quiero%20consultar%20mi%20delivery.';contact.target='_blank';contact.rel='noopener noreferrer';footer.append(contact);tracker.append(footer);
   return tracker;
  }
  window.GrafiplotTracking={create,setImages};

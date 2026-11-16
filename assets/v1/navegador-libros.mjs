@@ -155,7 +155,7 @@ function sendLinksToWhatsApp(){
  const items=[...state.selected.values()];
  if(!items.length){status("Selecciona al menos una imagen.");return}
  if(items.length>12){status("WhatsApp admite mensajes de longitud limitada. Selecciona hasta 12 imágenes por envío.");return}
- const url="https://wa.me/51916133647?text="+encodeURIComponent(whatsappMessage());
+ const url="https://wa.me/51952628844?text="+encodeURIComponent(whatsappMessage());
  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";document.body.append(a);a.click();a.remove();
  status("Se abrió WhatsApp con "+items.length+" enlaces originales preparados para GRAFIPLOT. Revisa el mensaje y pulsa Enviar; no se descargaron archivos.");
 }

@@ -1,4 +1,4 @@
-import {publicProducts,productReply,productAnswer} from './grafibot-products.mjs?v=catalog7';
+import {publicProducts,productReply,productAnswer} from './grafibot-products.mjs?v=contact8';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
 import {calculateServiceQuote,defaultQuoteServices} from './quote-ranges.mjs';
 
@@ -12,7 +12,7 @@ export function aiConfig(value={}) {
  return {enabled:value.enabled===true&&/^[\w-]{20,200}$/.test(siteKey)&&!siteKey.startsWith('AIza'),siteKey:siteKey.startsWith('AIza')?'':siteKey,model:AI_MODELS.includes(value.model)?value.model:AI_MODEL};
 }
 export function buildContext(data={},page={}) {
- return {products:publicProducts(page.products||[]),catalogConfirmed:page.catalogConfirmed===true,ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},wholesaleThresholds:data.wholesaleThresholds||{},quoteServices:Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices(),phone:/^\d{7,15}$/.test(data.contactPhone||'')?data.contactPhone:'51916133647',prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
+ return {products:publicProducts(page.products||[]),catalogConfirmed:page.catalogConfirmed===true,ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},wholesaleThresholds:data.wholesaleThresholds||{},quoteServices:Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices(),phone:/^\d{7,15}$/.test(data.contactPhone||'')&&data.contactPhone!=='51916133647'?data.contactPhone:'51952628844',prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
  faqs:(Array.isArray(data.faqContent)?data.faqContent:page.faqs||[]).slice(0,40).map(f=>({question:String(f.question||'').slice(0,250),answer:String(f.answer||'').slice(0,1500)})),
  services:(page.services||[]).slice(0,20).map(String),location:String(page.location||'Consulta la ubicación en la página.'),hours:String(page.hours||'Consulta los horarios por WhatsApp.')};
 }
