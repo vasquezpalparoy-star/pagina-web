@@ -2,7 +2,7 @@ import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
-import {updateBotContext} from './grafibot-context.js?v=flash-local3';
+import {updateBotContext} from './grafibot-context.js?v=flash-local5';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -441,7 +441,7 @@ root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
  const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();
  if(!/^[\w-]{20,200}$/.test(siteKey)||siteKey.startsWith('AIza')){status.textContent='Primero registra App Check e ingresa la clave pública de sitio reCAPTCHA Enterprise.';return;}
  button.disabled=true;status.textContent='Comprobando App Check y Gemini…';
- try{const {generateWithGemini}=await import('./grafibot-ai.js?v=flash-local3');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:'gemini-3.8-flash'}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
+ try{const {generateWithGemini}=await import('./grafibot-ai.js?v=flash-local5');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:'gemini-3.8-flash'}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
  catch(error){const code=String(error.code||error.message||'');const hint=/429|quota|resource-exhausted/i.test(code)?'Se alcanzó el cupo de Gemini. Revisa las cuotas del proyecto.':/403|permission|app-check/i.test(code)?'Revisa App Check, la clave pública, los dominios y la habilitación de AI Logic.':/404|not-found/i.test(code)?'El modelo no está disponible en este proyecto. Revisa el acceso a Gemini 3.8 Flash.':'Revisa la conexión, AI Logic y App Check.';const detail=String(error?.message||error?.error?.message||error||'Sin detalle').replace(/https?:\/\/\S+/g,'[servicio de Google]').replace(/AIza[\w-]+/g,'[clave pública]').slice(0,400);status.textContent='No se confirmó la conexión con Gemini. '+hint+' Grafibot puede seguir en modo local. Detalle: '+detail;}
  finally{button.disabled=false;}
 });
