@@ -165,7 +165,7 @@ export function createAssistant({generate,getContext,now=()=>Date.now(),isOnline
    let timer;
    const raw=await Promise.race([Promise.resolve().then(()=>generate(makePrompt(message,context,state),context.ai)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('ai-timeout')),14000)})]).finally(()=>clearTimeout(timer));
    const result=interpretAI(typeof raw==='string'?JSON.parse(raw):raw,context,state);state=result.state??null;return {...result,mode:'ai'};
-  }catch{offlineUntil=now()+60000;const result=localFallback(message,context);state=result.state??state;return {...result,answer:'Estoy atendiendo en modo local. '+result.answer,mode:'unavailable'};}
+  }catch(error){const hints=String(error?.message||'').match(/ai-timeout|Failed to fetch|fetch dynamically imported module|403|404|429|API_KEY_INVALID|PERMISSION_DENIED|RESOURCE_EXHAUSTED|recaptcha[^: .]*/gi)||[];console.warn('[Grafibot] Conexión IA:',String(error?.code||error?.name||'error'),hints.join(' · '));offlineUntil=now()+60000;const result=localFallback(message,context);state=result.state??state;return {...result,answer:'Estoy atendiendo en modo local. '+result.answer,mode:'unavailable'};}
   finally{inflight=false;}
  }};
 }
