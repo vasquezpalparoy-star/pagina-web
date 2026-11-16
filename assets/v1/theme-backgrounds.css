@@ -1,0 +1,46 @@
+/* Theme-aware, muted photographic backgrounds for the storefront. */
+#grafiplot-preview{
+ --gp-scene:url('./background-light.webp');
+ --gp-scene-wash:rgba(249,250,252,.64);
+ --gp-scene-surface:rgba(255,255,255,.91);
+ --gp-scene-section:rgba(255,255,255,.74);
+ position:relative;isolation:isolate;background:transparent!important;
+}
+#grafiplot-preview[data-appearance=dark]{
+ --gp-scene:url('./background-dark.webp');
+ --gp-scene-wash:rgba(8,12,18,.57);
+ --gp-scene-surface:rgba(19,25,35,.94);
+ --gp-scene-section:rgba(13,20,30,.77);
+}
+#grafiplot-preview::before{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background-color:var(--gp-bg);
+ background-image:linear-gradient(var(--gp-scene-wash),var(--gp-scene-wash)),var(--gp-scene);
+ background-position:center;background-size:cover;background-repeat:no-repeat;
+}
+#grafiplot-preview .gp-header,
+#grafiplot-preview .gp-shop-nav,
+#grafiplot-preview[data-appearance] .gp-top,
+#grafiplot-preview[data-appearance] .gp-footer,
+#grafiplot-preview[data-appearance] .gp-trust{
+ background:var(--gp-scene-surface)!important;
+}
+#grafiplot-preview #gp-services,
+#grafiplot-preview #gp-catalog,
+#grafiplot-preview #gp-gallery,
+#grafiplot-preview #gp-faq,
+#grafiplot-preview #gp-location,
+#grafiplot-preview #gp-delivery-access,
+#grafiplot-preview[data-appearance] .gp-hero,
+#grafiplot-preview .gp-quote{
+ background:var(--gp-scene-section)!important;
+}
+#grafiplot-preview .gp-product,
+#grafiplot-preview .gp-work,
+#grafiplot-preview .gp-faq-list details,
+#grafiplot-preview .gp-form{
+ background:var(--gp-scene-surface)!important;
+}
+@media(max-width:760px){
+ #grafiplot-preview::before{background-position:58% center;}
+}
