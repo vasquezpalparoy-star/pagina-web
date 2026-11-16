@@ -1,8 +1,9 @@
+import {aiConfig} from './grafibot-core.mjs?v=flash-repair6';
 import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
-import {updateBotContext} from './grafibot-context.js?v=flash-local5';
+import {updateBotContext} from './grafibot-context.js?v=flash-repair6';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -432,6 +433,7 @@ function loadCloudConfig(data){
  if(cloudConfig.seoTitle)document.title=cloudConfig.seoTitle;
  root.querySelector('#gp-ai-enabled').checked=cloudConfig.grafibotAI?.enabled===true;
  root.querySelector('#gp-ai-sitekey').value=cloudConfig.grafibotAI?.siteKey||'';
+ root.querySelector('#gp-ai-model').value=aiConfig(cloudConfig.grafibotAI).model;
  publishBotContext();
  window.dispatchEvent(new window.CustomEvent('gp-config-loaded',{detail:cloudConfig}));
 }
@@ -441,7 +443,7 @@ root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
  const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();
  if(!/^[\w-]{20,200}$/.test(siteKey)||siteKey.startsWith('AIza')){status.textContent='Primero registra App Check e ingresa la clave pública de sitio reCAPTCHA Enterprise.';return;}
  button.disabled=true;status.textContent='Comprobando App Check y Gemini…';
- try{const {generateWithGemini}=await import('./grafibot-ai.js?v=flash-local5');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:'gemini-3.8-flash'}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
+ try{const {generateWithGemini}=await import('./grafibot-ai.js?v=flash-repair6');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:root.querySelector('#gp-ai-model').value,onStatus:text=>status.textContent=text}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
  catch(error){const code=String(error.code||error.message||'');const hint=/429|quota|resource-exhausted/i.test(code)?'Se alcanzó el cupo de Gemini. Revisa las cuotas del proyecto.':/403|permission|app-check/i.test(code)?'Revisa App Check, la clave pública, los dominios y la habilitación de AI Logic.':/404|not-found/i.test(code)?'El modelo no está disponible en este proyecto. Revisa el acceso a Gemini 3.8 Flash.':'Revisa la conexión, AI Logic y App Check.';const detail=String(error?.message||error?.error?.message||error||'Sin detalle').replace(/https?:\/\/\S+/g,'[servicio de Google]').replace(/AIza[\w-]+/g,'[clave pública]').slice(0,400);status.textContent='No se confirmó la conexión con Gemini. '+hint+' Grafibot puede seguir en modo local. Detalle: '+detail;}
  finally{button.disabled=false;}
 });
@@ -460,7 +462,7 @@ async function saveSiteSettings(e){
  const autoPrices={};root.querySelectorAll('[data-rate-key]').forEach(input=>{if(input.value==='')return;const n=Number(input.value);if(!Number.isFinite(n)||n<0)throw Error('Revisa las tarifas: usa números mayores o iguales a cero.');autoPrices[input.dataset.rateKey]=n});
  const faqContent=faqDraft.filter(item=>item.question.trim()).map(item=>({question:item.question.trim(),answer:item.answer}));
  const serviceImages={};root.querySelectorAll('[data-service-image]').forEach(input=>serviceImages[input.dataset.serviceImage]=httpsLink(input.value));
- const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim()};
+ const grafibotAI={enabled:root.querySelector('#gp-ai-enabled').checked,siteKey:root.querySelector('#gp-ai-sitekey').value.trim(),model:aiConfig({model:root.querySelector('#gp-ai-model').value}).model};
  if(grafibotAI.siteKey.startsWith('AIza')||(grafibotAI.enabled&&!/^[\w-]{20,200}$/.test(grafibotAI.siteKey)))throw Error('Para activar IA, configura la clave pública de sitio reCAPTCHA Enterprise registrada en App Check. No uses una clave privada de Gemini.');
  const catalogTexts=JSON.parse(JSON.stringify(cloudConfig.catalogTexts||{}));root.querySelectorAll('[data-product-copy]').forEach(input=>{const id=input.dataset.productCopy;catalogTexts[id]||={};if(input.dataset.copyField==='image'&&!input.value.trim())delete catalogTexts[id].image;else catalogTexts[id][input.dataset.copyField]=input.dataset.copyField==='image'?httpsLink(input.value):input.value;});
  const services=servicesDraft.map(item=>({...item,name:item.name.trim(),image:httpsLink(item.image),photos:(item.photos||[]).map(v=>httpsLink(v)).filter(Boolean)}));if(services.some(item=>!item.name))throw Error("Escribe el nombre de cada servicio.");const heroImage=httpsLink(root.querySelector("#gp-hero-image").value);

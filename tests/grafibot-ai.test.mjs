@@ -4,9 +4,9 @@ import {aiConfig,buildContext,createAssistant,interpretAI,quoteReply,makePrompt}
 import {responseSchema} from '../assets/v1/grafibot-ai.js';
 const context=()=>buildContext({grafibotAI:{enabled:true,siteKey:'public-site-key-test-123456789'},autoPrices:{A4_1c_bn_menor:.1,A4_2c_bn_menor:.15,anillado_1:2},faqContent:[{question:'¿Aceptan Yape?',answer:'Sí, aceptamos Yape.'}]},{services:['Impresiones','Planos'],hours:'Lunes a sábado 9–19',location:'Frente a UNHEVAL'});
 const params={service:'impresion',format:'A4_1c',color:'bn',quantity:20,unit:'paginas'};
-test('AI requires explicit activation and a public App Check site key; model is pinned',()=>{
+test('AI requires explicit activation and a public App Check site key; model is allowlisted',()=>{
  assert.equal(aiConfig().enabled,false);assert.equal(aiConfig(null).enabled,false);assert.equal(aiConfig({enabled:true,siteKey:'AIza-not-a-public-recaptcha-site-key'}).enabled,false);assert.equal(aiConfig({enabled:true,siteKey:'invalid'}).enabled,false);
- assert.equal(aiConfig({enabled:true,siteKey:'public-site-key-test-123456789',model:'expensive'}).model,'gemini-3.8-flash');
+ assert.equal(aiConfig({enabled:true,siteKey:'public-site-key-test-123456789',model:'expensive'}).model,'gemini-3.5-flash-lite');
 });
 test('common factual queries and complete basic quotes make zero AI requests',async()=>{
  let calls=0;const bot=createAssistant({getContext:context,generate:()=>{calls++;throw Error();}});

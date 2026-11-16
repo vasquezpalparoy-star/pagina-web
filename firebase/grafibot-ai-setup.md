@@ -1,6 +1,6 @@
 # Activar Gemini Flash y el respaldo local de Grafibot
 
-La web está preparada para Gemini 3.8 Flash mediante Firebase AI Logic. La conexión real queda confirmada cuando la prueba del panel funciona. No debes colocar claves privadas de Gemini en GitHub ni en la página.
+La web está preparada para Gemini Flash-Lite 3.5 (predeterminado) o Gemini Flash 3.8 mediante Firebase AI Logic. La conexión real queda confirmada cuando la prueba del panel funciona. No debes colocar claves privadas de Gemini en GitHub ni en la página.
 
 ## 1. Preparar Firebase
 
@@ -25,7 +25,7 @@ La web está preparada para Gemini 3.8 Flash mediante Firebase AI Logic. La cone
 2. Entra a **Configuración** con tu cuenta de propietario.
 3. Abre **Grafibot · inteligencia artificial**.
 4. Pega la clave pública de sitio reCAPTCHA Enterprise.
-5. Pulsa **Probar conexión con Gemini**. Consume una solicitud real. Debe mostrar **Conexión comprobada**.
+5. Selecciona **Gemini Flash-Lite** para menor latencia o **Gemini Flash** si necesitas mayor capacidad. Pulsa **Probar conexión con Gemini**. Consume una solicitud real. Debe mostrar **Conexión comprobada**.
 6. Marca **Activar Gemini para Grafibot** y pulsa **Guardar cambios**.
 7. Recarga y abre el chat. Las preguntas reconocidas se atienden localmente; las que necesitan interpretación usan Gemini. El indicador diferencia ambos modos.
 
@@ -64,7 +64,7 @@ Con la página ya abierta y los datos cargados puede seguir calculando si se cor
 | --- | --- |
 | 403 / permisos / App Check | Proyecto, app web, clave pública, dominios y protección de AI Logic. Comprueba bloqueadores de reCAPTCHA. |
 | 429 / cuota | Cupo por minuto/día y capacidad del modelo. El modo local puede seguir funcionando. |
-| 404 / modelo | Disponibilidad de Gemini 3.8 Flash para el proveedor y proyecto. |
+| 404 / modelo | Disponibilidad del modelo seleccionado para el proveedor y proyecto. |
 | Red o espera | Conectividad y carga de SDK de Google/reCAPTCHA. |
 | Precio por confirmar | Tarifas o rangos incompletos: se corrige en el cotizador. |
 
@@ -80,3 +80,5 @@ Referencias oficiales:
 - https://firebase.google.com/docs/ai-logic/app-check
 - https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider
 - https://firebase.google.com/docs/ai-logic/quotas
+
+La prueba indica las fases: carga de Google, verificación de App Check y respuesta del modelo. Un error de App Check detiene la llamada antes de enviar consultas a Gemini. El SDK valida el token internamente; no se muestra ni se guarda en la configuración.

@@ -1,13 +1,14 @@
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
 import {calculateServiceQuote,defaultQuoteServices} from './quote-ranges.mjs';
 
-export const AI_MODEL='gemini-3.8-flash';
+export const AI_MODEL='gemini-3.5-flash-lite';
+export const AI_MODELS=['gemini-3.5-flash-lite','gemini-3.8-flash'];
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 const handoff=(answer,state=null)=>({answer,state,handoff:true});
 export function aiConfig(value={}) {
  if(!value||typeof value!=='object')value={};
  const siteKey=String(value.siteKey||'').trim();
- return {enabled:value.enabled===true&&/^[\w-]{20,200}$/.test(siteKey)&&!siteKey.startsWith('AIza'),siteKey:siteKey.startsWith('AIza')?'':siteKey,model:AI_MODEL};
+ return {enabled:value.enabled===true&&/^[\w-]{20,200}$/.test(siteKey)&&!siteKey.startsWith('AIza'),siteKey:siteKey.startsWith('AIza')?'':siteKey,model:AI_MODELS.includes(value.model)?value.model:AI_MODEL};
 }
 export function buildContext(data={},page={}) {
  return {ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},wholesaleThresholds:data.wholesaleThresholds||{},quoteServices:Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices(),phone:/^\d{7,15}$/.test(data.contactPhone||'')?data.contactPhone:'51916133647',prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
@@ -163,7 +164,7 @@ export function createAssistant({generate,getContext,now=()=>Date.now(),isOnline
   inflight=true;lastCall=now();
   try{
    let timer;
-   const raw=await Promise.race([Promise.resolve().then(()=>generate(makePrompt(message,context,state),context.ai)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('ai-timeout')),48000)})]).finally(()=>clearTimeout(timer));
+   const raw=await Promise.race([Promise.resolve().then(()=>generate(makePrompt(message,context,state),context.ai)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('ai-timeout')),55000)})]).finally(()=>clearTimeout(timer));
    const result=interpretAI(typeof raw==='string'?JSON.parse(raw):raw,context,state);state=result.state??null;return {...result,mode:'ai'};
   }catch(error){const hints=String(error?.message||'').match(/ai-timeout|Failed to fetch|fetch dynamically imported module|403|404|429|API_KEY_INVALID|PERMISSION_DENIED|RESOURCE_EXHAUSTED|recaptcha[^: .]*/gi)||[];console.warn('[Grafibot] Conexión IA:',String(error?.code||error?.name||'error'),hints.join(' · '));offlineUntil=now()+60000;const result=localFallback(message,context);state=result.state??state;return {...result,answer:'Estoy atendiendo en modo local. '+result.answer,mode:'unavailable'};}
   finally{inflight=false;}
