@@ -29,3 +29,6 @@ body.gp-cart-open{overflow:hidden}
 #grafiplot-preview .gp-campaign{border-radius:16px;margin-top:22px}
 #grafiplot-preview .gp-service[data-has-image=true]{color:white}
 #grafiplot-preview .gp-service[data-has-image=true] h3,#grafiplot-preview .gp-service[data-has-image=true] p{color:white}
+
+/* Preserve the uploaded logo transparency in both themes. */
+#grafiplot-preview .gp-header .gp-logo{background:transparent;padding:0;border-radius:0}
