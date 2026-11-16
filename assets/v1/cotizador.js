@@ -10,12 +10,15 @@ export const PREVIEW_FORMATS = [
             ...['A0','A1','A2','A3'].map(size => ({id:'Plano_'+size,label:'Plano '+size,perSheet:1}))
         ];
         const AUTO_EXTRAS = { laminate:'Plastificado / laminado', binding:'Empastado', cut:'Corte / guillotina', design:'Diseño gráfico', urgent:'Recargo urgente (%)' };
-        export function calculatePreviewQuote(q,prices,ranges={}) {
+        export function calculatePreviewQuote(q,prices,ranges={},wholesaleThresholds={}) {
             const format = PREVIEW_FORMATS.find(f=>f.id===q.format) || PREVIEW_FORMATS.find(f=>f.id==='A4_1c');
             const pages = Math.max(1,Math.trunc(Number(q.pages)||1));
             const copies = Math.max(1,Math.trunc(Number(q.copies)||1));
             const sheetsPerCopy = Math.ceil(pages/format.perSheet);
             const sheets = sheetsPerCopy*copies;
+            const minimum=Number(wholesaleThresholds[format.id]);
+            const wholesaleMinimum=Number.isSafeInteger(minimum)&&minimum>=1?minimum:null;
+            const tariff=wholesaleMinimum!==null&&sheets>=wholesaleMinimum?'mayor':'menor';
             const lines=[];
             const add = (key,label,quantity) => {
                 const raw=Array.isArray(ranges[key])&&ranges[key].length?rangePrice(ranges[key],quantity):prices[key];
@@ -23,7 +26,7 @@ export const PREVIEW_FORMATS = [
                 const amount=price !== null && Number.isFinite(price) && price>=0 ? price*quantity : null;
                 lines.push({key,label,quantity,price,amount});
             };
-            add(format.id+'_'+q.color+'_'+q.tariff, 'Impresión · '+sheets+' hojas', sheets);
+            add(format.id+'_'+q.color+'_'+tariff, 'Impresión · '+sheets+' hojas', sheets);
             let volumes=0, sheetsPerVolume=0;
             if(q.binding) {
                 const volumesPerCopy=Math.ceil(sheetsPerCopy/350);
@@ -40,6 +43,6 @@ export const PREVIEW_FORMATS = [
                 if(subtotal===null) lines[lines.length-1].amount=null;
             }
             const ready=lines.every(l=>l.amount!==null);
-            return {format,pages,copies,sheets,sheetsPerCopy,volumes,sheetsPerVolume,lines,ready,total:ready?Math.round(lines.reduce((sum,l)=>sum+l.amount,0)*100)/100:null};
+            return {tariff,wholesaleMinimum,format,pages,copies,sheets,sheetsPerCopy,volumes,sheetsPerVolume,lines,ready,total:ready?Math.round(lines.reduce((sum,l)=>sum+l.amount,0)*100)/100:null};
         }
 
