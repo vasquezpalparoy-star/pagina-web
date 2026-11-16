@@ -6,7 +6,7 @@ const context=()=>buildContext({grafibotAI:{enabled:true,siteKey:'public-site-ke
 const params={service:'impresion',format:'A4_1c',color:'bn',quantity:20,unit:'paginas'};
 test('AI requires explicit activation and a public App Check site key; model is pinned',()=>{
  assert.equal(aiConfig().enabled,false);assert.equal(aiConfig(null).enabled,false);assert.equal(aiConfig({enabled:true,siteKey:'AIza-not-a-public-recaptcha-site-key'}).enabled,false);assert.equal(aiConfig({enabled:true,siteKey:'invalid'}).enabled,false);
- assert.equal(aiConfig({enabled:true,siteKey:'public-site-key-test-123456789',model:'expensive'}).model,'gemini-2.5-flash-lite');
+ assert.equal(aiConfig({enabled:true,siteKey:'public-site-key-test-123456789',model:'expensive'}).model,'gemini-3.8-flash');
 });
 test('common factual queries and complete basic quotes make zero AI requests',async()=>{
  let calls=0;const bot=createAssistant({getContext:context,generate:()=>{calls++;throw Error();}});
