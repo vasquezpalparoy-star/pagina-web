@@ -1,7 +1,7 @@
 import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
-import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=visual1';
+import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
 import {updateBotContext} from './grafibot-context.js?v=visual1';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
@@ -14,10 +14,11 @@ cartDialog.addEventListener('close',()=>{document.body.classList.remove('gp-cart
 cartDialog.addEventListener('click',event=>{if(event.target!==cartDialog)return;const rect=cartDialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeCart()});
 root.querySelector('#gp-cart-nav').setAttribute('aria-controls','gp-cart-dialog');root.querySelector('#gp-cart-nav').setAttribute('aria-haspopup','dialog');root.querySelector('#gp-cart-nav').setAttribute('aria-expanded','false');
 const go=id=>{if(id==='gp-cart'){openCart();return}root.querySelector('#'+id).scrollIntoView({behavior:'smooth',block:'start'})};root.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));root.querySelectorAll('[data-service]').forEach(b=>b.addEventListener('click',()=>{root.querySelector('#gp-selected').textContent='Servicio seleccionado: '+b.dataset.service;go('gp-quote')}));        const update=()=>{
- const r=calculatePreviewQuote({pages:root.querySelector('#gp-pages').value,copies:root.querySelector('#gp-copies').value,format:root.querySelector('#gp-format').value,color:root.querySelector('#gp-color').value,tariff:root.querySelector('#gp-tariff').value,binding:root.querySelector('#gp-binding').checked,extra:root.querySelector('#gp-extra').value,design:root.querySelector('#gp-design').checked,urgent:root.querySelector('#gp-urgent').checked,spiral:'Negro'},quotePrices,cloudConfig.autoPriceRanges||{});
+ const r=calculatePreviewQuote({pages:root.querySelector('#gp-pages').value,copies:root.querySelector('#gp-copies').value,format:root.querySelector('#gp-format').value,color:root.querySelector('#gp-color').value,tariff:root.querySelector('#gp-tariff').value,binding:root.querySelector('#gp-binding').checked,extra:root.querySelector('#gp-extra').value,design:root.querySelector('#gp-design').checked,urgent:root.querySelector('#gp-urgent').checked,spiral:'Negro'},quotePrices,cloudConfig.autoPriceRanges||{},cloudConfig.wholesaleThresholds||{});
  root.querySelector('#gp-sheets').textContent=r.sheets+' hojas';
+ const tariffSelect=root.querySelector('#gp-tariff');tariffSelect.value=r.tariff;tariffSelect.disabled=true;tariffSelect.title='Tarifa automática según las hojas físicas del formato';
  lastQuote=r;root.querySelector('#gp-price').textContent=r.ready?'S/ '+r.total.toFixed(2):'Por confirmar';
- root.querySelector('#gp-price-hint').textContent=r.ready?'Según tarifas configuradas':'Completa las tarifas';
+ root.querySelector('#gp-price-hint').textContent=(r.tariff==='mayor'?'Precio por mayor':'Precio por menor')+' · '+(r.wholesaleMinimum?'Mayor desde '+r.wholesaleMinimum+' hojas físicas':'Mínimo por mayor sin configurar')+(r.ready?'':' · Precio por confirmar');
 } ;root.querySelectorAll('.gp-fields input,.gp-fields select').forEach(e=>e.addEventListener('input',update));const searchInput=root.querySelector('#gp-search-input');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const searchEntries=[...Array.from(root.querySelectorAll('.gp-service')).map((e,i)=>{e.id='gp-service-'+i;return {title:e.dataset.service,type:'Servicio',terms:e.textContent,target:e.id}}),...Array.from(root.querySelectorAll('.gp-work')).map(e=>({title:e.querySelector('h3').textContent,type:'Galería de trabajos',terms:e.dataset.search,target:e.id})),...Array.from(root.querySelectorAll('.gp-product')).map((e,i)=>{e.id='gp-product-'+i;return {title:e.querySelector('h3').textContent,type:'Producto',terms:e.textContent,target:e.id}})];
