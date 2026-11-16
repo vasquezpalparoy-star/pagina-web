@@ -9,7 +9,7 @@ async function loadSDK(){
  ]).then(parts=>Object.assign({},...parts)).catch(error=>{sdkPromise=null;throw error;}));
 }
 export function responseSchema(Schema){
- const properties={intent:Schema.enumString({enum:['quote','faq','hours','location','services','greeting','handoff']}),faqIndex:Schema.integer(),newQuote:Schema.boolean(),
+ const properties={intent:Schema.enumString({enum:['product','quote','faq','hours','location','services','greeting','handoff']}),productId:Schema.string(),faqIndex:Schema.integer(),newQuote:Schema.boolean(),
   serviceId:Schema.string(),serviceFormat:Schema.string(),service:Schema.enumString({enum:['impresion','planos','otro']}),format:Schema.string(),color:Schema.enumString({enum:['color','bn']}),quantity:Schema.integer(),unit:Schema.enumString({enum:['paginas','hojas']}),copies:Schema.integer(),tariff:Schema.enumString({enum:['menor','mayor']}),binding:Schema.boolean(),extra:Schema.enumString({enum:['none','laminate','binding','cut']}),design:Schema.boolean(),urgent:Schema.boolean()};
  return Schema.object({properties,optionalProperties:Object.keys(properties).filter(k=>k!=='intent')});
 }

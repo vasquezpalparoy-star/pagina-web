@@ -1,9 +1,9 @@
-import {aiConfig} from './grafibot-core.mjs?v=flash-repair6';
+import {aiConfig} from './grafibot-core.mjs?v=catalog7';
 import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
-import {updateBotContext} from './grafibot-context.js?v=flash-repair6';
+import {updateBotContext} from './grafibot-context.js?v=catalog7';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -304,7 +304,7 @@ root.querySelector('#gp-gallery-add').addEventListener('click',()=>{galleryDraft
 root.querySelector('#gp-faq-add').addEventListener('click',()=>{faqDraft.push({question:'',answer:''});renderFaqEditor()});
 renderFaqContent();renderGalleryEditor();renderFaqEditor();renderRateEditor();
 
-let cloudConfig={},cloudReady=false,settingsRef=null,siteDb=null,siteAuth=null,inventoryItems=[],inventorySourceItems=[],siteProducts=[],cart=[];
+let cloudConfig={},cloudReady=false,settingsRef=null,siteDb=null,siteAuth=null,inventoryConfirmed=false,inventoryItems=[],inventorySourceItems=[],siteProducts=[],cart=[];
 function mergeSiteProducts(){inventoryItems=[...inventorySourceItems,...siteProducts.map(p=>({...p,isService:false,bulkPrice:p.price,measureUnit:'unidades',createdAt:0}))]}
 
 let lastQuote=null;
@@ -437,13 +437,13 @@ function loadCloudConfig(data){
  publishBotContext();
  window.dispatchEvent(new window.CustomEvent('gp-config-loaded',{detail:cloudConfig}));
 }
-function publishBotContext(){updateBotContext(cloudConfig,{faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
+function publishBotContext(){updateBotContext(cloudConfig,{products:inventoryItems.map(p=>({...p,...(cloudConfig.catalogTexts?.[p.id]||{})})),catalogConfirmed:inventoryConfirmed,faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
 root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
  const button=root.querySelector('#gp-ai-test'),status=root.querySelector('#gp-ai-test-status');
  const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();
  if(!/^[\w-]{20,200}$/.test(siteKey)||siteKey.startsWith('AIza')){status.textContent='Primero registra App Check e ingresa la clave pública de sitio reCAPTCHA Enterprise.';return;}
  button.disabled=true;status.textContent='Comprobando App Check y Gemini…';
- try{const {generateWithGemini}=await import('./grafibot-ai.js?v=flash-repair6');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:root.querySelector('#gp-ai-model').value,onStatus:text=>status.textContent=text}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
+ try{const {generateWithGemini}=await import('./grafibot-ai.js?v=catalog7');const response=JSON.parse(await generateWithGemini('Devuelve únicamente {"intent":"greeting"}.',{enabled:true,siteKey,model:root.querySelector('#gp-ai-model').value,onStatus:text=>status.textContent=text}));if(response.intent!=='greeting')throw Error('invalid');status.textContent='Conexión comprobada. Puedes activar Gemini y guardar los cambios. Esta prueba consume una solicitud.';}
  catch(error){const code=String(error.code||error.message||'');const hint=/429|quota|resource-exhausted/i.test(code)?'Se alcanzó el cupo de Gemini. Revisa las cuotas del proyecto.':/403|permission|app-check/i.test(code)?'Revisa App Check, la clave pública, los dominios y la habilitación de AI Logic.':/404|not-found/i.test(code)?'El modelo no está disponible en este proyecto. Revisa el acceso a Gemini 3.8 Flash.':'Revisa la conexión, AI Logic y App Check.';const detail=String(error?.message||error?.error?.message||error||'Sin detalle').replace(/https?:\/\/\S+/g,'[servicio de Google]').replace(/AIza[\w-]+/g,'[clave pública]').slice(0,400);status.textContent='No se confirmó la conexión con Gemini. '+hint+' Grafibot puede seguir en modo local. Detalle: '+detail;}
  finally{button.disabled=false;}
 });
@@ -560,7 +560,7 @@ function renderCatalog(){
  });
  const status=root.querySelector('#gp-catalog-status');status.textContent=inventoryItems.length?inventoryItems.length+' productos y servicios en el catálogo.':'No hay productos disponibles por el momento.';
  const notice=root.querySelector('#gp-catalog-note');notice.textContent='Consulta disponibilidad y condiciones de los precios por mayor.';
- renderCart();window.dispatchEvent(new window.Event('gp-catalog-rendered'));if(searchInput.value.trim())search();
+ publishBotContext();renderCart();window.dispatchEvent(new window.Event('gp-catalog-rendered'));if(searchInput.value.trim())search();
 }
 function updateCartSummary(){window.dispatchEvent(new window.CustomEvent('gp-delivery-changed',{detail:cart.map(({name,quantity,price})=>({name,quantity,price}))}));root.querySelector('#gp-cart-count').textContent=cart.reduce((sum,item)=>sum+item.quantity,0);root.querySelector('#gp-cart-total').textContent=money(cart.reduce((sum,item)=>sum+item.price*item.quantity,0));}
 function renderCart(){window.dispatchEvent(new window.CustomEvent('gp-delivery-changed',{detail:cart.map(({name,quantity,price})=>({name,quantity,price}))}));
@@ -598,8 +598,8 @@ async function connectInventory(){
  const {initializeApp,getAuth,signInAnonymously,getFirestore,doc,onSnapshot,collection}=await loadFirebase();
  const app=initializeApp(INVENTORY_FIREBASE_CONFIG,'grafiplot-inventory-reader');await signInAnonymously(getAuth(app));
  onSnapshot(collection(getFirestore(app),'inventory'),{includeMetadataChanges:true},snapshot=>{
- inventorySourceItems=snapshot.docs.map(normalizeInventoryProduct);mergeSiteProducts();renderCatalog();if(snapshot.metadata.fromCache)root.querySelector('#gp-catalog-status').textContent='Inventario sin conexión confirmada. Consulta disponibilidad por WhatsApp.';
- },error=>root.querySelector('#gp-catalog-status').textContent='No se pudo cargar el inventario. Consulta disponibilidad por WhatsApp.');
+ inventoryConfirmed=!snapshot.metadata.fromCache;inventorySourceItems=snapshot.docs.map(normalizeInventoryProduct);mergeSiteProducts();renderCatalog();if(snapshot.metadata.fromCache)root.querySelector('#gp-catalog-status').textContent='Inventario sin conexión confirmada. Consulta disponibilidad por WhatsApp.';
+ },error=>{inventoryConfirmed=false;publishBotContext();root.querySelector('#gp-catalog-status').textContent='No se pudo cargar el inventario. Consulta disponibilidad por WhatsApp.';});
  }catch(error){root.querySelector('#gp-catalog-status').textContent='No se pudo conectar al inventario. Consulta por WhatsApp.'}
 }
 
