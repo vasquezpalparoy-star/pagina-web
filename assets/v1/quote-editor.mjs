@@ -1,8 +1,9 @@
+import {PREVIEW_FORMATS} from './cotizador.js?v=wholesale1';
 import {defaultQuoteServices,validateQuoteServices,validateRanges,calculateServiceQuote} from './quote-ranges.mjs';
 export function initQuoteEditor(root){
  const doc=root.ownerDocument,win=doc.defaultView,form=root.querySelector('#gp-quote .gp-form'),rates=root.querySelector('#gp-rates-editor');
  if(!form||!rates)return;
- let services=defaultQuoteServices(),printingRanges={},config={},owner=false;
+ let services=defaultQuoteServices(),printingRanges={},config={},owner=false,wholesaleThresholds={};
  const make=(tag,text)=>{const e=doc.createElement(tag);if(text)e.textContent=text;return e};
  const notify=()=>{root.querySelector('#gp-settings-editor').dispatchEvent(new win.Event('input',{bubbles:true}));update()};
  const id=()=>crypto.randomUUID();
@@ -31,6 +32,8 @@ export function initQuoteEditor(root){
  }
  function renderAdmin(){
   body.replaceChildren();
+  const thresholds=make('details');thresholds.open=true;thresholds.append(make('summary','Precio por mayor automático · hojas físicas por formato'),make('p','Cuenta hojas físicas totales: hojas por ejemplar × ejemplares. El mínimo se incluye. Vacío mantiene precio por menor. Configura también las tarifas por mayor.'));
+  PREVIEW_FORMATS.forEach(format=>{const field=input(wholesaleThresholds[format.id],'number',value=>{wholesaleThresholds[format.id]=value});field.min='1';field.step='1';field.placeholder='Sin configurar';thresholds.append(label(format.label+' · mayor desde (hojas físicas)',field))});body.append(thresholds);
   services.forEach((service,index)=>{
    const box=make('details');box.className='gp-quote-service-editor';box.append(make('summary',service.name));
    box.append(label('Nombre del servicio',input(service.name,'text',value=>{service.name=value;box.querySelector('summary').textContent=value;refreshChoices()})),label('Unidad (hoja, plano, unidad…)',input(service.unit,'text',value=>service.unit=value)));
@@ -70,12 +73,12 @@ export function initQuoteEditor(root){
   try{const q=currentQuote();const total=q.total===null?'Por confirmar':'S/ '+q.total.toFixed(2);const text='Hola Grafiplot, solicito cotización de '+q.service+'\nFormato: '+q.format+'\nCantidad: '+q.quantity+' '+q.unit+'(s)\nPrecio unitario: '+(q.price===null?'Por confirmar':'S/ '+q.price.toFixed(2))+'\nTotal estimado: '+total;win.open('https://wa.me/51916133647?text='+encodeURIComponent(text),'_blank','noopener,noreferrer')}
   catch(error){result.textContent=error.message}
  },true);
- function load(data={}){config=data;services=structuredClone(Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices());printingRanges=structuredClone(data.autoPriceRanges||{});rates.querySelectorAll('.gp-printing-ranges').forEach(e=>e.remove());rates.querySelectorAll('[data-ranges-ready]').forEach(e=>delete e.dataset.rangesReady);renderAdmin();refreshChoices()}
+ function load(data={}){config=data;wholesaleThresholds=structuredClone(data.wholesaleThresholds||{});services=structuredClone(Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices());printingRanges=structuredClone(data.autoPriceRanges||{});rates.querySelectorAll('.gp-printing-ranges').forEach(e=>e.remove());rates.querySelectorAll('[data-ranges-ready]').forEach(e=>delete e.dataset.rangesReady);renderAdmin();refreshChoices()}
  win.addEventListener('gp-config-loaded',event=>load(event.detail));
  win.addEventListener('gp-owner-save',event=>{if(event.detail==='saved')setTimeout(update,0)});
  win.addEventListener('gp-owner-session',event=>{owner=!!event.detail;manage.hidden=!owner});
  const observer=new win.MutationObserver(records=>{if(records.some(r=>r.type==='childList'))attachPrintingRanges()});observer.observe(rates,{childList:true,subtree:true});
- win.GrafiplotAddons||={};win.GrafiplotAddons.quotes={value(){return {quoteServices:validateQuoteServices(services),autoPriceRanges:Object.fromEntries(Object.entries(printingRanges).map(([key,rows])=>[key,validateRanges(rows)]))}},load};
+ win.GrafiplotAddons||={};win.GrafiplotAddons.quotes={value(){const minima={};for(const format of PREVIEW_FORMATS){const raw=wholesaleThresholds[format.id];if(raw===''||raw==null)continue;const n=Number(raw);if(!Number.isSafeInteger(n)||n<1)throw Error('El mínimo por mayor de '+format.label+' debe ser un número entero de hojas mayor a cero.');minima[format.id]=n}return {wholesaleThresholds:minima,quoteServices:validateQuoteServices(services),autoPriceRanges:Object.fromEntries(Object.entries(printingRanges).map(([key,rows])=>[key,validateRanges(rows)]))}},load};
  load(win.GrafiplotPage?.config||{});return {load,currentQuote};
 }
 if(typeof document!=='undefined'){const root=document.getElementById('grafiplot-preview');if(root)initQuoteEditor(root)}
