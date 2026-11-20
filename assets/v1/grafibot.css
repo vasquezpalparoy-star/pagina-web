@@ -56,3 +56,19 @@
 #gp-grafibot .gb-quote-form [hidden]{display:none!important}
 @media(max-width:600px){#gp-grafibot .gb-form-message{max-width:100%}#gp-grafibot .gb-quote-form{padding:10px}#gp-grafibot .gb-qf-title{margin:-10px -10px 0}#gp-grafibot .gb-qf-field select,#gp-grafibot .gb-qf-field input{font-size:16px}}
 @media(max-width:340px){#gp-grafibot .gb-qf-grid{grid-template-columns:1fr}}
+
+/* Delivery status, compact enough for mobile messaging. */
+#gp-grafibot .gb-track-form,#gp-grafibot .gb-track-card{margin-top:10px;background:var(--gb-bg);border:1px solid var(--gb-border);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;color:var(--gb-text)}
+#gp-grafibot .gb-track-form label{display:grid;gap:6px;font-size:13px;font-weight:600}
+#gp-grafibot .gb-track-form input{width:100%;min-width:0;color:var(--gb-text);background:var(--gb-surface);border:1px solid var(--gb-border);border-radius:8px;font:inherit;font-size:16px;padding:10px}
+#gp-grafibot .gb-track-form button,#gp-grafibot .gb-track-card button{background:#b40b26;color:white;border:0;border-radius:9px;min-height:42px;font-weight:700;padding:10px;cursor:pointer}
+#gp-grafibot .gb-track-card h4{margin:-12px -12px 0;padding:11px 13px;background:#b40b26;color:white;border-radius:11px 11px 0 0;font-size:16px}
+#gp-grafibot .gb-track-content{display:flex;flex-direction:column;gap:8px}
+#gp-grafibot .gb-track-content small{color:var(--gb-muted);font-size:12px}
+#gp-grafibot .gb-track-current{font-size:19px;color:var(--gb-text)}
+#gp-grafibot .gb-track-steps{list-style:none;padding:0;margin:0;display:grid;gap:0}
+#gp-grafibot .gb-track-steps li{position:relative;padding:7px 8px 7px 32px;min-height:36px;color:var(--gb-muted);font-size:14px}
+#gp-grafibot .gb-track-steps li::before{content:'○';position:absolute;left:8px;top:5px;font-size:20px;line-height:24px}
+#gp-grafibot .gb-track-steps li.gb-step-done::before{content:'✓';color:#21b878;font-weight:900}
+#gp-grafibot .gb-track-steps li.gb-step-current{background:var(--gb-surface);border-radius:8px;color:var(--gb-text);font-weight:800}
+#gp-grafibot .gb-track-steps li.gb-step-current::before{content:'●';color:#e53950}

@@ -1,4 +1,4 @@
-import {knowledgeReply,publicKnowledge} from './grafibot-knowledge.mjs?v=pro1';
+import {knowledgeReply,publicKnowledge} from './grafibot-knowledge.mjs?v=trackingchat3';
 import {publicProducts,productReply,productAnswer,productNamed} from './grafibot-products.mjs?v=quotechat2';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
 import {calculateServiceQuote,defaultQuoteServices} from './quote-ranges.mjs';

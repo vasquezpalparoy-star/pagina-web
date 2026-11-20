@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/delivery-core.test.mjs tests/delivery-ui.test.mjs tests/grafibot-ai.test.mjs tests/grafibot-local.test.mjs tests/grafibot-connection.test.mjs tests/grafibot-products.test.mjs tests/grafibot-pro.test.mjs tests/grafibot-quote-chat.test.mjs",
+    "test": "node --test tests/delivery-core.test.mjs tests/delivery-ui.test.mjs tests/grafibot-ai.test.mjs tests/grafibot-local.test.mjs tests/grafibot-connection.test.mjs tests/grafibot-products.test.mjs tests/grafibot-pro.test.mjs tests/grafibot-quote-chat.test.mjs tests/grafibot-tracking.test.mjs",
     "test:delivery:rules": "firebase emulators:exec --config firebase/delivery-emulator.json --project demo-grafiplot-delivery --only firestore 'node --test tests/delivery-rules.test.mjs'",
     "test:settings": "node --test tests/settings-auth.test.mjs tests/settings-ui.test.mjs",
     "test:settings:rules": "firebase emulators:exec --config firebase/delivery-emulator.json --project demo-grafiplot-delivery --only firestore \"node --test --test-concurrency=1 tests/settings-rules.test.mjs tests/delivery-rules.test.mjs\"",
