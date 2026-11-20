@@ -1,5 +1,6 @@
-import {createAssistant} from './grafibot-core.mjs?v=pro1';
-import {getBotContext} from './grafibot-context.js?v=pro1';
+import {quoteForm} from './grafibot-quote-form.mjs?v=quotechat2';
+import {createAssistant} from './grafibot-core.mjs?v=quotechat2';
+import {getBotContext} from './grafibot-context.js?v=quotechat2';
 import {generateWithGemini} from './grafibot-ai.js?v=contact8';
 const root=document.getElementById('gp-grafibot');
 const panel=root.querySelector('#gp-grafibot-panel'),toggle=root.querySelector('#gp-grafibot-toggle'),close=root.querySelector('#gb-close'),form=root.querySelector('#gb-form'),field=root.querySelector('#gb-input'),messages=root.querySelector('#gb-messages'),thought=root.querySelector('#gb-thought'),wolf=root.querySelector('#gb-wolf');
@@ -20,9 +21,25 @@ function additions(parent,result){
 }
 const money=value=>new Intl.NumberFormat('es-PE',{style:'currency',currency:'PEN'}).format(value);
 function quoteCard(parent,q){const card=document.createElement('div');card.className='gb-quote';const title=document.createElement('strong');title.textContent='Cotización de referencia';card.append(title);let total=0;const details=[];for(const item of q.items){const p=document.createElement('div');p.textContent=`${item.qty} ${item.unit} · ${item.name} · ${money(item.price)} c/u`;card.append(p);total+=item.qty*item.price;details.push(p.textContent)}const amount=document.createElement('span');amount.className='gb-total';amount.textContent=money(Number.isFinite(q.total)?q.total:Math.round(total*100)/100);card.append(amount);const note=document.createElement('small');note.textContent=q.notes;card.append(note);link(card,'Hola, quisiera confirmar esta cotización de Grafibot:\n'+details.join('\n')+'\nTotal estimado: '+money(Number.isFinite(q.total)?q.total:Math.round(total*100)/100),'Consultar esta cotización');parent.prepend(card)}
+function addQuoteForm(parent,initial){
+ parent.classList.add('gb-form-message');
+ quoteForm(parent,initial,getBotContext(),(input,label)=>{
+  if(busy)return false;
+  bubble('user',label);
+  let result;try{result=assistant.submitQuote(input)}catch{result={answer:'No se pudo calcular esta combinación. Verifica los datos o consulta por WhatsApp.',handoff:true,state:input}}
+  state=result.state;
+  const d=bubble('assistant',result.answer);
+  if(result.quote)quoteCard(d,result.quote);
+  else if(result.handoff)link(d,'Hola, quisiera consultar esta cotización: '+label);
+  else if(result.quoteForm)addQuoteForm(d,state);
+  if(result.quote){const again=document.createElement('button');again.type='button';again.className='gb-qf-again';again.textContent='Nueva cotización';again.onclick=()=>void send('cotizar');d.append(again)}
+  thought.textContent=result.quote?'¡Tu cotización está lista!':'Revisa los datos de la cotización.';
+  messages.scrollTop=messages.scrollHeight;return true;
+ });
+}
 async function send(value){const text=value.trim();if(!text||busy)return;busy=true;field.value='';bubble('user',text);for(const b of root.querySelectorAll('[data-gb-query],#gb-send,#gb-reset'))b.disabled=true;thought.textContent='GrafiBot está escribiendo…';root.classList.add('gb-typing');let result;
-try{result=await assistant.reply(text);state=result.state;const d=bubble('assistant',result.answer);additions(d,result);if(result.quote)quoteCard(d,result.quote);else if(result.handoff)link(d,'Hola, necesito ayuda con: '+text+'\n'+(state?'Datos de la cotización: '+JSON.stringify(state):''));thought.textContent=result.mode==='unavailable'?'Modo local · cotizador disponible':result.mode==='ai'?'Gemini · '+(result.quote?'cotización lista':'consulta atendida'):result.quote?'¡Tu cotización está lista!':state?'Continúa tu cotización.':'¿Qué más necesitas?';field.placeholder=state?'Escribe tu respuesta…':'Escribe tu pregunta…';}
+try{if(/^(cotizar|nueva cotizacion|nueva cotización)$/i.test(text))assistant.reset();result=await assistant.reply(text);state=result.state;const d=bubble('assistant',result.answer);additions(d,result);if(result.quote)quoteCard(d,result.quote);else if(result.quoteForm&&!result.handoff)addQuoteForm(d,result.state);else if(result.handoff)link(d,'Hola, necesito ayuda con: '+text+'\n'+(state?'Datos de la cotización: '+JSON.stringify(state):''));thought.textContent=result.mode==='unavailable'?'Modo local · cotizador disponible':result.mode==='ai'?'Gemini · '+(result.quote?'cotización lista':'consulta atendida'):result.quote?'¡Tu cotización está lista!':state?'Continúa tu cotización.':'¿Qué más necesitas?';field.placeholder=state?'Escribe tu respuesta…':'Escribe tu pregunta…';}
 catch{const d=bubble('assistant','No pude cargar las respuestas. Inténtalo nuevamente o consulta por WhatsApp.');d.classList.add('gb-fail');link(d,'Hola, necesito ayuda con: '+text);thought.textContent='Puedes consultar por WhatsApp.';}
-finally{busy=false;root.classList.remove('gb-typing');for(const b of root.querySelectorAll('[data-gb-query],#gb-send,#gb-reset'))b.disabled=false;messages.scrollTop=messages.scrollHeight;if(!panel.hidden)field.focus()}}
+finally{busy=false;root.classList.remove('gb-typing');for(const b of root.querySelectorAll('[data-gb-query],#gb-send,#gb-reset'))b.disabled=false;messages.scrollTop=messages.scrollHeight;if(!panel.hidden&&!result?.quoteForm)field.focus()}}
 form.addEventListener('submit',event=>{event.preventDefault();void send(field.value)});field.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();void send(field.value)}});for(const b of root.querySelectorAll('[data-gb-query]'))b.addEventListener('click',()=>void send(b.dataset.gbQuery));
 

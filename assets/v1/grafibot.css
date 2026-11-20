@@ -36,3 +36,23 @@
 #grafiplot-preview[data-appearance=light] #gp-grafibot,body:has(#grafiplot-preview[data-appearance=light]) #gp-grafibot{--gb-bg:#edf0ed;--gb-surface:#f9fafb;--gb-bot:#fff;--gb-user:#d8f8c6;--gb-text:#18232a;--gb-muted:#506168;--gb-border:#cbd5d9;color-scheme:light}
 @media(max-width:600px){#gp-grafibot.gb-open{inset:0;z-index:10000}#gp-grafibot #gp-grafibot-panel,#gp-grafibot.gb-expanded #gp-grafibot-panel{width:100%;height:100dvh;min-height:0;bottom:0;right:0;border-radius:0;border:0}#gp-grafibot #gb-expand{display:none}#gp-grafibot #gb-close{margin-left:auto}#gp-grafibot #gb-messages{padding:14px 10px}#gp-grafibot .gb-message{max-width:91%}#gp-grafibot #gb-form{padding-bottom:max(8px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){#gp-grafibot.gb-typing #gb-thought::after{animation:none}}
+
+/* Quote form embedded in a conversation bubble, using the existing theme. */
+#gp-grafibot .gb-form-message{width:100%;max-width:100%}
+#gp-grafibot .gb-quote-form{margin-top:10px;border:1px solid var(--gb-border);border-radius:12px;overflow:hidden;background:var(--gb-bg);color:var(--gb-text);padding:12px;display:flex;flex-direction:column;gap:11px}
+#gp-grafibot .gb-qf-title{margin:-12px -12px 0;background:#b40b26;color:#fff;padding:11px 13px;font-size:16px;font-weight:800}
+#gp-grafibot .gb-qf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#gp-grafibot .gb-qf-field{display:flex;flex-direction:column;gap:4px;color:var(--gb-text);min-width:0;font-size:12px;font-weight:600}
+#gp-grafibot .gb-qf-field span{line-height:1.35}
+#gp-grafibot .gb-qf-field select,#gp-grafibot .gb-qf-field input{font:inherit;font-size:14px;width:100%;min-width:0;min-height:42px;padding:7px 8px;border:1px solid var(--gb-border);border-radius:8px;background:var(--gb-surface);color:var(--gb-text)}
+#gp-grafibot .gb-qf-field select:focus,#gp-grafibot .gb-qf-field input:focus{outline:2px solid #e74454;outline-offset:1px}
+#gp-grafibot .gb-qf-checks{display:flex;flex-wrap:wrap;gap:8px 13px}
+#gp-grafibot .gb-qf-check{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--gb-text)}
+#gp-grafibot .gb-qf-check input{accent-color:#bc0d29;width:17px;height:17px}
+#gp-grafibot .gb-qf-note,#gp-grafibot .gb-qf-status{font-size:11px;color:var(--gb-muted);line-height:1.4}
+#gp-grafibot .gb-qf-status:empty{display:none}
+#gp-grafibot .gb-qf-submit,#gp-grafibot .gb-qf-again{background:linear-gradient(110deg,#d91638,#a80720);border:0;border-radius:9px;color:white;font-weight:750;padding:12px;min-height:42px;font-size:14px}
+#gp-grafibot .gb-qf-again{margin-top:8px;width:100%}
+#gp-grafibot .gb-quote-form [hidden]{display:none!important}
+@media(max-width:600px){#gp-grafibot .gb-form-message{max-width:100%}#gp-grafibot .gb-quote-form{padding:10px}#gp-grafibot .gb-qf-title{margin:-10px -10px 0}#gp-grafibot .gb-qf-field select,#gp-grafibot .gb-qf-field input{font-size:16px}}
+@media(max-width:340px){#gp-grafibot .gb-qf-grid{grid-template-columns:1fr}}

@@ -1,8 +1,12 @@
 // Public catalog only. Prices and stock always come from the current page context.
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/asul/g,'azul').replace(/embaleje/g,'embalaje').replace(/boligrafos?/g,'lapicero').replace(/[^a-z0-9 ]/g,' ').trim();
-const stop=new Set('que cuanto cuesta cuestan precio precios presio presios como es sirve funciona cual descripcion explicar explicame tienen tienes hay venden quiero necesito dame de del la el los las un una unos unas por mayor menor me para y en con vale valen unidades unidad productos producto util utiles insumo insumos'.split(' '));
+const stop=new Set('que cuanto cuesta cuestan precio precios presio presios cotizar cotizacion cotisar cotisacion consulta como es sirve funciona cual descripcion explicar explicame tienen tienes hay venden quiero necesito dame de del la el los las un una unos unas por mayor menor me para y en con vale valen unidades unidad productos producto util utiles insumo insumos'.split(' '));
 const words=s=>norm(s).split(/\s+/).map(w=>w.length>4?w.replace(/s$/,''):w).filter(w=>w&&!stop.has(w)&&!/^\d+$/.test(w));
 const safeImage=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'?u.href:''}catch{return ''}};
+// Generic color, quantity and sheet words are not product names.
+const qualifiers=new Set('azul rojo negro blanca blanco negra verde amarillo amarilla colores color hoja pagina hojas paginas fisica fisicas cara caras a0 a1 a2 a3 a4 a5 a6 a7 grande pequeno pequena nuevo nueva unidad unidades'.split(' '));
+const identity=s=>words(s).filter(w=>!qualifiers.has(w));
+export function productNamed(message,product){const query=new Set(identity(message));return identity(product.name).some(w=>query.has(w))}
 const money=n=>'S/ '+Number(n).toFixed(2);
 export function publicProducts(items=[]){return items.filter(p=>p&&!p.isService&&p.isActive!==false&&p.name).map(p=>({id:String(p.id),name:String(p.name).slice(0,180),description:String(p.description||'').slice(0,500),category:String(p.category||''),image:safeImage(p.image),price:Number(p.price)>0?Number(p.price):null,bulkPrice:Number(p.bulkPrice)>0?Number(p.bulkPrice):null,stock:Number.isFinite(Number(p.stock))?Math.max(0,Math.floor(Number(p.stock))):null,unit:String(p.measureUnit||'unidades')}));}
 export function productAnswer(products,quantity,confirmed=true){
@@ -23,7 +27,7 @@ export function productReply(text,context){
  const n=norm(text),catalog=context.products||[];
  if(/^(catalogo|ver catalogo|utiles|utiles e insumos|productos|que productos tienen|que utiles tienen|insumos)$/.test(n))return productAnswer(catalog,undefined,context.catalogConfirmed)||{answer:'El catálogo todavía no está disponible. Consulta productos por WhatsApp.',handoff:true,state:undefined};
  const query=words(text);if(!query.length)return null;
- const ranked=catalog.map(p=>{const title=words(p.name),all=words(p.name+' '+p.description);const hits=query.filter(w=>all.includes(w));return {p,hits:hits.length,title:query.filter(w=>title.includes(w)).length,score:hits.length/query.length};}).filter(r=>r.title>0&&r.score>=0.6).sort((a,b)=>b.score-a.score||b.title-a.title);
+ const ranked=catalog.map(p=>{const title=words(p.name),all=words(p.name+' '+p.description);const hits=query.filter(w=>all.includes(w));return {p,hits:hits.length,title:query.filter(w=>title.includes(w)).length,score:hits.length/query.length};}).filter(r=>r.title>0&&r.score>=0.6&&productNamed(text,r.p)).sort((a,b)=>b.score-a.score||b.title-a.title);
  if(!ranked.length)return null;
  const best=ranked.filter(r=>r.score===ranked[0].score&&r.title===ranked[0].title).map(r=>r.p);
  if(/-\s*\d|\d+[.,]\d+/.test(String(text)))return {answer:'Indica una cantidad entera positiva, sin decimales ni separadores de miles.',state:undefined};
