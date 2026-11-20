@@ -1,4 +1,5 @@
-import {publicProducts,productReply,productAnswer} from './grafibot-products.mjs?v=contact8';
+import {knowledgeReply,publicKnowledge} from './grafibot-knowledge.mjs?v=pro1';
+import {publicProducts,productReply,productAnswer} from './grafibot-products.mjs?v=pro1';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
 import {calculateServiceQuote,defaultQuoteServices} from './quote-ranges.mjs';
 
@@ -12,7 +13,7 @@ export function aiConfig(value={}) {
  return {enabled:value.enabled===true&&/^[\w-]{20,200}$/.test(siteKey)&&!siteKey.startsWith('AIza'),siteKey:siteKey.startsWith('AIza')?'':siteKey,model:AI_MODELS.includes(value.model)?value.model:AI_MODEL};
 }
 export function buildContext(data={},page={}) {
- return {products:publicProducts(page.products||[]),catalogConfirmed:page.catalogConfirmed===true,ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},wholesaleThresholds:data.wholesaleThresholds||{},quoteServices:Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices(),phone:/^\d{7,15}$/.test(data.contactPhone||'')&&data.contactPhone!=='51916133647'?data.contactPhone:'51952628844',prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
+ return {...publicKnowledge(page),products:publicProducts(page.products||[]),catalogConfirmed:page.catalogConfirmed===true,ai:aiConfig(data.grafibotAI),ranges:data.autoPriceRanges||{},wholesaleThresholds:data.wholesaleThresholds||{},quoteServices:Array.isArray(data.quoteServices)?data.quoteServices:defaultQuoteServices(),phone:/^\d{7,15}$/.test(data.contactPhone||'')&&data.contactPhone!=='51916133647'?data.contactPhone:'51952628844',prices:data.autoPrices&&typeof data.autoPrices==='object'?data.autoPrices:{},
  faqs:(Array.isArray(data.faqContent)?data.faqContent:page.faqs||[]).slice(0,40).map(f=>({question:String(f.question||'').slice(0,250),answer:String(f.answer||'').slice(0,1500)})),
  services:(page.services||[]).slice(0,20).map(String),location:String(page.location||'Consulta la ubicación en la página.'),hours:String(page.hours||'Consulta los horarios por WhatsApp.')};
 }
@@ -148,6 +149,7 @@ export function createAssistant({generate,getContext,now=()=>Date.now(),isOnline
   if(normalize(message)==='cancelar'){state=null;return {answer:'Cotización cancelada. ¿Qué necesitas consultar?',state:null};}
   const context=getContext();
   if(/(?:\d+[.,]\d+|-\s*\d+)\s*(?:hojas?|ojas?|paginas?|planos?|juegos?|ejemplares?)\b/.test(normalize(message)))return {answer:'Usa cantidades enteras positivas, sin decimales ni separadores de miles. Ejemplo: 1000 páginas.',state,mode:'basic'};
+  const knowledge=knowledgeReply(message,context);if(knowledge)return {...knowledge,state,mode:'basic'};
   const product=productReply(message,context);if(product)return {...product,state,mode:'basic'};
   const local=localReply(message,context);
   if(local){if(local.state!==undefined)state=local.state;return {...local,state,mode:'basic'};}

@@ -3,7 +3,7 @@ import {initLibrary} from './library.mjs?v=library1';
 import {createSettingsAuth,settingsAuthError} from './settings-auth.mjs?v=owner-20261105';
 import {USER_FIREBASE_CONFIG,INVENTORY_FIREBASE_CONFIG,normalizeInventoryProduct} from './config.js';
 import {PREVIEW_FORMATS,calculatePreviewQuote} from './cotizador.js?v=wholesale1';
-import {updateBotContext} from './grafibot-context.js?v=contact8';
+import {updateBotContext} from './grafibot-context.js?v=pro1';
 let firebaseSdkPromise;const loadFirebase=()=>firebaseSdkPromise||(firebaseSdkPromise=import('./firebase.js?v=videos-verify1'));
 const setDoc=async(...args)=>(await loadFirebase()).setDoc(...args);
 (()=>{const root=document.getElementById('grafiplot-preview');const cartDialog=root.querySelector('#gp-cart-dialog');
@@ -437,7 +437,7 @@ function loadCloudConfig(data){
  publishBotContext();
  window.dispatchEvent(new window.CustomEvent('gp-config-loaded',{detail:cloudConfig}));
 }
-function publishBotContext(){updateBotContext(cloudConfig,{products:inventoryItems.map(p=>({...p,...(cloudConfig.catalogTexts?.[p.id]||{})})),catalogConfirmed:inventoryConfirmed,faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
+function publishBotContext(){updateBotContext(cloudConfig,{products:inventoryItems.map(p=>({...p,...(cloudConfig.catalogTexts?.[p.id]||{})})),catalogConfirmed:inventoryConfirmed,faqs:faqDraft,services:Array.from(root.querySelectorAll('.gp-service h3')).map(e=>e.textContent),serviceDetails:servicesDraft.map(({name,description,image})=>({name,description,image})),videos:cloudConfig.instructionalVideos||[],location:root.querySelector('.gp-hero .gp-location').textContent.trim(),hours:root.querySelectorAll('.gp-detail-row')[1].textContent.trim()});}
 root.querySelector('#gp-ai-test').addEventListener('click',async()=>{
  const button=root.querySelector('#gp-ai-test'),status=root.querySelector('#gp-ai-test-status');
  const siteKey=root.querySelector('#gp-ai-sitekey').value.trim();

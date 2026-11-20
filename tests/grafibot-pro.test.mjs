@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buildContext,createAssistant} from '../assets/v1/grafibot-core.mjs';
+const context=buildContext({}, {serviceDetails:[{name:'Sublimación',description:'Descripción vigente',image:'https://example.org/taza.png'}],videos:[{title:'Anillado paso a paso',category:'Encuadernado'}]});
+const bot=()=>createAssistant({getContext:()=>context,generate:()=>{throw Error('no AI')},isOnline:()=>false});
+test('cuadernillo uses four pages per physical sheet',async()=>{const r=await bot().reply('¿Cómo es un cuadernillo?');assert.match(r.answer,/25 hojas A4/);assert.equal(r.quote,undefined);assert.ok(r.actions.length)});
+test('tools, delivery, videos and live service details',async()=>{const b=bot();assert.match((await b.reply('cómo comprimir PDF')).actions[0].href,/pdf-compressor/);assert.match((await b.reply('estado de mi pedido')).actions[0].href,/gp-delivery-access/);assert.match((await b.reply('videos instructivos')).answer,/Anillado paso a paso/);const s=await b.reply('qué es sublimación');assert.match(s.answer,/Descripción vigente/);assert.equal(s.image.url,'https://example.org/taza.png')});
+test('quote flow is distinct from explanation',async()=>{const r=await bot().reply('cotizar 100 páginas cuadernillo');assert.match(r.answer,/color|negro/)});
