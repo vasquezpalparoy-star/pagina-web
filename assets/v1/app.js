@@ -70,7 +70,7 @@ function applyPreviewConfig(config){
  const texts=config.textsByKey||{};settingsTargets.forEach(target=>{target.node.textContent=typeof texts[target.key]==='string'?texts[target.key]:target.original});
  root.dataset.appearance=window.gpTheme||'light';root.querySelector('#gp-settings-theme').value='dark';
  if(/^#[0-9a-f]{6}$/i.test(config.brand||'')){root.style.setProperty('--gp-red',config.brand);root.querySelector('#gp-settings-brand').value=config.brand}
- if(config.map){try{const url=new URL(config.map);if(url.protocol==='https:'){root.querySelector('.gp-route-card a').href=url.href;root.querySelector('#gp-settings-map').value=url.href}}catch(_){}}
+ if(config.map){try{const url=new URL(config.map);if(url.protocol==='https:'){root.querySelector('.gp-route-card a').href=url.href.replace(/\/$/,'')==='https://maps.app.goo.gl/N1Gic3VsKwBRi9D68'?'https://www.google.com/maps/dir/?api=1&destination=Grafiplot%2C%20Av.%20Universitaria%20606%2C%20Pillco%20Marca%2C%20Hu%C3%A1nuco%2C%20Per%C3%BA&destination_place_id=ChIJ1S63sYnDp5ER8y2wymEoNRc&dir_action=navigate':url.href;root.querySelector('#gp-settings-map').value=url.href}}catch(_){}}
 }
 if(storedPreview&&typeof storedPreview==='object')storedPreview.theme='dark';
 if(!storedPreview||typeof storedPreview!=='object'||Array.isArray(storedPreview))storedPreview={};
