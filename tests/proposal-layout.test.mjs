@@ -14,4 +14,18 @@ assert.equal(document.querySelectorAll('.gp-quote-steps li').length,3);
 assert.ok(document.querySelector('.gp-shop-nav #gp-cart-nav'));
 assert.equal(document.querySelectorAll('#gp-pages').length,1);
 assert.equal(document.querySelector('.gp-promo-toast').hidden,true);
+assert.ok(document.querySelector('#gp-phone-tracking'));
+assert.ok(document.querySelector('#gp-link-tracking'));
+assert.equal(document.querySelector('#gp-link-tracking').closest('details'),null);
+assert.equal(document.querySelector('#gp-link-tracking button').textContent,'Consultar con mi enlace');
+assert.ok(document.querySelector('.gp-tracking-divider'));
+assert.equal(document.querySelector('.gp-tracking-account').getAttribute('href'),'./delivery.html');
+const linkForm=document.querySelector('#gp-link-tracking');
+const token='a'.repeat(64);let destination='';
+context.location={assign(value){destination=value}};context.URL=URL;
+linkForm.onsubmit({preventDefault(){},target:{elements:{tracking:{value:'https://www.grafiplotvasquez.com/delivery-track.html#'+token}}}});
+assert.equal(destination,'./delivery-track.html#'+token);
+linkForm.onsubmit({preventDefault(){},target:{elements:{tracking:{value:'enlace incorrecto'}}}});
+assert.match(linkForm.querySelector('.gp-track-error').textContent,/Pega el enlace completo/);
+
 });
